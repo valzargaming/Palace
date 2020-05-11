@@ -12,4 +12,11 @@ token.php
 connect.php
 palace_connect.php
 guild_config.php
-/vendor
+vendor
+vendor/*
+guilds
+guilds/*
+users
+users/*
+tmp
+tmp/*
