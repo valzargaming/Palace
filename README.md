@@ -2,7 +2,7 @@
 
 Invite link: https://discord.com/oauth2/authorize?client_id=662093882795753482&scope=bot&permissions=8
 
-Bot Github: https://github.com/valzargaming/Palace
+Yasmin Github: https://github.com/valzargaming/Yasmin
 
 Bot help: https://discord.gg/vNntRSe
 
