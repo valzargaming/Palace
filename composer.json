@@ -14,11 +14,5 @@
     "require": {
         "php": ">=7.1",
 		"valzargaming/yasmin": "*"
-    },
-  
-    "autoload": {
-        "psr-4": {
-            "valzargaming\\yasmin\\": "src"
-        }
     }
 }
