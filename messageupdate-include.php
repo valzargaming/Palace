@@ -71,7 +71,7 @@ $changes = "";
 //if (($message_content_new != $message_content_old) || (($message_content_old == "") || ($message_content_old == NULL))) 	{		
 if ($message_content_new != $message_content_old){		
 //			Build the string for the reply
-	$changes = $changes . "[Link](https://discordapp.com/channels/$author_guild_id/$author_channel_id/$message_id_new)\n";
+	$changes = $changes . "[Link](https://discord.com/channels/$author_guild_id/$author_channel_id/$message_id_new)\n";
 	$changes = $changes . "**Channel:** <#$author_channel_id>\n";
 	$changes = $changes . "**Message ID:**: $message_id_new\n";
 	
@@ -108,7 +108,7 @@ if ($changes != ""){
 		$modlog_channel->send($changes);
 	}else{ //Send changes as a file
 		//Rebuild the string so we can send some stuff as a message
-		$changes = "[Link](https://discordapp.com/channels/$author_guild_id/$author_channel_id/$message_id_new)\n";
+		$changes = "[Link](https://discord.com/channels/$author_guild_id/$author_channel_id/$message_id_new)\n";
 		$changes = $changes . "**Channel:** <#$author_channel_id>\n";
 		$changes = $changes . "**Message ID:**: $message_id_new\n";
 		

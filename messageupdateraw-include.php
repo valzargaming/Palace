@@ -27,7 +27,7 @@ include "$guild_config_path";
 
 $modlog_channel		= $guild->channels->get($modlog_channel_id);
 
-$log_message = "[Link](https://discordapp.com/channels/$author_guild_id/$author_channel_id/$message_id_new)
+$log_message = "[Link](https://discord.com/channels/$author_guild_id/$author_channel_id/$message_id_new)
 **Channel:** <#$channel_id>
 **Message ID:** $id
 **New content:** $content" . PHP_EOL;
