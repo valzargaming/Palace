@@ -11,7 +11,10 @@ GLOBAL $bot_id;
 $message = $reaction->message;
 $message_content = $message->content;
 $message_id = $message->id;
-if (($message_content == NULL) || ($message_content == "")) return true; //Don't process blank messages, bots, webhooks, or rich embeds
+if (($message_content == NULL) || ($message_content == "")) {
+	return true;
+}
+//Don't process blank messages, bots, webhooks, or rich embeds
 $message_content_lower = strtolower($message_content);
 
 //		Load author info
@@ -45,13 +48,18 @@ $emoji = $reaction->emoji;
 $emoji_id = $emoji->id; //echo "emoji_id: " . $emoji_id . PHP_EOL; //Unicode if null
 
 $unicode = false;
-if ($emoji_id === NULL)
-				$unicode = true; //echo "unicode: " . $unicode . PHP_EOL;
+if ($emoji_id === NULL) {
+				$unicode = true;
+}
+//echo "unicode: " . $unicode . PHP_EOL;
 $emoji_name = $emoji->name; //echo "emoji_name: " . $emoji_name . PHP_EOL;
 $emoji_identifier = $emoji->identifier; //echo "emoji_identifier: " . $emoji_identifier . PHP_EOL;
 
-if ($unicode) $response = "$emoji_name";
-else $response = "<:$emoji_identifier>";
+if ($unicode) {
+	$response = "$emoji_name";
+} else {
+	$response = "<:$emoji_identifier>";
+}
 
 //Do things here
 echo "$respondent_check removed their reaction from $author_check's message" . PHP_EOL;
@@ -74,7 +82,7 @@ if ($author_id == $bot_id) { //Message reacted to belongs to this bot
 			echo "" . PHP_EOL;
 			break;
 	}
-}else {
+} else {
 	//Do things here
 }
 ?>

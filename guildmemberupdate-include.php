@@ -6,18 +6,22 @@ echo "guildMemberUpdate ($author_guild_id)" . PHP_EOL;
 
 //Leave the guild if blacklisted
 GLOBAL $blacklisted_guilds;
-if ($blacklisted_guilds)
-if (in_array($author_guild_id, $blacklisted_guilds)) {
+if ($blacklisted_guilds) {
+	if (in_array($author_guild_id, $blacklisted_guilds)) {
 	$author_guild->leave($author_guild_id)->done(null, function($error) {
-		echo $error . PHP_EOL; //Echo any errors
+		echo $error . PHP_EOL;
+}
+//Echo any errors
 	});
 }
 //Leave the guild if not whitelisted
 GLOBAL $whitelisted_guilds;
-if ($whitelisted_guilds)
-if (!in_array($author_guild_id, $whitelisted_guilds)) {
+if ($whitelisted_guilds) {
+	if (!in_array($author_guild_id, $whitelisted_guilds)) {
 	$author_guild->leave($author_guild_id)->done(null, function($error) {
-		echo $error . PHP_EOL; //Echo any errors
+		echo $error . PHP_EOL;
+}
+//Echo any errors
 	});
 }
 
@@ -33,8 +37,10 @@ $guild_folder = "\\guilds\\$author_guild_id";
 if (!CheckDir($guild_folder)) {
 	if (!CheckFile($guild_folder, "guild_owner_id.php")) {
 		VarSave($guild_folder, "guild_owner_id.php", $guild_owner_id);
-	}else $guild_owner_id = VarLoad($guild_folder, "guild_owner_id.php");
-}
+	} else {
+		$guild_owner_id = VarLoad($guild_folder, "guild_owner_id.php");
+	}
+	}
 
 //Load config variables for the guild
 $guild_config_path = __DIR__ . "$guild_folder\\guild_config.php"; //echo "guild_config_path: " . $guild_config_path . PHP_EOL;
@@ -44,7 +50,7 @@ if (!include "$guild_config_path") {
 	if ($counter >= 10) {
 		$counter++;
 		VarSave($guild_folder, "config_retry.php", $config_retry);
-	}else {
+	} else {
 		$author_guild->leave($author_guild_id)->done(null, function($error) {
 			echo $error . PHP_EOL; //Echo any errors
 		});
@@ -136,11 +142,14 @@ if ($old_displayName != $new_displayName) {
 	//Place user info in target's folder
 	$array = VarLoad($user_folder, "nicknames.php");
 	if ($old_displayName && $array) {
-		if (!in_array($old_displayName, $array))
-		$array[] = $old_displayName;
+		if (!in_array($old_displayName, $array)) {
+				$array[] = $old_displayName;
+		}
 	}
 	if ($new_displayName && $array) {
-		if (!in_array($new_displayName, $array)) $array[] = $new_displayName;
+		if (!in_array($new_displayName, $array)) {
+			$array[] = $new_displayName;
+		}
 	}
 	VarSave($user_folder, "nicknames.php", $array);
 }
@@ -176,8 +185,7 @@ if ($old_member_roles_ids != $new_member_roles_ids) {
 	foreach ($role_difference_ids as $role_diff) {
 		if (in_array($role_diff, $old_member_roles_ids)) {
 			$switch = "Removed roles: ";
-		}
-		else {
+		} else {
 			$switch = "Added roles: ";
 		}
 		$changes = $changes . $switch . "<@&$role_diff>";
@@ -187,8 +195,7 @@ if ($old_member_roles_ids != $new_member_roles_ids) {
 	foreach ($role_difference_ids as $role_diff) {
 		if (in_array($role_diff, $old_member_roles_ids)) {
 			$switch = "Removed roles: ";
-		}
-		else {
+		} else {
 			$switch = "Added roles: ";
 		}
 		$changes = $changes . $switch . "<@&$role_diff>";
@@ -197,12 +204,13 @@ if ($old_member_roles_ids != $new_member_roles_ids) {
 
 //echo "switch: " . $switch . PHP_EOL;
 //if( ($switch != "") || ($switch != NULL)) //User was kicked (They have no roles anymore)
-if (($modlog_channel_id != NULL) && ($modlog_channel_id != ""))
-if ($changes != "") {
+if (($modlog_channel_id != NULL) && ($modlog_channel_id != "")) {
+	if ($changes != "") {
 	//$changes = "<@$member_id>'s information has changed:\n" . $changes;
 	if (strlen($changes) < 1025) {
 
 		$embed = new \CharlotteDunois\Yasmin\Models\MessageEmbed();
+}
 		$embed
 //					->setTitle("Commands")																	// Set a title
 			->setColor("a7c5fd")																	// Set a color (the thing on the left side)
@@ -216,15 +224,20 @@ if ($changes != "") {
 			->setFooter("Palace Bot by Valithor#5947")                             					// Set a footer without icon
 			->setURL(""); // Set the URL
 //				Send a message
-		if ($modlog_channel)$modlog_channel->send('', array('embed' => $embed))->done(null, function($error) {
-			echo $error . PHP_EOL; //Echo any errors
+		if ($modlog_channel) {
+			$modlog_channel->send('', array('embed' => $embed))->done(null, function($error) {
+			echo $error . PHP_EOL;
+		}
+		//Echo any errors
 		});
 		return true;
-	}else {
-		if ($modlog_channel)$modlog_channel->send("**User Update**\n$changes");
+	} else {
+		if ($modlog_channel) {
+			$modlog_channel->send("**User Update**\n$changes");
+		}
 		return true;
 	}
-}else { //No info we want to capture was changed
+} else { //No info we want to capture was changed
 	return true;
 }
 ?>

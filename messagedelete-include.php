@@ -72,7 +72,7 @@ if ($modlog_channel) {
 		$modlog_channel->send('', array('embed' => $embed, 'files' => [['name' => "message.txt", 'data' => $data_string]]))->done(null, function($error) {
 			echo $error . PHP_EOL; //Echo any errors
 		});
-	}else {
+	} else {
 		$modlog_channel->send('', array('embed' => $embed))->done(null, function($error) {
 			echo $error . PHP_EOL; //Echo any errors
 		});

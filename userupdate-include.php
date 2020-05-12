@@ -28,11 +28,14 @@ if ($old_tag != $new_tag) {
 	//Place user info in target's folder
 	$array = VarLoad($user_folder, "tags.php");
 	if ($old_tag && $array) {
-		if (!in_array($old_tag, $array))
-		$array[] = $old_tag;
+		if (!in_array($old_tag, $array)) {
+				$array[] = $old_tag;
+		}
 	}
 	if ($new_tag && $array) {
-		if (!in_array($new_tag, $array)) $array[] = $new_tag;
+		if (!in_array($new_tag, $array)) {
+			$array[] = $new_tag;
+		}
 	}
 	VarSave($user_folder, "tags.php", $array);
 }

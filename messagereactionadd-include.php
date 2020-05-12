@@ -41,7 +41,10 @@ $respondent_avatar 			= $respondent_user->getAvatarURL(); //echo "author_avatar:
 $respondent_check = "$respondent_username#$respondent_discriminator"; echo "respondent_check: " . $respondent_check . PHP_EOL;
 $respondent_member 			= $author_guild->members->get($respondent_id);
 
-if (($message_content == NULL) || ($message_content == "")) return true; //Don't process blank messages, bots, webhooks, or rich embeds
+if (($message_content == NULL) || ($message_content == "")) {
+	return true;
+}
+//Don't process blank messages, bots, webhooks, or rich embeds
 $message_content_lower = strtolower($message_content);
 
 //Create a folder for the guild if it doesn't exist already
@@ -63,13 +66,18 @@ $emoji = $reaction->emoji;
 $emoji_id = $emoji->id; //echo "emoji_id: " . $emoji_id . PHP_EOL; //Unicode if null
 
 $unicode = false;
-if ($emoji_id === NULL)
-				$unicode = true; //echo "unicode: " . $unicode . PHP_EOL;
+if ($emoji_id === NULL) {
+				$unicode = true;
+}
+//echo "unicode: " . $unicode . PHP_EOL;
 $emoji_name = $emoji->name; //echo "emoji_name: " . $emoji_name . PHP_EOL;
 $emoji_identifier = $emoji->identifier; //echo "emoji_identifier: " . $emoji_identifier . PHP_EOL;
 
-if ($unicode) $response = "$emoji_name";
-else $response = "<:$emoji_identifier>";
+if ($unicode) {
+	$response = "$emoji_name";
+} else {
+	$response = "<:$emoji_identifier>";
+}
 
 
 echo "$author_check's message was reacted to by $respondent_check" . PHP_EOL;
@@ -77,29 +85,63 @@ echo "$author_check's message was reacted to by $respondent_check" . PHP_EOL;
 //Check rolepicker option
 GLOBAL $rolepicker_option, $species_option, $sexuality_option, $gender_option, $custom_option;
 if (($rolepicker_id != "") || ($rolepicker_id != NULL)) {
-	if (!CheckFile($guild_folder, "rolepicker_option.php"))				$rp0 = $rolepicker_option; //Species role picker
-	else 														$rp0 = VarLoad($guild_folder, "rolepicker_option.php");
-}else $rp0 = false;
+	if (!CheckFile($guild_folder, "rolepicker_option.php")) {
+		$rp0 = $rolepicker_option;
+	}
+	//Species role picker
+	else {
+		$rp0 = VarLoad($guild_folder, "rolepicker_option.php");
+	}
+	} else {
+	$rp0 = false;
+}
 
-if ($rp0 === true)
-if ($author_id == $rolepicker_id) {
+if ($rp0 === true) {
+	if ($author_id == $rolepicker_id) {
 	//Check options
 	if (($species_message_id != "") || ($species_message_id != NULL)) {
-		if (!CheckFile($guild_folder, "species_option.php"))				$rp1 = $species_option; //Species role picker
-		else 													$rp1 = VarLoad($guild_folder, "species_option.php");
-	}else $rp1 = false;
+		if (!CheckFile($guild_folder, "species_option.php"))				$rp1 = $species_option;
+}
+//Species role picker
+		else {
+			$rp1 = VarLoad($guild_folder, "species_option.php");
+		}
+	} else {
+		$rp1 = false;
+	}
 	if (($sexuality_message_id != "") || ($sexuality_message_id != NULL)) {
-		if (!CheckFile($guild_folder, "sexuality_option.php"))			$rp2 = $sexuality_option; //Sexuality role picker
-		else 													$rp2 = VarLoad($guild_folder, "sexuality_option.php");
-	}else $rp2 = false;
+		if (!CheckFile($guild_folder, "sexuality_option.php")) {
+			$rp2 = $sexuality_option;
+		}
+		//Sexuality role picker
+		else {
+			$rp2 = VarLoad($guild_folder, "sexuality_option.php");
+		}
+	} else {
+		$rp2 = false;
+	}
 	if (($gender_message_id != "") || ($gender_message_id != NULL)) {
-		if (!CheckFile($guild_folder, "gender_option.php"))				$rp3 = $gender_option; //Gender role picker
-		else 													$rp3 = VarLoad($guild_folder, "gender_option.php");
-	}else $rp3 = false;
+		if (!CheckFile($guild_folder, "gender_option.php")) {
+			$rp3 = $gender_option;
+		}
+		//Gender role picker
+		else {
+			$rp3 = VarLoad($guild_folder, "gender_option.php");
+		}
+	} else {
+		$rp3 = false;
+	}
 	if (($customroles_message_id != "") || ($customroles_message_id != NULL)) {
-		if (!CheckFile($guild_folder, "customrole_option.php"))			$rp4 = $custom_option; //Custom role picker
-		else 													$rp4 = VarLoad($guild_folder, "customrole_option.php");
-	}else $rp4 = false;
+		if (!CheckFile($guild_folder, "customrole_option.php")) {
+			$rp4 = $custom_option;
+		}
+		//Custom role picker
+		else {
+			$rp4 = VarLoad($guild_folder, "customrole_option.php");
+		}
+	} else {
+		$rp4 = false;
+	}
 	//Load guild roles info
 	$guild_roles = $guild->roles;
 	$guild_roles_names = array();
@@ -308,7 +350,7 @@ if ($author_id == $rolepicker_id) {
 			$target_role_id = $guild_roles_ids[$role_index]; echo "target_role_id: " . $target_role_id . PHP_EOL;
 			$respondent_member->removeRole($target_role_id);
 			echo "Role removed: $select_name" . PHP_EOL;
-		}else {
+		} else {
 			echo "Respondent does not already have the role" . PHP_EOL;
 			if (in_array(strtolower($select_name), $guild_roles_names)) {//Check to make sure the role exists in the guild
 				//Add the role
@@ -316,7 +358,7 @@ if ($author_id == $rolepicker_id) {
 				$target_role_id = $guild_roles_ids[$role_index];
 				$respondent_member->addRole($target_role_id);
 				echo "Role added: $select_name" . PHP_EOL;
-			}else {
+			} else {
 				echo "Guild does not have this role" . PHP_EOL;
 			}
 		}
