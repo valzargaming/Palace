@@ -35,11 +35,8 @@ $channel->fetchMessage($id)->then(function($message) use ($modlog_channel, $log_
 	//Load author info
 	$author_user = $message->author; //User object
 	$author_channel = $message->channel;
-	$author_channel_id = $author_channel->id; //echo "author_channel_id: " . $author_channel_id . PHP_EOL;
 	$author_channel_class = get_class($author_channel);
-	$is_dm = false;
 	if ($author_channel_class === "CharlotteDunois\Yasmin\Models\DMChannel") { //True if direct message
-		$is_dm = true;
 		return true; //Don't process DMs
 	}
 	
