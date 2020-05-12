@@ -103,10 +103,10 @@ if ($modlog_channel) {
 //			We do not need another promise here, so we call done, because we want to consume the promise
 		if ($modlog_channel) {
 			$modlog_channel->send('', array('embed' => $embed))->done(null, function($error) {
-			echo $error . PHP_EOL;
+				echo $error . PHP_EOL; //Echo any errors
+			});
 		}
-		//Echo any errors
-		});
+		
 		return true;
 	} elseif (strlen($changes) <= 2000) {
 		$modlog_channel->send($changes);
