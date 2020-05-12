@@ -13,9 +13,9 @@
 
 // ClientUser::setAvatar
 // In/After ready event
-$client->user->setAvatar(__DIR__.'/resources/avatar.png');
+$client->user->setAvatar(__DIR__ . '/resources/avatar.png');
 $client->user->setAvatar('https://my.resources.online/resources/avatar.png');
-$client->user->setAvatar(file_get_contents(__DIR__.'/resources/avatar.png'));
+$client->user->setAvatar(file_get_contents(__DIR__ . '/resources/avatar.png'));
 
 // ClientUser::setGame
 // In/After ready event
@@ -28,13 +28,13 @@ $client->user->setStatus('online');
 // ClientUser::setPresence
 // In/After ready event
 $client->user->setPresence(
-    array(
-        'status' => 'idle',
-        'game' => array(
-            'name' => 'Yasmin',
-            'type' => 0
-        )
-    )
+	array(
+		'status' => 'idle',
+		'game' => array(
+			'name' => 'Yasmin',
+			'type' => 0
+		)
+	)
 );
 
 // ClientUser::setUsername
