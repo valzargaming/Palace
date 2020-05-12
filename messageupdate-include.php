@@ -6,7 +6,7 @@ $message_content_old = $message_old->content; //Null if message is too old
 $message_id_new = $message_new->id; //This doesn't match any message id if the message is too old
 
 //Only process message changes
-if ($message_content_new === $message_content_old){
+if ($message_content_new === $message_content_old) {
 	//echo "NO MESSAGE CONTENT CHANGE OR MESSAGE TOO OLD" . PHP_EOL;
 	return true;
 }
@@ -45,31 +45,31 @@ $guild = $message_new->guild;
 $author_guild_id = $guild->id;
 
 //Load author info
-$author_user				= $message_new->author; //User object
-$author_channel 			= $message_new->channel;
-$author_channel_id			= $author_channel->id; 												//echo "author_channel_id: " . $author_channel_id . PHP_EOL;
-$author_channel_class		= get_class($author_channel);
+$author_user = $message_new->author; //User object
+$author_channel = $message_new->channel;
+$author_channel_id = $author_channel->id; //echo "author_channel_id: " . $author_channel_id . PHP_EOL;
+$author_channel_class = get_class($author_channel);
 $is_dm = false;
-if ($author_channel_class === "CharlotteDunois\Yasmin\Models\DMChannel"){ //True if direct message
+if ($author_channel_class === "CharlotteDunois\Yasmin\Models\DMChannel") { //True if direct message
 	$is_dm = true;
 	return true; //Don't try and process direct messages
 }
 //Load config variables for the guild
 $guild_folder = "\\guilds\\$author_guild_id";
-$guild_config_path = __DIR__  . "$guild_folder\\guild_config.php"; //echo "guild_config_path: " . $guild_config_path . PHP_EOL;
+$guild_config_path = __DIR__ . "$guild_folder\\guild_config.php"; //echo "guild_config_path: " . $guild_config_path . PHP_EOL;
 require "$guild_config_path";
 
-$modlog_channel	= $guild->channels->get($modlog_channel_id);
+$modlog_channel = $guild->channels->get($modlog_channel_id);
 
-$author_username 			= $author_user->username; 											//echo "author_username: " . $author_username . PHP_EOL;
-$author_discriminator 		= $author_user->discriminator;										//echo "author_discriminator: " . $author_discriminator . PHP_EOL;
-$author_id 					= $author_user->id;													//echo "author_id: " . $author_id . PHP_EOL;
-$author_avatar 				= $author_user->getAvatarURL();										//echo "author_avatar: " . $author_avatar . PHP_EOL;
-$author_check 				= "$author_username#$author_discriminator"; 						//echo "author_check: " . $author_check . PHP_EOL;
+$author_username = $author_user->username; //echo "author_username: " . $author_username . PHP_EOL;
+$author_discriminator = $author_user->discriminator; //echo "author_discriminator: " . $author_discriminator . PHP_EOL;
+$author_id = $author_user->id; //echo "author_id: " . $author_id . PHP_EOL;
+$author_avatar = $author_user->getAvatarURL(); //echo "author_avatar: " . $author_avatar . PHP_EOL;
+$author_check = "$author_username#$author_discriminator"; //echo "author_check: " . $author_check . PHP_EOL;
 
 $changes = "";
 //if (($message_content_new != $message_content_old) || (($message_content_old == "") || ($message_content_old == NULL))) 	{		
-if ($message_content_new != $message_content_old){		
+if ($message_content_new != $message_content_old) {		
 //			Build the string for the reply
 	$changes = $changes . "[Link](https://discord.com/channels/$author_guild_id/$author_channel_id/$message_id_new)\n";
 	$changes = $changes . "**Channel:** <#$author_channel_id>\n";
@@ -79,11 +79,11 @@ if ($message_content_new != $message_content_old){
 	$changes = $changes . "**After:**```⠀$message_content_new\n```\n";
 }
 
-if($modlog_channel)
-if ($changes != ""){
+if ($modlog_channel)
+if ($changes != "") {
 	//Build the embed
 	//$changes = "**Message edit**:\n" . $changes;
-	if (strlen($changes) <= 1024){
+	if (strlen($changes) <= 1024) {
 //		Build the embed message
 		$embed = new \CharlotteDunois\Yasmin\Models\MessageEmbed();
 		$embed
@@ -97,16 +97,16 @@ if ($changes != ""){
 			->setTimestamp()                                                                     	// Set a timestamp (gets shown next to footer)
 			->setAuthor("$author_check ($author_id)", "$author_avatar")  							// Set an author with icon
 			->setFooter("Palace Bot by Valithor#5947")                             					// Set a footer without icon
-			->setURL("");                             												// Set the URL
+			->setURL(""); // Set the URL
 //			Send the message
 //			We do not need another promise here, so we call done, because we want to consume the promise
-		if($modlog_channel)$modlog_channel->send('', array('embed' => $embed))->done(null, function ($error){
-			echo $error.PHP_EOL; //Echo any errors
+		if ($modlog_channel)$modlog_channel->send('', array('embed' => $embed))->done(null, function($error) {
+			echo $error . PHP_EOL; //Echo any errors
 		});
 		return true;
-	}elseif (strlen($changes) <= 2000){
+	}elseif (strlen($changes) <= 2000) {
 		$modlog_channel->send($changes);
-	}else{ //Send changes as a file
+	}else { //Send changes as a file
 		//Rebuild the string so we can send some stuff as a message
 		$changes = "[Link](https://discord.com/channels/$author_guild_id/$author_channel_id/$message_id_new)\n";
 		$changes = $changes . "**Channel:** <#$author_channel_id>\n";
@@ -128,13 +128,13 @@ if ($changes != ""){
 			->setTimestamp()                                                                     	// Set a timestamp (gets shown next to footer)
 			->setAuthor("$author_check ($author_id)", "$author_avatar")  							// Set an author with icon
 			->setFooter("Palace Bot by Valithor#5947")                             					// Set a footer without icon
-			->setURL("");                             												// Set the URL
+			->setURL(""); // Set the URL
 		
-		$modlog_channel->send("A message was updated but it was too long to log within an embed. Please see the attached file.", array('embed' => $embed, 'files' => [['name' => "changes.txt", 'data' => $changes_file]]))->done(null, function ($error){
-			echo $error.PHP_EOL; //Echo any errors
+		$modlog_channel->send("A message was updated but it was too long to log within an embed. Please see the attached file.", array('embed' => $embed, 'files' => [['name' => "changes.txt", 'data' => $changes_file]]))->done(null, function($error) {
+			echo $error . PHP_EOL; //Echo any errors
 		});
 	}
-}else{ //No info we want to check was changed
+}else { //No info we want to check was changed
 	return true;
 }
 ?>
