@@ -1,4 +1,4 @@
-<?
+<?php
 //This event listener gets triggered willy-nilly so we need to do some checks here if we want to get anything useful out of it
 
 $message_content_new = $message_new->content; //Null if message is too old
