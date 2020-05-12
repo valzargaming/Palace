@@ -9,22 +9,19 @@ GLOBAL $blacklisted_guilds;
 if ($blacklisted_guilds) {
 	if (in_array($author_guild_id, $blacklisted_guilds)) {
 	$author_guild->leave($author_guild_id)->done(null, function($error) {
-		echo $error . PHP_EOL;
-}
-//Echo any errors
+		echo $error . PHP_EOL; //Echo any errors
 	});
+}
+
 }
 //Leave the guild if not whitelisted
 GLOBAL $whitelisted_guilds;
 if ($whitelisted_guilds) {
-	if (!in_array($author_guild_id, $whitelisted_guilds)) {
-	$author_guild->leave($author_guild_id)->done(null, function($error) {
-		echo $error . PHP_EOL;
-}
-//Echo any errors
+	if (!in_array($author_guild_id, $whitelisted_guilds)){
+	$author_guild->leave($author_guild_id)->done(null, function ($error){
+		echo $error.PHP_EOL; //Echo any errors
 	});
 }
-
 $member_id = $member_new->id;
 $member_guild = $member_new->guild;
 $new_user			= $member_new->user;
@@ -40,7 +37,7 @@ if (!CheckDir($guild_folder)) {
 	} else {
 		$guild_owner_id = VarLoad($guild_folder, "guild_owner_id.php");
 	}
-	}
+}
 
 //Load config variables for the guild
 $guild_config_path = __DIR__ . "$guild_folder\\guild_config.php"; //echo "guild_config_path: " . $guild_config_path . PHP_EOL;
