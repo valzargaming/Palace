@@ -69,10 +69,11 @@ $channel->fetchMessage($id)->then(function($message) use ($modlog_channel, $log_
 //			We do not need another promise here, so we call done, because we want to consume the promise
 	if ($modlog_channel) {
 		$modlog_channel->send('', array('embed' => $embed))->done(null, function($error) {
-		echo $error . PHP_EOL;
+			echo $error . PHP_EOL; //Echo any errors
+		});
 	}
-	//Echo any errors
-	});
+	
+	
 	return true; //No more processing, we only want to process the first person mentioned
 });
 ?>
