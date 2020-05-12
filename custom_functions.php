@@ -5,7 +5,10 @@ function GetRandomArrayIndex($array) {
 		$array_size = count($array) - 1;
 		$index = rand(0, $array_size);
 		return $index;
-	}else return -1; //Not an array
+	} else {
+		return -1;
+	}
+	//Not an array
 }
 
 //Removes a value from an array
@@ -17,43 +20,51 @@ function array_value_remove($value, $array) {
 //Checks if a directory contains any files
 function is_dir_empty($dir) {
 	foreach (new DirectoryIterator($dir) as $fileInfo) {
-		if($fileInfo->isDot()) continue;
+		if ($fileInfo->isDot()) continue;
 		return false;
 	}
 	return true;
 }
 
 //Checks if a folder exists and creates one if it doesn't
-function CheckDir($foldername){
+function CheckDir($foldername) {
 	//echo "CheckDir" . PHP_EOL;
 	include("constants.php");
-	$path = $DIR.$foldername."/";
+	$path = $DIR . $foldername . "/";
 	$exist = false;
 	//Create folder if it doesn't already exist
 	if (!file_exists($path)) {
 		mkdir($path, 0777, true);
 		echo "NEW DIR CREATED: $path" . PHP_EOL;
-	}else $exist = true;
+	} else {
+		$exist = true;
+	}
 	return $exist;
 }
 
 //Checks if a file exists
 function CheckFile($foldername, $filename) {
-	if ($foldername !== NULL) $folder_symbol = "/";
+	if ($foldername !== NULL) {
+		$folder_symbol = "/";
+	}
 	//echo "CheckDir" . PHP_EOL;
 	include("constants.php");
 	$path = $DIR . $foldername . $folder_symbol . $filename;
 	//Create folder if it doesn't already exist
 	if (file_exists($path)) {
 		$exist = true;
-	}else $exist = false;
+	} else {
+		$exist = false;
+	}
 	return $exist;
 }
 
 //Saves a variable to a file
 //Target is a full path, IE $DIR.target.php
 function VarSave($foldername, $filename, $variable) {
-	if ($foldername !== NULL) $folder_symbol = "/";
+	if ($foldername !== NULL) {
+		$folder_symbol = "/";
+	}
 	//echo "VarSave" . PHP_EOL;
 	include("constants.php");
 	$path = $DIR . $foldername . $folder_symbol; //echo "PATH: $path" . PHP_EOL;
@@ -70,13 +81,16 @@ function VarSave($foldername, $filename, $variable) {
 //Loads a variable from a file
 //Target is a full path, IE $DIR.target.php
 function VarLoad($foldername, $filename) {
-	if ($foldername !== NULL) $folder_symbol = "/";
+	if ($foldername !== NULL) {
+		$folder_symbol = "/";
+	}
 	//echo "VarLoad" . PHP_EOL;
 	include("constants.php");
 	$path = $DIR . $foldername . $folder_symbol; //echo "PATH: $path" . PHP_EOL;
 	//Make sure the file exists
-	if (!file_exists($path . $filename))
-		return null;
+	if (!file_exists($path . $filename)) {
+			return null;
+	}
 	//Load a variable from a file
 	$loadedvar = file_get_contents($path . $filename); //echo "FULL PATH: $path$filename" . PHP_EOL;
 	$unserialized = unserialize($loadedvar);
@@ -84,7 +98,9 @@ function VarLoad($foldername, $filename) {
 }
 
 function VarDelete($foldername, $filename) {
-	if ($foldername !== NULL) $folder_symbol = "/";
+	if ($foldername !== NULL) {
+		$folder_symbol = "/";
+	}
 	echo "VarDelete" . PHP_EOL;
 	include("constants.php");
 	$path = $DIR . $foldername . $folder_symbol . $filename; //echo "PATH: $path" . PHP_EOL;
@@ -93,7 +109,7 @@ function VarDelete($foldername, $filename) {
 		//Delete the file
 		unlink($path);
 		clearstatcache();
-	} else {
+	}else {
 		echo "NO FILE TO DELETE" . PHP_EOL;
 	}
 	}
@@ -121,7 +137,7 @@ function TimeCompare($foldername, $filename) { //echo "foldername, filename: $fo
 		$timecompare['s'] = $sinceSecond 	= $sincetime->s;
 		echo 'Timer found to compare!' . PHP_EOL;
 		return $timecompare;
-	}else {
+	} else {
 		//File not found, so return 0's
 		$sincetime = date_diff($now, $now);
 		$timecompare['y'] = $sinceYear 		= ($sincetime->y) + 1; //Assume one year has passed, enough time to avoid any cooldown
@@ -155,7 +171,7 @@ function TimeCompareMem($author_id, $variable) { //echo "foldername, filename: $
 		$timecompare['s'] = $sinceSecond 	= $sincetime->s;
 		echo 'Timer found to compare!' . PHP_EOL;
 		return $timecompare;
-	}else {
+	} else {
 		//File not found, so return 0's
 		$sincetime = date_diff($now, $now);
 		$timecompare['y'] = $sinceYear 		= ($sincetime->y) + 1; //Assume one year has passed, enough time to avoid any cooldown
@@ -173,13 +189,34 @@ function TimeCompareMem($author_id, $variable) { //echo "foldername, filename: $
 
 function TimeLimitCheck($time, $y, $m, $d, $h, $i, $s) {
 	//echo "time['s']: " . $time['s'] . PHP_EOL;
-	if (!$time) return true; //Nothing to check, assume true
-	if (!$y) $y = 0; //echo '$y: ' . $s . PHP_EOL;
-	if (!$m) $m = 0; //echo '$m: ' . $s . PHP_EOL;
-	if (!$d) $d = 0; //echo '$d: ' . $s . PHP_EOL;
-	if (!$h) $h = 0; //echo '$h: ' . $s . PHP_EOL;
-	if (!$i) $i = 0; //echo '$i: ' . $s . PHP_EOL;
-	if (!$s) $s = 0; //echo '$s: ' . $s . PHP_EOL;
+	if (!$time) {
+		return true;
+	}
+	//Nothing to check, assume true
+	if (!$y) {
+		$y = 0;
+	}
+	//echo '$y: ' . $s . PHP_EOL;
+	if (!$m) {
+		$m = 0;
+	}
+	//echo '$m: ' . $s . PHP_EOL;
+	if (!$d) {
+		$d = 0;
+	}
+	//echo '$d: ' . $s . PHP_EOL;
+	if (!$h) {
+		$h = 0;
+	}
+	//echo '$h: ' . $s . PHP_EOL;
+	if (!$i) {
+		$i = 0;
+	}
+	//echo '$i: ' . $s . PHP_EOL;
+	if (!$s) {
+		$s = 0;
+	}
+	//echo '$s: ' . $s . PHP_EOL;
 	//echo "time['y'] " . $time['y'] . PHP_EOL;
 	//echo "time['m'] " . $time['m'] . PHP_EOL;
 	//echo "time['d'] " . $time['d'] . PHP_EOL;
@@ -207,7 +244,7 @@ function TimeLimitCheck($time, $y, $m, $d, $h, $i, $s) {
 	$return_array = array();
 	if ($passed_time > $required_time) {
 		$return_array[0] = true;
-	}else {
+	} else {
 		$return_array[0] = false;
 	}
 	$return_array[1] = $passed_time;
@@ -215,12 +252,30 @@ function TimeLimitCheck($time, $y, $m, $d, $h, $i, $s) {
 }
 
 function PassedTimeCheck($y, $m, $d, $h, $i, $s) {
-	if (!$y) $y = 0; //echo '$y: ' . $s . PHP_EOL;
-	if (!$m) $m = 0; //echo '$m: ' . $s . PHP_EOL;
-	if (!$d) $d = 0; //echo '$d: ' . $s . PHP_EOL;
-	if (!$h) $h = 0; //echo '$h: ' . $s . PHP_EOL;
-	if (!$i) $i = 0; //echo '$i: ' . $s . PHP_EOL;
-	if (!$s) $s = 0; //echo '$s: ' . $s . PHP_EOL;
+	if (!$y) {
+		$y = 0;
+	}
+	//echo '$y: ' . $s . PHP_EOL;
+	if (!$m) {
+		$m = 0;
+	}
+	//echo '$m: ' . $s . PHP_EOL;
+	if (!$d) {
+		$d = 0;
+	}
+	//echo '$d: ' . $s . PHP_EOL;
+	if (!$h) {
+		$h = 0;
+	}
+	//echo '$h: ' . $s . PHP_EOL;
+	if (!$i) {
+		$i = 0;
+	}
+	//echo '$i: ' . $s . PHP_EOL;
+	if (!$s) {
+		$s = 0;
+	}
+	//echo '$s: ' . $s . PHP_EOL;
 	//Calculate total number of seconds passed.
 	$passed_time =
 	($s) +
@@ -246,7 +301,7 @@ function CheckCooldown($foldername, $filename, $limit_array) {
 		$TimeLimitCheck = TimeLimitCheck($TimeCompare, $limit_array['year'], $limit_array['month'], $limit_array['day'], $limit_array['hour'], $limit_array['min'], $limit_array['sec']);
 		//echo "TimeLimitCheck: " . PHP_EOL; var_dump ($TimeLimitCheck) . PHP_EOL;
 		return $TimeLimitCheck;
-	}else { //File was not found, so assume the check passes because they haven't used it before
+	} else { //File was not found, so assume the check passes because they haven't used it before
 		$TimeLimitCheck = array();
 		$TimeLimitCheck[] = true;
 		$TimeLimitCheck[] = 0;
@@ -265,7 +320,7 @@ function CheckCooldownMem($author_id, $variable, $limit_array) {
 		$TimeLimitCheck = TimeLimitCheck($TimeCompare, $limit_array['year'], $limit_array['month'], $limit_array['day'], $limit_array['hour'], $limit_array['min'], $limit_array['sec']);
 		//echo "TimeLimitCheck: " . PHP_EOL; var_dump ($TimeLimitCheck) . PHP_EOL;
 		return $TimeLimitCheck;
-	}else { //File was not found, so assume the check passes because they haven't used it before
+	} else { //File was not found, so assume the check passes because they haven't used it before
 		$TimeLimitCheck = array();
 		$TimeLimitCheck[] = true;
 		$TimeLimitCheck[] = 0;

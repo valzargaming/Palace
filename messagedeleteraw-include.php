@@ -21,8 +21,11 @@ $guild_config_path = __DIR__ . "$guild_folder\\guild_config.php"; //echo "guild_
 include "$guild_config_path";
 
 $modlog_channel = $guild->channels->get($modlog_channel_id);
-if ($modlog_channel)$modlog_channel->send('', array('embed' => $embed))->done(null, function($error) {
-	echo $error . PHP_EOL; //Echo any errors
+if ($modlog_channel) {
+	$modlog_channel->send('', array('embed' => $embed))->done(null, function($error) {
+	echo $error . PHP_EOL;
+}
+//Echo any errors
 });
 return true; //No more processing, we only want to process the first person mentioned
 ?>

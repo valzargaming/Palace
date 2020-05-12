@@ -42,7 +42,9 @@ if ($welcome === true) {
 	include "$guild_config_path";
 	
 	try {
-		if ($welcome_log_channel_id) $welcome_log_channel = $guildmember->guild->channels->get($welcome_log_channel_id);
+		if ($welcome_log_channel_id) {
+			$welcome_log_channel = $guildmember->guild->channels->get($welcome_log_channel_id);
+		}
 	} catch (Exception $e) {
 //				RuntimeException: Unknown property																		//echo 'AUTHOR NOT IN GUILD' . PHP_EOL;
 	}

@@ -79,13 +79,14 @@ if ($message_content_new != $message_content_old) {
 	$changes = $changes . "**After:**```⠀$message_content_new\n```\n";
 }
 
-if ($modlog_channel)
-if ($changes != "") {
+if ($modlog_channel) {
+	if ($changes != "") {
 	//Build the embed
 	//$changes = "**Message edit**:\n" . $changes;
 	if (strlen($changes) <= 1024) {
 //		Build the embed message
 		$embed = new \CharlotteDunois\Yasmin\Models\MessageEmbed();
+}
 		$embed
 //			->setTitle("Commands")																	// Set a title
 			->setColor("a7c5fd")																	// Set a color (the thing on the left side)
@@ -100,13 +101,16 @@ if ($changes != "") {
 			->setURL(""); // Set the URL
 //			Send the message
 //			We do not need another promise here, so we call done, because we want to consume the promise
-		if ($modlog_channel)$modlog_channel->send('', array('embed' => $embed))->done(null, function($error) {
-			echo $error . PHP_EOL; //Echo any errors
+		if ($modlog_channel) {
+			$modlog_channel->send('', array('embed' => $embed))->done(null, function($error) {
+			echo $error . PHP_EOL;
+		}
+		//Echo any errors
 		});
 		return true;
-	}elseif (strlen($changes) <= 2000) {
+	} elseif (strlen($changes) <= 2000) {
 		$modlog_channel->send($changes);
-	}else { //Send changes as a file
+	} else { //Send changes as a file
 		//Rebuild the string so we can send some stuff as a message
 		$changes = "[Link](https://discord.com/channels/$author_guild_id/$author_channel_id/$message_id_new)\n";
 		$changes = $changes . "**Channel:** <#$author_channel_id>\n";
@@ -134,7 +138,7 @@ if ($changes != "") {
 			echo $error . PHP_EOL; //Echo any errors
 		});
 	}
-}else { //No info we want to check was changed
+} else { //No info we want to check was changed
 	return true;
 }
 ?>
