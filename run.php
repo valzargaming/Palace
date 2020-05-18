@@ -187,6 +187,12 @@ $discord->on('disconnect', function($erMsg, $code) use ($discord, $loop, $token,
 	include "disconnect-include.php";
 });
 
+set_exception_handler(function (Throwable $e) { //Global exception handler
+	$scope = new Scope();
+	$scope->setExtra('fatal', true);
+	Hub::getCurrent()->getClient()->captureException($e, $scope);
+});
+
 $discord->login($token)->done();
 $loop->run();
 ?> 
