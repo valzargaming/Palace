@@ -1535,7 +1535,7 @@ if ($creator || $owner || $dev || $admin || $mod){
 			$array = VarLoad($guild_folder, "guild_suggestions.php");
 			if( ($array[$value]) && ($array[$value] != "Approved" ) && ($array[$value] != "Denied" ) ){
 				$embed = $array[$value];
-			$suggestion_approved_channel->send("{$embed->title}", array('embed' => $embed))->then(function($message) use ($guild_folder, $embed){
+				$suggestion_approved_channel->send("{$embed->title}", array('embed' => $embed))->then(function($message) use ($guild_folder, $embed){
 				//Repost the suggestion
 					$message->react("👍");
 					$message->react("👎");
@@ -1801,7 +1801,7 @@ if ($creator || $owner || $dev || $admin || $mod){
 					$reason = "**🥾Muted:** <@$mention_id>
 					**🗓️Date:** $warndate
 					**📝Reason:** " . str_replace($filter, "", $message_content);
-					//Remove all roles and add the muted role (TODO: REMOVE ALL ROLES)
+					//Remove all roles and add the muted role (TODO: REMOVE ALL ROLES AND RE-ADD THEM UPON BEING UNMUTED)
 					foreach ($removed_roles as $role){
 						$target_guildmember->removeRole($role);
 					}
@@ -3474,6 +3474,7 @@ if ($creator || ($author_guild_id == "468979034571931648") ){ //These commands s
 			return true;
 		}
 		if (substr($message_content_lower, 0, 12) == '!s whitelist'){ //!s whitelist ckey
+			if (substr($message_content_lower, 0, 14) == '!s whitelistme') return true; //It's a Civbot command and shouldn't be triggering this
 			echo "[WHITELIST] $author_check" . PHP_EOL;
 			$filter = "!s whitelist";
 			$ckey = trim(strtolower(str_replace($filter, "", $message_content_lower))); //echo "ckey: $ckey" . PHP_EOL;
@@ -3563,7 +3564,30 @@ if ($creator || ($author_guild_id == "468979034571931648") ){ //These commands s
 			}
 	}
 }
-
+/*
+if ($author_id == "352898973578690561"){ //magmacreeper
+	if ($message_content_lower == $command_symbol . 'start'){ //;start
+		echo "[START] $author_check" .  PHP_EOL;
+		//Trigger the php script remotely
+		$ch = curl_init(); //create curl resource
+		curl_setopt($ch, CURLOPT_URL, "http://10.0.0.97/magmacreeper/start.php"); // set url
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1); //return the transfer as a string
+		curl_setopt($ch, CURLOPT_POST, true);	  
+		$message->reply(curl_exec($ch));
+		return true;
+	}
+	if ($message_content_lower == $command_symbol . 'pull'){ //;pull
+		echo "[START] $author_check" .  PHP_EOL;
+		//Trigger the php script remotely
+		$ch = curl_init(); //create curl resource
+		curl_setopt($ch, CURLOPT_URL, "http://10.0.0.97/magmacreeper/pull.php"); // set url
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1); //return the transfer as a string
+		curl_setopt($ch, CURLOPT_POST, true);	  
+		$message->reply(curl_exec($ch));
+		return true;
+	}
+}
+*/
 if ( ($role_verified_id != "") || ($role_verified_id != NULL) ) //This command only works if the Verified Role is setup
 if ($creator || $owner || $dev || $admin || $mod) //Only allow these roles to use this
 if ( (substr($message_content_lower, 0, 3) == $command_symbol . 'v ') || (substr(($message_content), 0, 8) == $command_symbol . 'verify ') ){ //Verify ;v ;verify
@@ -3761,6 +3785,7 @@ if ($creator || $owner || $dev || $admin || $mod){ //Only allow these roles to u
 			CheckDir($mention_folder);
 			$mention_nicknames_array = array_reverse(VarLoad($mention_folder, "nicknames.php"));
 			$x=0;
+			if ($mention_nicknames_array)
 			foreach ($mention_nicknames_array as $nickname){
 				if ($x<5)
 					$mention_nicknames = $mention_nicknames . $nickname . "\n";
@@ -3770,6 +3795,7 @@ if ($creator || $owner || $dev || $admin || $mod){ //Only allow these roles to u
 			
 			$mention_tags_array = array_reverse(VarLoad($mention_folder, "tags.php"));
 			$x=0;
+			if ($mention_tags_array)
 			foreach ($mention_tags_array as $tag){
 				if ($x<5)
 					$mention_tags = $mention_tags . $tag . "\n";
@@ -4232,4 +4258,3 @@ if (substr($message_content_lower, 0, 18) == $command_symbol . 'removeinfraction
 		$x++;
 	}
 }
-?>
