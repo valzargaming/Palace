@@ -3684,28 +3684,28 @@ if ( (substr($message_content_lower, 0, 3) == $command_symbol . 'v ') || (substr
 	}
 }
 
-if( ($getverified_channel_id != "") || ($getverified_channel_id != NULL)) //This command only works if the Get Verified Channel is setup
-if ($creator || $owner || $dev || $admin || $mod) //Only allow these roles to use this
-if ( ($message_content_lower == $command_symbol . 'cv') || ( $message_content_lower == $command_symbol . 'clearv') ){ //;clearv ;cv Clear all messages in the get-verified channel
-	echo "[CV] $author_check" . PHP_EOL;
-	if($getverified_channel){
-		$getverified_channel->bulkDelete(100);
-		//Delete any messages that aren't cached
-		$getverified_channel->fetchMessages()->then(function($message_collection) use ($getverified_channel){
-			foreach ($message_collection as $message){
-				$getverified_channel->message->delete();
-			}
-		});
-		$getverified_channel->send("Welcome to $author_guild_name! Please take a moment to read the rules and fill out the questions below:
-		1. How did you find the server?
-		2. How old are you?
-		3. Do you understand the rules?
-		4. Do you have any other questions?");
-	}
-	return true;
-}
 
 if ($creator || $owner || $dev || $admin || $mod){ //Only allow these roles to use this
+	if ( ($message_content_lower == $command_symbol . 'cv') || ( $message_content_lower == $command_symbol . 'clearv') ){ //;clearv ;cv Clear all messages in the get-verified channel
+		if( ($getverified_channel_id != "") || ($getverified_channel_id != NULL)){ //This command only works if the Get Verified Channel is setup
+			echo "[CV] $author_check" . PHP_EOL;
+			if($getverified_channel){
+				$getverified_channel->bulkDelete(100);
+				//Delete any messages that aren't cached
+				$getverified_channel->fetchMessages()->then(function($message_collection) use ($getverified_channel){
+					foreach ($message_collection as $message){
+						$getverified_channel->message->delete();
+					}
+				});
+				$getverified_channel->send("Welcome to $author_guild_name! Please take a moment to read the rules and fill out the questions below:
+				1. How did you find the server?
+				2. How old are you?
+				3. Do you understand the rules?
+				4. Do you have any other questions?");
+			}
+			return true;
+		}
+	}
 	if (substr($message_content_lower, 0, 6) == $command_symbol . 'poll '){ //;poll
 		echo "[POLL] $author_check" . PHP_EOL;
 		$filter = "$command_symbol" . "poll ";
