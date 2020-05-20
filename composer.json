@@ -9,10 +9,17 @@
             "email": "valzargaming@gmail.com"
         }
     ],
-    "minimum-stability": "dev",
+	"minimum-stability": "dev",
 	"prefer-stable": true,
-	 "require": {
+    "require": {
         "php": ">=7.1",
-	"valzargaming/yasmin": "*"
+		"valzargaming/yasmin": "*",
+        "restcord/restcord": "^0.3.2"
+    },
+  
+    "autoload": {
+        "psr-4": {
+            "valzargaming\\yasmin\\": "src"
+        }
     }
 }
