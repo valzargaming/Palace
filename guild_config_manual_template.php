@@ -5,6 +5,7 @@ $welcome_public_channel_id = ""; //Simple welcome message tagging users
 $welcome_log_channel_id		= ""; //Channel where a detailed message about the user gets posted
 $introduction_channel_id	= ""; //Usually #introductions or #general (Not currently implemented)
 $modlog_channel_id = ""; //Log stuff here
+$games_channel_id = ""; //Users play games here
 $verifylog_channel_id = ""; //Log verifications (Not currently implemented)
 $getverified_channel_id		= ""; //Where users should be requesting server verification
 //$watch_channel_id			= "";		//Someone being watched has their messages duplicated to this channel instead of a DM (Leave commented to use DMs)
