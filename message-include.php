@@ -106,7 +106,7 @@ if ($is_dm === false){ //Guild message
 	if($modlog_channel_id) 			$modlog_channel 			= $author_guild->channels->get($modlog_channel_id);
 	if($general_channel_id) 		$general_channel			= $author_guild->channels->get($general_channel_id);
 	if($rolepicker_channel_id) 		$rolepicker_channel			= $author_guild->channels->get($rolepicker_channel_id);
-	if($games_channel_id)			$games_channel_id			= $author_guild->channels->get($games_channel_id);
+	if($games_channel_id)			$games_channel				= $author_guild->channels->get($games_channel_id);
 	if($suggestion_pending_channel_id) 	$suggestion_pending_channel		= $author_guild->channels->get(strval($suggestion_pending_channel_id));
 	if($suggestion_approved_channel_id) $suggestion_approved_channel	= $author_guild->channels->get(strval($suggestion_approved_channel_id));
 	$author_member 												= $author_guild->members->get($author_id); 				//GuildMember object
@@ -413,21 +413,21 @@ if ($creator || $owner || $dev){
 		$documentation = $documentation . "`rolepicker @user` $rolepicker_id\n";
 		//Channels
 		$documentation = $documentation . "**Channels:**\n";
-		$documentation = $documentation . "`general #channel` $general_channel_id\n";
-		$documentation = $documentation . "`welcome #channel` $welcome_public_channel_id\n";
-		$documentation = $documentation . "`welcomelog #channel` $welcome_log_channel_id\n";
-		$documentation = $documentation . "`log #channel` $modlog_channel_id\n";
-		$documentation = $documentation . "`verify channel #channel` $getverified_channel_id\n";
+		$documentation = $documentation . "`general #channel` $general_channel\n";
+		$documentation = $documentation . "`welcome #channel` $welcome_public_channel\n";
+		$documentation = $documentation . "`welcomelog #channel` $welcome_log_channel\n";
+		$documentation = $documentation . "`log #channel` $modlog_channel\n";
+		$documentation = $documentation . "`verify channel #channel` $getverified_channel\n";
 		if ($verifylog_channel_id)
-			$documentation = $documentation . "`verifylog #channel` $verifylog_channel_id\n";
+			$documentation = $documentation . "`verifylog #channel` $verifylog_channel\n";
 		else $documentation = $documentation . "`verifylog #channel` (defaulted to log channel)\n";
 		if ($watch_channel_id)
-			$documentation = $documentation . "`watch #channel` $watch_channel_id\n";
+			$documentation = $documentation . "`watch #channel` $watch_channel\n";
 		else $documentation = $documentation . "`watch #channel` (defaulted to direct message only)\n";
-		$documentation = $documentation . "`rolepicker channel #channel` $rolepicker_channel_id\n";
-		$documentation = $documentation . "`games  #channel` $games_channel_id\n";
-		$documentation = $documentation . "`suggestion pending #channel` $suggestion_pending_channel_id\n";
-		$documentation = $documentation . "`suggestion approved #channel` $suggestion_approved_channel_id\n";
+		$documentation = $documentation . "`rolepicker channel #channel` $rolepicker_channel\n";
+		$documentation = $documentation . "`games #channel` $games_channel\n";
+		$documentation = $documentation . "`suggestion pending #channel` $suggestion_pending_channel\n";
+		$documentation = $documentation . "`suggestion approved #channel` $suggestion_approved_channel\n";
 		//Messages
 		$documentation = $documentation . "**Messages:**\n";
 		if ($species_message_id) $documentation = $documentation . "`species messageid` $species_message_id\n";
