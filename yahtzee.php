@@ -106,58 +106,76 @@ if ($GLOBALS[$author_id . 'yahtzee'] != true){
 	}
 	if ($GLOBALS[$author_id."_yahtzee_stage"] == "rerolls"){
 		#offer rerolling of each die
-		if($GLOBALS["$author_id"."_yn"] == "Y"){
-			#reroll die
-			$die = DIE_ROLL();
-			$GLOBALS[$author_id . "_rolled"][$GLOBALS[$author_id . '_rerollCounter']] = $die;
-			$GLOBALS[$author_id . '_rerollCounter']+=1;
-			$GLOBALS["$author_id"."_yn"] = null;
-			
-			$die_string = "Your new roll is now : $die";
-			$face_num = ($GLOBALS[$author_id . "_rolled"][$GLOBALS[$author_id . '_rerollCounter']]);
-			$face_string = $GLOBALS['yahtzee_FACES'][$die];
-			$output_string = "$die_string \n $face_string";
-			$message->reply($output_string);
-			#do the next one
+		$skip = false;
+		if($GLOBALS[$author_id."_yahtzee_subaction"] == "HOLDCHECK"){
+			//
+			if($GLOBALS["$author_id"."_yn"] == "Y"){
+				$skip = false;
+			}
+			if($GLOBALS["$author_id"."_yn"] == "N"){
+				$skip = true;
+			}
 		}
-		if($GLOBALS["$author_id"."_yn"] == "N"){
-			$GLOBALS[$author_id . '_rerollCounter']+=1;
-			$GLOBALS["$author_id"."_yn"] = null;
-		}
-		if( $GLOBALS[$author_id . "_rolled"][$GLOBALS[$author_id . '_rerollCounter']] ){
-			$die_string = "Die #" . ($GLOBALS[$author_id . '_rerollCounter']+1) . "=" . $GLOBALS[$author_id . "_rolled"][$GLOBALS[$author_id . '_rerollCounter']];
-			//$facenum = ($GLOBALS[$author_id . "_rolled"][$GLOBALS[$author_id . '_rerollCounter']]);
-			$face_string = $GLOBALS['yahtzee_FACES'][($GLOBALS[$author_id . "_rolled"][$GLOBALS[$author_id . '_rerollCounter']])];
-			
-			$output_string = "$die_string \n $face_string \n Do you want to reroll?";
-			$message->reply($output_string);
-			$GLOBALS["$author_id"."_yahtzee_function"] = "GET_YN";
-			return true;
-		}else{
-			#all die have been confirmed, offer to reroll a maximum of two times
-			$GLOBALS[$author_id . '_rerollCounter']=0;
-			$GLOBALS[$author_id . '_rerollTurn']+=1;
-			if ($GLOBALS[$author_id . '_rerollTurn'] == 4){
-				$GLOBALS["$author_id"."_yahtzee_stage"] = "countRolls";
-			}else{
-				#display current rolls
-				$rolled_string = implode (", ", $GLOBALS[$author_id . "_rolled"]);
-				//$face_string = implode (" \n", $GLOBALS[$author_id . "_faces"]);
-				//$output_string = $rolled_string . "\n" . $face_string;
+		if ($skip != true){
+			if($GLOBALS["$author_id"."_yn"] == "Y"){
+				#reroll die
+				$die = DIE_ROLL();
+				$GLOBALS[$author_id . "_rolled"][$GLOBALS[$author_id . '_rerollCounter']] = $die;
+				$GLOBALS[$author_id . '_rerollCounter']+=1;
+				$GLOBALS["$author_id"."_yn"] = null;
 				
-				if ($GLOBALS[$author_id . '_rerollTurn'] != 3){
-					$message->reply("Your current roll is : $rolled_string \n Do you want to reroll again?");
-					$GLOBALS["$author_id"."_yahtzee_function"] = "GET_YN";
-					//this prompt is acutally for the first die, needs a subaction check
-					return true;
-				}
-				else{
-					$message->reply("Your final roll is : $rolled_string");
-					$GLOBALS["$author_id"."_yahtzee_function"] = null;
+				$die_string = "Your new roll is now : $die";
+				$face_num = ($GLOBALS[$author_id . "_rolled"][$GLOBALS[$author_id . '_rerollCounter']]);
+				$face_string = $GLOBALS['yahtzee_FACES'][$die];
+				$output_string = "$die_string \n $face_string";
+				$message->reply($output_string);
+				#do the next one
+			}
+			if($GLOBALS["$author_id"."_yn"] == "N"){
+				$GLOBALS[$author_id . '_rerollCounter']+=1;
+				$GLOBALS["$author_id"."_yn"] = null;
+			}
+			if( $GLOBALS[$author_id . "_rolled"][$GLOBALS[$author_id . '_rerollCounter']] ){
+				$die_string = "Die #" . ($GLOBALS[$author_id . '_rerollCounter']+1) . "=" . $GLOBALS[$author_id . "_rolled"][$GLOBALS[$author_id . '_rerollCounter']];
+				//$facenum = ($GLOBALS[$author_id . "_rolled"][$GLOBALS[$author_id . '_rerollCounter']]);
+				$face_string = $GLOBALS['yahtzee_FACES'][($GLOBALS[$author_id . "_rolled"][$GLOBALS[$author_id . '_rerollCounter']])];
+				
+				$output_string = "$die_string \n $face_string \n Do you want to reroll?";
+				$message->reply($output_string);
+				$GLOBALS["$author_id"."_yahtzee_function"] = "GET_YN";
+				return true;
+			}else{
+				#all die have been confirmed, offer to reroll a maximum of two times
+				$GLOBALS[$author_id . '_rerollCounter']=0;
+				$GLOBALS[$author_id . '_rerollTurn']+=1;
+				if ($GLOBALS[$author_id . '_rerollTurn'] == 4){
 					$GLOBALS["$author_id"."_yahtzee_stage"] = "countRolls";
-					//Program hangs and asks for y/n
+				}else{
+					#display current rolls
+					$rolled_string = implode (", ", $GLOBALS[$author_id . "_rolled"]);
+					//$face_string = implode (" \n", $GLOBALS[$author_id . "_faces"]);
+					//$output_string = $rolled_string . "\n" . $face_string;
+					
+					if ($GLOBALS[$author_id . '_rerollTurn'] != 3){
+						$message->reply("Your current roll is : $rolled_string \n Do you want to reroll again?");
+						$GLOBALS["$author_id"."_yahtzee_function"] = "GET_YN";
+						$GLOBALS[$author_id."_yahtzee_subaction"] = "HOLDCHECK";
+						//this prompt is acutally for the first die, needs a subaction check
+						return true;
+					}
+					else{
+						$message->reply("Your final roll is : $rolled_string");
+						$GLOBALS["$author_id"."_yahtzee_function"] = null;
+						$GLOBALS["$author_id"."_yahtzee_stage"] = "countRolls";
+						//Program hangs and asks for y/n
+					}
 				}
 			}
+		}else{
+			//break
+			$message->reply("Your final roll is : $rolled_string");
+			$GLOBALS["$author_id"."_yahtzee_function"] = null;
+			$GLOBALS["$author_id"."_yahtzee_stage"] = "countRolls";
 		}
 	}
 	
@@ -195,6 +213,8 @@ if ($GLOBALS[$author_id . 'yahtzee'] != true){
 		}
 		$GLOBALS["$author_id"."_yahtzee_stage"] = "calculateScore";
 		$GLOBALS["$author_id"."_yahtzee_subaction"] = "addBonus";
+		$GLOBALS["$author_id"."_yahtzee_function"] = null;
+		//add Yahtzee?
 	}
 	
 	if ($GLOBALS["$author_id"."_yahtzee_stage"] == "calculateScore"){
@@ -207,20 +227,24 @@ if ($GLOBALS[$author_id . 'yahtzee'] != true){
 					$GLOBALS[$author_id . '_bonusCount']+=1;
 				}
 			}
+			$message->reply("Add Yahtzee?");
+			$GLOBALS["$author_id"."_yahtzee_function"] = "GET_YN";
+			$GLOBALS["$author_id"."_yahtzee_subaction"] = "addYahtzee";
+			return true;
 		}
 		if ($GLOBALS["$author_id"."_yahtzee_subaction"] == "addYahtzee"){
 			if($GLOBALS["$author_id"."_yn"] == "Y"){
 				if($GLOBALS[$author_id . '_yahtzeeCounter'] == 0){
-					$GLOBALS["$author_id"."LOWER"][5]+=50;
+					$GLOBALS["$author_id"."_LOWER"][5]+=50;
 					$GLOBALS[$author_id . '_yahtzeeCounter'] = 1;
 				}else{
-					$GLOBALS["$author_id"."LOWER"][5]+=50;
+					$GLOBALS["$author_id"."_LOWER"][5]+=50;
 					$GLOBALS[$author_id . '_yahtzeeScore']+=100;
 					$GLOBALS[$author_id . '_yahtzeeCounter']+=1;
 					$GLOBALS[$author_id . '_yahtzeeBonusCounter']+=1;
 				}
 			}
-			if($GLOBALS["$author_id"."LOWER"][4] == 0){
+			if($GLOBALS["$author_id"."_LOWER"][4] == 0){
 				$message->reply("Add large straight?");
 				$GLOBALS["$author_id"."_yahtzee_function"] = "GET_YN";
 				$GLOBALS["$author_id"."_yahtzee_subaction"] = "addLargeStraight";
@@ -228,12 +252,12 @@ if ($GLOBALS[$author_id . 'yahtzee'] != true){
 			}else $GLOBALS["$author_id"."_yahtzee_subaction"] = "addLargeStraight";
 		}
 		if ($GLOBALS["$author_id"."_yahtzee_subaction"] == "addLargeStraight"){
-			if($GLOBALS["$author_id"."LOWER"][4] == 0){
+			if($GLOBALS["$author_id"."_LOWER"][4] == 0){
 				if($GLOBALS["$author_id"."_yn"] == "Y")
-					$GLOBALS["$author_id"."LOWER"][4]+=1;
+					$GLOBALS["$author_id"."_LOWER"][4]+=1;
 				$GLOBALS["$author_id"."_yn"] = null;
 			}
-			if($GLOBALS["$author_id"."LOWER"][3] == 0){
+			if($GLOBALS["$author_id"."_LOWER"][3] == 0){
 				$message->reply("Add full house?");
 				$GLOBALS["$author_id"."_yahtzee_function"] = "GET_YN";
 				$GLOBALS["$author_id"."_yahtzee_subaction"] = "addFullHouse";
@@ -241,12 +265,12 @@ if ($GLOBALS[$author_id . 'yahtzee'] != true){
 			}else $GLOBALS["$author_id"."_yahtzee_subaction"] = "addFullHouse";
 		}
 		if ($GLOBALS["$author_id"."_yahtzee_subaction"] == "addSmallStraight"){
-			if($GLOBALS["$author_id"."LOWER"][3] == 0){
+			if($GLOBALS["$author_id"."_LOWER"][3] == 0){
 				if($GLOBALS["$author_id"."_yn"] == "Y")
-					$GLOBALS["$author_id"."LOWER"][3]+=1;
+					$GLOBALS["$author_id"."_LOWER"][3]+=1;
 				$GLOBALS["$author_id"."_yn"] = null;
 			}
-			if($GLOBALS["$author_id"."LOWER"][2] == 0){
+			if($GLOBALS["$author_id"."_LOWER"][2] == 0){
 				$message->reply("Add full house?");
 				$GLOBALS["$author_id"."_yahtzee_function"] = "GET_YN";
 				$GLOBALS["$author_id"."_yahtzee_subaction"] = "addFullHouse";
@@ -254,12 +278,12 @@ if ($GLOBALS[$author_id . 'yahtzee'] != true){
 			}else $GLOBALS["$author_id"."_yahtzee_subaction"] = "addFullHouse";
 		}
 		if ($GLOBALS["$author_id"."_yahtzee_subaction"] == "addFullHouse"){
-			if($GLOBALS["$author_id"."LOWER"][2] == 0){
+			if($GLOBALS["$author_id"."_LOWER"][2] == 0){
 				if($GLOBALS["$author_id"."_yn"] == "Y")
-					$GLOBALS["$author_id"."LOWER"][2]+=1;
+					$GLOBALS["$author_id"."_LOWER"][2]+=1;
 				$GLOBALS["$author_id"."_yn"] = null;
 			}
-			if($GLOBALS["$author_id"."LOWER"][6] == 0){
+			if($GLOBALS["$author_id"."_LOWER"][6] == 0){
 				$message->reply("Add chance?");
 				$GLOBALS["$author_id"."_yahtzee_function"] = "GET_YN";
 				$GLOBALS["$author_id"."_yahtzee_subaction"] = "addChance";
@@ -267,12 +291,12 @@ if ($GLOBALS[$author_id . 'yahtzee'] != true){
 			}else $GLOBALS["$author_id"."_yahtzee_subaction"] = "addChance";
 		}
 		if ($GLOBALS["$author_id"."_yahtzee_subaction"] == "addChance"){
-			if($GLOBALS["$author_id"."LOWER"][6] == 0){
+			if($GLOBALS["$author_id"."_LOWER"][6] == 0){
 				if($GLOBALS["$author_id"."_yn"] == "Y")
-					$GLOBALS["$author_id"."LOWER"][6]+=array_sum($GLOBALS["$author_id"."_rolled"]);
+					$GLOBALS["$author_id"."_LOWER"][6]+=array_sum($GLOBALS["$author_id"."_rolled"]);
 				$GLOBALS["$author_id"."_yn"] = null;
 			}
-			if($GLOBALS["$author_id"."LOWER"][1] == 0){
+			if($GLOBALS["$author_id"."_LOWER"][1] == 0){
 				$message->reply("Add 4 of a kind?");
 				$GLOBALS["$author_id"."_yahtzee_function"] = "GET_YN";
 				$GLOBALS["$author_id"."_yahtzee_subaction"] = "add4kind";
@@ -280,10 +304,10 @@ if ($GLOBALS[$author_id . 'yahtzee'] != true){
 			}else $GLOBALS["$author_id"."_yahtzee_subaction"] = "add4kind";
 		}
 		if ($GLOBALS["$author_id"."_yahtzee_subaction"] == "add4kind"){
-			if($GLOBALS["$author_id"."LOWER"][1] == 0){
+			if($GLOBALS["$author_id"."_LOWER"][1] == 0){
 				if($GLOBALS["$author_id"."_yn"] == "Y"){
 					if (is_numeric($GLOBALS["$author_id"."_int"])){
-						$GLOBALS["$author_id"."LOWER"][1]=$GLOBALS["$author_id"."_int"];
+						$GLOBALS["$author_id"."_LOWER"][1]=$GLOBALS["$author_id"."_int"];
 					}else{
 						$GLOBALS["$author_id"."_yahtzee_function"] = "GET_INT";
 						$message->reply("Enter an integer.");
@@ -293,7 +317,7 @@ if ($GLOBALS[$author_id . 'yahtzee'] != true){
 					$GLOBALS["$author_id"."_int"] = null;
 				}
 			}
-			if($GLOBALS["$author_id"."LOWER"][0] == 0){
+			if($GLOBALS["$author_id"."_LOWER"][0] == 0){
 				$message->reply("Add 3 of a kind?");
 				$GLOBALS["$author_id"."_yahtzee_function"] = "GET_YN";
 				$GLOBALS["$author_id"."_yahtzee_subaction"] = "add3kind";
@@ -301,10 +325,10 @@ if ($GLOBALS[$author_id . 'yahtzee'] != true){
 			}else $GLOBALS["$author_id"."_yahtzee_subaction"] = "add3kind";
 		}
 		if ($GLOBALS["$author_id"."_yahtzee_subaction"] == "add3kind"){
-			if($GLOBALS["$author_id"."LOWER"][0] == 0){
+			if($GLOBALS["$author_id"."_LOWER"][0] == 0){
 				if($GLOBALS["$author_id"."_yn"] == "Y"){
 					if (is_numeric($GLOBALS["$author_id"."_int"])){
-						$GLOBALS["$author_id"."LOWER"][0]=$GLOBALS["$author_id"."_int"];
+						$GLOBALS["$author_id"."_LOWER"][0]=$GLOBALS["$author_id"."_int"];
 					}else{
 						$GLOBALS["$author_id"."_yahtzee_function"] = "GET_INT";
 						$message->reply("Enter an integer.");
@@ -317,7 +341,8 @@ if ($GLOBALS[$author_id . 'yahtzee'] != true){
 			$GLOBALS["$author_id"."_yahtzee_subaction"] = "display_score";
 		}
 		if ($GLOBALS["$author_id"."_yahtzee_subaction"] == "display_score"){
-			display_score($author_id);
+			$current_core = display_score($author_id); //Nothing happens?
+			$message->reply("\n$current_score");
 			$GLOBALS["$author_id"."_scoreTurn"]+=1;
 			if ($GLOBALS["$author_id"."_scoreTurn"] != 14){
 				//Start the next turn
