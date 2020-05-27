@@ -8,6 +8,7 @@ if ($message_content_lower == $command_symbol . 'yahtzee status'){
 	$output_string = $output_string . "Subaction: " . $GLOBALS["$author_id"."_yahtzee_subaction"] . "\n";
 	$output_string = $output_string . "Stage: " . $GLOBALS["$author_id"."_yahtzee_stage"] . "\n";
 	$message->reply($output_string);
+	return true;
 }
 
 if ($GLOBALS[$author_id . 'yahtzee'] != true){
@@ -85,6 +86,7 @@ if ($GLOBALS[$author_id . 'yahtzee'] != true){
 	Game Stages
 	***************************
 	*/
+	initialroll: //This is a bandaid I swear
 	if ($GLOBALS[$author_id."_yahtzee_stage"] == "initialroll"){
 		//These are init in yahtzee_setup but we want to clear them for every new roll
 		$GLOBALS[$author_id . '_rolled'] = array();
@@ -173,7 +175,6 @@ if ($GLOBALS[$author_id . 'yahtzee'] != true){
 			}
 		}else{
 			//break
-			$message->reply("Your final roll is : $rolled_string");
 			$GLOBALS["$author_id"."_yahtzee_function"] = null;
 			$GLOBALS["$author_id"."_yahtzee_stage"] = "countRolls";
 		}
@@ -341,13 +342,14 @@ if ($GLOBALS[$author_id . 'yahtzee'] != true){
 			$GLOBALS["$author_id"."_yahtzee_subaction"] = "display_score";
 		}
 		if ($GLOBALS["$author_id"."_yahtzee_subaction"] == "display_score"){
-			$current_core = display_score($author_id); //Nothing happens?
+			$current_score = display_score($author_id);
 			$message->reply("\n$current_score");
 			$GLOBALS["$author_id"."_scoreTurn"]+=1;
 			if ($GLOBALS["$author_id"."_scoreTurn"] != 14){
 				//Start the next turn
 				$GLOBALS["$author_id"."_yahtzee_subaction"] = null;
 				$GLOBALS["$author_id"."_yahtzee_stage"] = "initialroll";
+				goto initialroll; //This is a bandaid I swear
 			}else{
 				$message->reply("Game over!");
 				$GLOBALS[$author_id . 'yahtzee'] = false;
