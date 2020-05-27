@@ -44,28 +44,49 @@ function DIE_ROLL(){
 }
 function display_score($author_id){
 	$score_out = "";
-	$score_out = $score_out . "TURN" . $GLOBALS['scoreTurn'] . "/n";
-	$score_out = $score_out . " ONES: " . $GLOBALS[$author_id . '_UPPER'][0] . "/n";
-	$score_out = $score_out . " TWOS: " . $GLOBALS[$author_id . '_UPPER'][1] . "/n";
-	$score_out = $score_out . " THREES: " . $GLOBALS[$author_id . '_UPPER'][2] . "/n";
-	$score_out = $score_out . " FOURS: " . $GLOBALS[$author_id . '_UPPER'][3] . "/n";
-	$score_out = $score_out . " FIVES: " . $GLOBALS[$author_id . '_UPPER'][4] . "/n";
-	$score_out = $score_out . " SIXES: " . $GLOBALS[$author_id . '_UPPER'][5] . "/n";
-	$score_out = $score_out . " Total Score: ".  array_sum($GLOBALS[$author_id . '_UPPER']) . "/n";
-	$score_out = $score_out . " BONUS: " . $GLOBALS[$author_id . '_bonus'] . "/n";
-	$score_out = $score_out . " Total of Upper Section: " . (array_sum($GLOBALS['_UPPER'])+$GLOBALS[$author_id . '_bonus']) . "/n";
+	$score_out = $score_out . "TURN" . $GLOBALS['scoreTurn'] . "
+";
+	$score_out = $score_out . " ONES: " . $GLOBALS[$author_id . '_UPPER'][0] . "
+";
+	$score_out = $score_out . " TWOS: " . $GLOBALS[$author_id . '_UPPER'][1] . "
+";
+	$score_out = $score_out . " THREES: " . $GLOBALS[$author_id . '_UPPER'][2] . "
+";
+	$score_out = $score_out . " FOURS: " . $GLOBALS[$author_id . '_UPPER'][3] . "
+";
+	$score_out = $score_out . " FIVES: " . $GLOBALS[$author_id . '_UPPER'][4] . "
+";
+	$score_out = $score_out . " SIXES: " . $GLOBALS[$author_id . '_UPPER'][5] . "
+";
+	$score_out = $score_out . " Total Score: ".  array_sum($GLOBALS[$author_id . '_UPPER']) . "
+";
+	$score_out = $score_out . " BONUS: " . $GLOBALS[$author_id . '_bonus'] . "
+";
+	$score_out = $score_out . " Total of Upper Section: " . (array_sum($GLOBALS['_UPPER'])+$GLOBALS[$author_id . '_bonus']) . "
+";
 	
-	$score_out = $score_out . "=========================" . "/n";
-	$score_out = $score_out . " 3 OF A KIND: " . $GLOBALS[$author_id . "_LOWER"][0] . "/n";
-	$score_out = $score_out . " 4 OF A KIND: " . $GLOBALS[$author_id . "_LOWER"][1] . "/n";
-	$score_out = $score_out . " FULL: HOUSE: " . ($GLOBALS[$author_id . "_LOWER"][2]*25) . "/n";
-	$score_out = $score_out . " SMALL STRAIGHT: " . ($GLOBALS[$author_id . "_LOWER"][3]*30) . "/n";
-	$score_out = $score_out . " LARGE STRAIGHT: " . ($GLOBALS[$author_id . "_LOWER"][4]*40) . "/n";
-	$score_out = $score_out . " YAHTZEE: " . $GLOBALS[$author_id . "_LOWER"][5] . "/n";
-	$score_out = $score_out . " CHANCE: " . $GLOBALS[$author_id . "_LOWER"][6] . "/n";
-	$score_out = $score_out . " YAHTZEE BONUS:" . "/n";
-	$score_out = $score_out . " # NUMBER OF BONUS: " . $GLOBALS[$author_id . 'yahtzeeBonusCounter'] . "/n";
-	$score_out = $score_out . " SCORE 100 PER BONUS: " . $GLOBALS[$author_id . 'yahtzeeScore'] . "/n";
+	$score_out = $score_out . "=========================" . "
+";
+	$score_out = $score_out . " 3 OF A KIND: " . $GLOBALS[$author_id . "_LOWER"][0] . "
+";
+	$score_out = $score_out . " 4 OF A KIND: " . $GLOBALS[$author_id . "_LOWER"][1] . "
+";
+	$score_out = $score_out . " FULL: HOUSE: " . ($GLOBALS[$author_id . "_LOWER"][2]*25) . "
+";
+	$score_out = $score_out . " SMALL STRAIGHT: " . ($GLOBALS[$author_id . "_LOWER"][3]*30) . "
+";
+	$score_out = $score_out . " LARGE STRAIGHT: " . ($GLOBALS[$author_id . "_LOWER"][4]*40) . "
+";
+	$score_out = $score_out . " YAHTZEE: " . $GLOBALS[$author_id . "_LOWER"][5] . "
+";
+	$score_out = $score_out . " CHANCE: " . $GLOBALS[$author_id . "_LOWER"][6] . "
+";
+	$score_out = $score_out . " YAHTZEE BONUS:" . "
+";
+	$score_out = $score_out . " # NUMBER OF BONUS: " . $GLOBALS[$author_id . 'yahtzeeBonusCounter'] . "
+";
+	$score_out = $score_out . " SCORE 100 PER BONUS: " . $GLOBALS[$author_id . 'yahtzeeScore'] . "
+";
 	$GLOBALS[$author_id . 'totalLower'] = ($GLOBALS[$author_id . "_LOWER"][0]+$GLOBALS[$author_id . "_LOWER"][1]+($GLOBALS[$author_id . "_LOWER"][2]*25)+($GLOBALS[$author_id . "_LOWER"][3]*30)+($GLOBALS[$author_id . "_LOWER"][4]*40)+$GLOBALS[$author_id . "_LOWER"][5]+$GLOBALS[$author_id . "_LOWER"][6]+$GLOBALS[$author_id . 'yahtzeeScore']);
 	$GLOBALS[$author_id . 'totalUpper'] = (array_sum($GLOBALS[$author_id . '_UPPER'])+$GLOBALS[$author_id . '_bonus']);
 	$GLOBALS[$author_id . 'grandTotal'] = ($GLOBALS[$author_id . 'totalLower']+$GLOBALS[$author_id . 'totalUpper']);
