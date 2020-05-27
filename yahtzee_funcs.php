@@ -1,5 +1,11 @@
 <?php
-function yahtzee_setup(){ //THIS FUNCTION MUST BE CALLED PRIOR TO STARTING THE GAME
+function yahtzee_setup($author_id){ //THIS FUNCTION MUST BE CALLED PRIOR TO STARTING THE GAME
+	$GLOBALS["$author_id"."_yahtzee_function"] = null;
+	$GLOBALS["$author_id"."_yahtzee_subaction"] = null;
+	$GLOBALS["$author_id"."_yahtzee_stage"] = null;
+	$GLOBALS["$author_id"."_yn"] = null;
+	$GLOBALS["$author_id"."_int"] = null;
+	
 	$GLOBALS[$author_id . '_UPPER']=[0,0,0,0,0,0];   #ALL THE UPPER CATEGORIES                                   
 	$GLOBALS[$author_id . '_LOWER']=[0,0,0,0,0,0,0]; #ALL THE LOWER CATEGORIES
 	$GLOBALS[$author_id . '_num0'] = 0;
@@ -22,7 +28,7 @@ function yahtzee_setup(){ //THIS FUNCTION MUST BE CALLED PRIOR TO STARTING THE G
 	$GLOBALS[$author_id . '_rerollTurn']=1;
 	
 	//holy fuck this is horrible
-	$GLOBALS["yahtzee_FACES"]=array(
+	$GLOBALS["yahtzee_FACES"]=array(null,
 	"https://game-icons.net/icons/ffffff/000000/1x1/skoll/inverted-dice-1.png",
 	"https://game-icons.net/icons/ffffff/000000/1x1/skoll/inverted-dice-2.png",
 	"https://game-icons.net/icons/ffffff/000000/1x1/skoll/inverted-dice-3.png",
@@ -36,7 +42,7 @@ function DIE_ROLL(){
 	$number = rand(1, 6);
 	return $number;
 }
-function display_score(){
+function display_score($author_id){
 	$score_out = "";
 	$score_out = $score_out . "TURN" . $GLOBALS['scoreTurn'] . "/n";
 	$score_out = $score_out . " ONES: " . $GLOBALS[$author_id . '_UPPER'][0] . "/n";
