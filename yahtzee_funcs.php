@@ -44,7 +44,7 @@ function DIE_ROLL(){
 }
 function display_score($author_id){
 	$score_out = "";
-	$score_out = $score_out . "TURN" . $GLOBALS['scoreTurn'] . "
+	$score_out = $score_out . "TURN" . $GLOBALS[$author_id . '_scoreTurn'] . "
 ";
 	$score_out = $score_out . " ONES: " . $GLOBALS[$author_id . '_UPPER'][0] . "
 ";
