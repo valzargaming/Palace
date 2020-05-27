@@ -67,6 +67,13 @@ if (!CheckFile($guild_folder, "rolepicker_channel_id.php")) {
 	$rolepicker_channel_id = strval(VarLoad($guild_folder, "rolepicker_channel_id.php"));
 }
 
+if(!CheckFile($guild_folder, "games_channel_id.php")){
+	$games_channel_id = "";	//Channel where a detailed message about the user gets posted
+	VarSave($guild_folder, "games_channel_id.php", strval($games_channel_id));
+}else{
+	$games_channel_id = strval(VarLoad($guild_folder, "games_channel_id.php"));
+}
+
 if (!CheckFile($guild_folder, "suggestion_pending_channel_id.php")) {
 	$suggestion_pending_channel_id = ""; //Channel where moderators can see pending suggestions
 	VarSave($guild_folder, "suggestion_pending_channel_id.php", strval($suggestion_pending_channel_id)); 
