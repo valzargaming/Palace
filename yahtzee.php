@@ -12,10 +12,11 @@ if ($GLOBALS[$author_id . 'yahtzee'] != true){
 		yahtzee_setup($author_id);
 		$GLOBALS["$author_id"."_yahtzee_stage"] = "initialroll";
 	}
-	if ($message_content_lower == $command_symbol . 'yahtzee resume'){
+	elseif ($message_content_lower == $command_symbol . 'yahtzee resume'){
 		$GLOBALS[$author_id . 'yahtzee'] = true;
 	}
-}else{
+	else return true;
+}
 	/*
 	***************************
 	Player interrupt functions
@@ -88,10 +89,10 @@ if ($GLOBALS[$author_id . 'yahtzee'] != true){
 			$GLOBALS[$author_id . "_faces"][] = $GLOBALS["yahtzee_FACES"][($die-1)];
 		}
 		$rolled_string = implode (", ", $GLOBALS[$author_id . "_rolled"]);
-		$face_string = implode (" \n", $GLOBALS[$author_id . "_faces"]);
-		$output_string = $rolled_string . "\n" . $face_string;
+		//$face_string = implode (" \n", $GLOBALS[$author_id . "_faces"]);
+		//$output_string = $rolled_string . "\n" . $face_string;
 		
-		$message->reply("Your initial roll is : $output_string");
+		$message->reply("Your initial roll is : $rolled_string");
 		
 		$GLOBALS[$author_id . '_rerollCounter'] = 0;
 		$GLOBALS[$author_id ."_yahtzee_stage"] = "rerolls";
@@ -135,15 +136,19 @@ if ($GLOBALS[$author_id . 'yahtzee'] != true){
 			}else{
 				#display current rolls
 				$rolled_string = implode (", ", $GLOBALS[$author_id . "_rolled"]);
-				$face_string = implode (" \n", $GLOBALS[$author_id . "_faces"]);
-				$output_string = $rolled_string . "\n" . $face_string;
+				//$face_string = implode (" \n", $GLOBALS[$author_id . "_faces"]);
+				//$output_string = $rolled_string . "\n" . $face_string;
 				
 				if ($GLOBALS[$author_id . '_rerollTurn'] != 3){
-					$message->reply("Your current roll is : $output_string \n Do you want to reroll again?");
+					$message->reply("Your current roll is : $rolled_string \n Do you want to reroll again?");
 					$GLOBALS["$author_id"."_yahtzee_function"] = "GET_YN";
 					return true;
 				}
-				else $message->reply("Your final roll is : $output_string");
+				else{
+					$message->reply("Your final roll is : $rolled_string");
+					$GLOBALS["$author_id"."_yahtzee_stage"] = "countRolls";
+					//Program hangs
+				}
 			}
 		}
 	}
@@ -314,7 +319,6 @@ if ($GLOBALS[$author_id . 'yahtzee'] != true){
 			}
 		}
 	}
-}
 	
 
 ?>
