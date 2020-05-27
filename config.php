@@ -17,9 +17,10 @@ $bot_id = "662093882795753482"; //id of this bot (change it to match your bot if
 $react_option = true;
 $vanity_option = false;
 $nsfw_option = false;
+$games_option = false;
 $rolepicker_option = false;
 $species_option = false;
 $sexuality_option = false;
 $gender_option = false;
 $custom_option = false; //Edit custom_roles.php before changing this to true!
-?>
+?>	
