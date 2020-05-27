@@ -106,6 +106,7 @@ if ($is_dm === false){ //Guild message
 	if($modlog_channel_id) 			$modlog_channel 			= $author_guild->channels->get($modlog_channel_id);
 	if($general_channel_id) 		$general_channel			= $author_guild->channels->get($general_channel_id);
 	if($rolepicker_channel_id) 		$rolepicker_channel			= $author_guild->channels->get($rolepicker_channel_id);
+	if($games_channel_id)			$games_channel_id			= $author_guild->channels->get($games_channel_id);
 	if($suggestion_pending_channel_id) 	$suggestion_pending_channel		= $author_guild->channels->get(strval($suggestion_pending_channel_id));
 	if($suggestion_approved_channel_id) $suggestion_approved_channel	= $author_guild->channels->get(strval($suggestion_approved_channel_id));
 	$author_member 												= $author_guild->members->get($author_id); 				//GuildMember object
@@ -342,6 +343,7 @@ if ($creator || $owner || $dev){
 		/* Deprecated
 		$documentation = $documentation . "`setup rolepicker channel #channel` Where users pick a role\n";
 		*/
+		$documentation = $documentation . "`setup games channel #channel` Where users can play games\n";
 		$documentation = $documentation . "`setup suggestion pending #channel` \n";
 		$documentation = $documentation . "`setup suggestion approved #channel` \n";
 		//Messages
@@ -423,6 +425,7 @@ if ($creator || $owner || $dev){
 			$documentation = $documentation . "`watch #channel` $watch_channel_id\n";
 		else $documentation = $documentation . "`watch #channel` (defaulted to direct message only)\n";
 		$documentation = $documentation . "`rolepicker channel #channel` $rolepicker_channel_id\n";
+		$documentation = $documentation . "`games  #channel` $games_channel_id\n";
 		$documentation = $documentation . "`suggestion pending #channel` $suggestion_pending_channel_id\n";
 		$documentation = $documentation . "`suggestion approved #channel` $suggestion_approved_channel_id\n";
 		//Messages
@@ -685,6 +688,18 @@ if ($creator || $owner || $dev){
 		}else $message->reply("Invalid input! Please enter a channel ID or <#mention> a channel");
 		return true;
 	}
+	if (substr($message_content_lower, 0, 13) == $command_symbol . 'setup games '){
+		$filter = "$command_symbol" . "setup games ";
+		$value = str_replace($filter, "", $message_content_lower);
+		$value = str_replace("<#", "", $value);
+		$value = str_replace(">", "", $value);
+		$value = trim($value); //echo "value: " . $value . PHP_EOL;
+		if(is_numeric($value)){
+			VarSave($guild_folder, "games_channel_id.php", $value);
+			$message->reply("Games channel ID saved!");
+		}else $message->reply("Invalid input! Please enter a channel ID or <#mention> a channel");
+		return true;
+	}
 	if (substr($message_content_lower, 0, 26) == $command_symbol . 'setup suggestion pending '){
 		$filter = "$command_symbol" . "setup suggestion pending ";
 		$value = str_replace($filter, "", $message_content_lower);
@@ -708,7 +723,7 @@ if ($creator || $owner || $dev){
 			$message->reply("Suggestion approved channel ID saved!");
 		}else $message->reply("Invalid input! Please enter a channel ID or <#mention> a channel");
 		return true;
-	}
+	}	
 	//Users
 	if (substr($message_content_lower, 0, 18) == $command_symbol . 'setup rolepicker '){
 		$filter = "$command_symbol" . "setup rolepicker ";
