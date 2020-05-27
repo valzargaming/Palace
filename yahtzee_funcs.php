@@ -22,7 +22,7 @@ function yahtzee_setup(){ //THIS FUNCTION MUST BE CALLED PRIOR TO STARTING THE G
 	$GLOBALS[$author_id . '_rerollTurn']=1;
 	
 	//holy fuck this is horrible
-	$GLOBALS["yahtzee_FACES"]=(
+	$GLOBALS["yahtzee_FACES"]=array(
 	"https://game-icons.net/icons/ffffff/000000/1x1/skoll/inverted-dice-1.png",
 	"https://game-icons.net/icons/ffffff/000000/1x1/skoll/inverted-dice-2.png",
 	"https://game-icons.net/icons/ffffff/000000/1x1/skoll/inverted-dice-3.png",
@@ -52,10 +52,10 @@ function display_score(){
 	$score_out = $score_out . "=========================" . "/n";
 	$score_out = $score_out . " 3 OF A KIND: " . $GLOBALS[$author_id . 'LOWER'][0] . "/n";
 	$score_out = $score_out . " 4 OF A KIND: " . $GLOBALS[$author_id . 'LOWER'][1] . "/n";
-	$score_out = $score_out . " FULL: HOUSE: " . $GLOBALS[$author_id . 'LOWER'][2]*25) . "/n";
+	$score_out = $score_out . " FULL: HOUSE: " . ($GLOBALS[$author_id . 'LOWER'][2]*25) . "/n";
 	$score_out = $score_out . " SMALL STRAIGHT: " . ($GLOBALS[$author_id . 'LOWER'][3]*30) . "/n";
 	$score_out = $score_out . " LARGE STRAIGHT: " . ($GLOBALS[$author_id . 'LOWER'][4]*40) . "/n";
-	$score_out = $score_out . " YAHTZEE: " . ($GLOBALS[$author_id . 'LOWER'][5] . "/n";
+	$score_out = $score_out . " YAHTZEE: " . $GLOBALS[$author_id . 'LOWER'][5] . "/n";
 	$score_out = $score_out . " CHANCE: " . $GLOBALS[$author_id . 'LOWER'][6] . "/n";
 	$score_out = $score_out . " YAHTZEE BONUS:" . "/n";
 	$score_out = $score_out . " # NUMBER OF BONUS: " . $GLOBALS[$author_id . 'yahtzeeBonusCounter'] . "/n";
