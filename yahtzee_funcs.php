@@ -83,9 +83,9 @@ function display_score($author_id){
 ";
 	$score_out = $score_out . " YAHTZEE BONUS:" . "
 ";
-	$score_out = $score_out . " # NUMBER OF BONUS: " . $GLOBALS[$author_id . 'yahtzeeBonusCounter'] . "
+	$score_out = $score_out . " # NUMBER OF BONUS: " . $GLOBALS[$author_id . '_yahtzeeBonusCounter'] . "
 ";
-	$score_out = $score_out . " SCORE 100 PER BONUS: " . $GLOBALS[$author_id . 'yahtzeeScore'] . "
+	$score_out = $score_out . " SCORE 100 PER BONUS: " . $GLOBALS[$author_id . '_yahtzeeScore'] . "
 ";
 	$GLOBALS[$author_id . 'totalLower'] = ($GLOBALS[$author_id . "_LOWER"][0]+$GLOBALS[$author_id . "_LOWER"][1]+($GLOBALS[$author_id . "_LOWER"][2]*25)+($GLOBALS[$author_id . "_LOWER"][3]*30)+($GLOBALS[$author_id . "_LOWER"][4]*40)+$GLOBALS[$author_id . "_LOWER"][5]+$GLOBALS[$author_id . "_LOWER"][6]+$GLOBALS[$author_id . 'yahtzeeScore']);
 	$GLOBALS[$author_id . 'totalUpper'] = (array_sum($GLOBALS[$author_id . '_UPPER'])+$GLOBALS[$author_id . '_bonus']);
