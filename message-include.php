@@ -129,11 +129,11 @@ Options
 */
 if(!CheckFile($guild_folder, "command_symbol.php")){
 												//Author must prefix text with this to use commands
-}else 											$command_symbol = VarLoad($guild_folder, "command_symbol.php");			//Load saved option file (Not used yet, but might be later)
+}else $command_symbol = VarLoad($guild_folder, "command_symbol.php");			//Load saved option file (Not used yet, but might be later)
 
 
 //Chat options
-GLOBAL $react_option, $vanity_option, $nsfw_option;
+GLOBAL $react_option, $vanity_option, $nsfw_option, $games_option;
 if(!CheckFile($guild_folder, "react_option.php"))
 														$react	= $react_option;								//Bot will not react to messages if false
 else 													$react 	= VarLoad($guild_folder, "react_option.php");			//Load saved option file
@@ -143,6 +143,9 @@ else 													$vanity = VarLoad($guild_folder, "vanity_option.php");			//Loa
 if(!CheckFile($guild_folder, "nsfw_option.php"))
 														$nsfw	= $nsfw_option;									//Allow NSFW commands
 else 													$nsfw 	= VarLoad($guild_folder, "nsfw_option.php");				//Load saved option file
+if(!CheckFile($guild_folder, "games_option.php"))
+														$games	= $games_option;									//Allow games like Yahtzee
+else 													$games 	= VarLoad($guild_folder, "games_option.php");				//Load saved option file
 
 //Role picker options		
 GLOBAL $rolepicker_option, $species_option, $gender_option, $sexuality_option, $custom_option;		
@@ -783,7 +786,7 @@ if ($creator || $owner || $dev){
 	//Toggles
 	if ($message_content_lower == $command_symbol . 'react'){ //toggle reaction functions ;react
 		if(!CheckFile($guild_folder, "react_option.php")){
-			VarSave($guild_folder, "react_option.php", $react);
+			VarSave($guild_folder, "react_option.php", $react_option);
 			echo "[NEW REACT OPTION FILE]";
 		}
 		$react_var = VarLoad($guild_folder, "react_option.php");
@@ -797,11 +800,11 @@ if ($creator || $owner || $dev){
 	}
 	if ($message_content_lower == $command_symbol . 'vanity'){ //toggle vanity functions ;vanity
 		if(!CheckFile($guild_folder, "vanity_option.php")){
-			VarSave($guild_folder, "vanity_option.php", $vanity);														//echo "[NEW VANITY FILE]" . PHP_EOL;
+			VarSave($guild_folder, "vanity_option.php", $vanity_option);
 			echo "[NEW VANITY OPTION FILE]" . PHP_EOL;
 		}
-		$vanity_var = VarLoad($guild_folder, "vanity_option.php");														//echo "vanity_var: $vanity_var" . PHP_EOL;
-		$vanity_flip = !$vanity_var;																			//echo "vanity_flip: $vanity_flip" . PHP_EOL;
+		$vanity_var = VarLoad($guild_folder, "vanity_option.php");
+		$vanity_flip = !$vanity_var;
 		VarSave($guild_folder, "vanity_option.php", $vanity_flip);
 		if($react) $message->react("👍");
 		if ($vanity_flip === true)
@@ -811,11 +814,11 @@ if ($creator || $owner || $dev){
 	}
 	if ($message_content_lower == $command_symbol . 'nsfw'){ //toggle nsfw functions ;nsfw
 		if(!CheckFile($guild_folder, "nsfw_option.php")){
-			VarSave($guild_folder, "nsfw_option.php", $nsfw);
+			VarSave($guild_folder, "nsfw_option.php", $nsfw_option);
 			echo "[NEW NSFW OPTION FILE]" . PHP_EOL;
 		}
-		$nsfw_var = VarLoad($guild_folder, "nsfw_option.php");															//echo "nsfw_var: $nsfw_var" . PHP_EOL;
-		$nsfw_flip = !$nsfw_var;																				//echo "nsfw_flip: $nsfw_flip" . PHP_EOL;
+		$nsfw_var = VarLoad($guild_folder, "nsfw_option.php");
+		$nsfw_flip = !$nsfw_var;
 		VarSave($guild_folder, "nsfw_option.php", $nsfw_flip);
 		if($react) $message->react("👍");
 		if ($nsfw_flip === true)
@@ -823,13 +826,27 @@ if ($creator || $owner || $dev){
 		else $message->reply("NSFW functions disabled!");
 		return true;
 	}
+	if ($message_content_lower == $command_symbol . 'games'){ //toggle games functions ;ganews
+		if(!CheckFile($guild_folder, "games_option.php")){
+			VarSave($guild_folder, "games_option.php", $games_option);
+			echo "[NEW GAMES OPTION FILE]" . PHP_EOL;
+		}
+		$games_var = VarLoad($guild_folder, "games_option.php");
+		$games_flip = !$games_var;
+		VarSave($guild_folder, "games_option.php", $games_flip);
+		if($react) $message->react("👍");
+		if ($games_flip === true)
+			$message->reply("Games functions enabled!");
+		else $message->reply("Games functions disabled!");
+		return true;
+	}
 	if ($message_content_lower == $command_symbol . 'rolepicker'){ //toggle rolepicker ;rolepicker
 		if(!CheckFile($guild_folder, "rolepicker_option.php")){
-			VarSave($guild_folder, "rolepicker_option.php", $nsfw);
+			VarSave($guild_folder, "rolepicker_option.php", $rolepicker_option);
 			echo "[NEW ROLEPICKER FILE]" . PHP_EOL;
 		}
-		$rolepicker_var = VarLoad($guild_folder, "rolepicker_option.php");															//echo "nsfw_var: $nsfw_var" . PHP_EOL;
-		$rolepicker_flip = !$rolepicker_var;																				//echo "nsfw_flip: $nsfw_flip" . PHP_EOL;
+		$rolepicker_var = VarLoad($guild_folder, "rolepicker_option.php");
+		$rolepicker_flip = !$rolepicker_var;
 		VarSave($guild_folder, "rolepicker_option.php", $rolepicker_flip);
 		if($react) $message->react("👍");
 		if ($rolepicker_flip === true)
@@ -839,11 +856,11 @@ if ($creator || $owner || $dev){
 	}
 	if ($message_content_lower == $command_symbol . 'species'){ //toggle species ;species
 		if(!CheckFile($guild_folder, "species_option.php")){
-			VarSave($guild_folder, "species_option.php", $nsfw);
+			VarSave($guild_folder, "species_option.php", $species_option);
 			echo "[NEW SPECIES FILE]" . PHP_EOL;
 		}
-		$species_var = VarLoad($guild_folder, "species_option.php");															//echo "nsfw_var: $nsfw_var" . PHP_EOL;
-		$species_flip = !$species_var;																				//echo "nsfw_flip: $nsfw_flip" . PHP_EOL;
+		$species_var = VarLoad($guild_folder, "species_option.php");
+		$species_flip = !$species_var;
 		VarSave($guild_folder, "species_option.php", $species_flip);
 		if($react) $message->react("👍");
 		if ($species_flip === true)
@@ -853,11 +870,11 @@ if ($creator || $owner || $dev){
 	}
 	if ($message_content_lower == $command_symbol . 'gender'){ //toggle gender ;gender
 		if(!CheckFile($guild_folder, "gender_option.php")){
-			VarSave($guild_folder, "gender_option.php", $nsfw);
+			VarSave($guild_folder, "gender_option.php", $gender_option);
 			echo "[NEW GENDER FILE]" . PHP_EOL;
 		}
-		$gender_var = VarLoad($guild_folder, "gender_option.php");															//echo "nsfw_var: $nsfw_var" . PHP_EOL;
-		$gender_flip = !$gender_var;																				//echo "nsfw_flip: $nsfw_flip" . PHP_EOL;
+		$gender_var = VarLoad($guild_folder, "gender_option.php");
+		$gender_flip = !$gender_var;
 		VarSave($guild_folder, "gender_option.php", $gender_flip);
 		if($react) $message->react("👍");
 		if ($gender_flip === true)
@@ -867,12 +884,12 @@ if ($creator || $owner || $dev){
 	}
 	if ($message_content_lower == $command_symbol . 'sexuality'){ //toggle sexuality ;sexuality
 		if(!CheckFile($guild_folder, "sexuality_option.php")){
-			VarSave($guild_folder, "sexuality_option.php", $nsfw);
+			VarSave($guild_folder, "sexuality_option.php", $sexuality_option);
 			echo "[NEW SEXUALITY FILE]" . PHP_EOL;
 		}
-		$sexuality_var = VarLoad($guild_folder, "sexuality_option.php");															//echo "nsfw_var: $nsfw_var" . PHP_EOL;
-		$sexuality_flip = !$sexuality_var;																				//echo "nsfw_flip: $nsfw_flip" . PHP_EOL;
-		VarSave($guild_folder, "sexuality_option.php", $sexuality_flip);
+		$sexuality_var = VarLoad($guild_folder, "sexuality_option.php");
+		$sexuality_flip = !$sexuality_var;
+		VarSave($guild_folder, "sexuality_option.php", $sexuality_option);
 		if($react) $message->react("👍");
 		if ($sexuality_flip === true)
 			$message->reply("Sexuality roles enabled!");
@@ -881,11 +898,11 @@ if ($creator || $owner || $dev){
 	}
 	if ($message_content_lower == $command_symbol . 'customroles'){ //toggle custom roles ;customroles
 		if(!CheckFile($guild_folder, "custom_option.php")){
-			VarSave($guild_folder, "custom_option.php", $nsfw);
+			VarSave($guild_folder, "custom_option.php", $custom_option);
 			echo "[NEW CUSTOM ROLE OPTION FILE]" . PHP_EOL;
 		}
-		$custom_var = VarLoad($guild_folder, "custom_option.php");															//echo "nsfw_var: $nsfw_var" . PHP_EOL;
-		$custom_flip = !$custom_var;																				//echo "nsfw_flip: $nsfw_flip" . PHP_EOL;
+		$custom_var = VarLoad($guild_folder, "custom_option.php");
+		$custom_flip = !$custom_var;
 		VarSave($guild_folder, "custom_option.php", $custom_flip);
 		if($react) $message->react("👍");
 		if ($custom_flip === true)
@@ -993,6 +1010,8 @@ if ($message_content_lower == $command_symbol . 'help'){ //;help
 		$documentation = $documentation . "`vanity`\n";
 		//nsfw
 		$documentation = $documentation . "`nsfw`\n";
+		//gamnes
+		$documentation = $documentation . "`games`\n";
 		//rolepicker
 		$documentation = $documentation . "`rolepicker`\n";
 		//species
@@ -1162,6 +1181,10 @@ if ($message_content_lower == $command_symbol . 'settings'){ //;settings
 	$documentation = $documentation . "`nsfw:` ";
 	if ($nsfw) $documentation = $documentation . "**Enabled**\n";
 	else $documentation = $documentation . "**Disabled**\n";
+	//games
+	$documentation = $documentation . "`games:` ";
+	if ($games) $documentation = $documentation . "**Enabled**\n";
+	else $documentation = $documentation . "**Disabled**\n";
 	//rolepicker
 	$documentation = $documentation . "`\nrolepicker:` ";
 	if ($rp0) $documentation = $documentation . "**Enabled**\n";
@@ -1252,6 +1275,9 @@ if ($nsfw){ //This currently doesn't serve a purpose
 		}
 		return true;
 	}
+}
+if ($games){
+	//include "yahtzee.php";
 }
 if ($message_content_lower == $command_symbol . 'ping'){
 	echo 'PING' . PHP_EOL;
@@ -2834,9 +2860,42 @@ if ($creator){ //Mostly just debug commands
 		}else return $message->reply("Invalid input! Please enter a valid number");
 		return true;
 	}
+	if (substr($message_content_lower, 0, 11) == $command_symbol . 'resolveid '){ //;timer
+		echo "[RESOLVEID]" . PHP_EOL;
+		$filter = "$command_symbol" . "resolveid ";
+		$value = str_replace($filter, "", $message_content_lower);
+		if(is_numeric($value)){ //resolve with restcord
+			$restcord_result = $restcord->user->getUser(['user.id' => (int)$value]);
+			var_dump($restcord_result);
+		}
+	}
+	if ($message_content_lower == $command_symbol . 'xml'){
+		/*
+		<Address ID="1">
+		<FirmName>XXXY COMP</FirmName>
+		<Address2>8 WILDWOOD DR</Address2>
+		<City>OLD LYME</City>
+		<State>CT</State>
+		<Urbanization>YES</Urbanization>
+		<Zip5>06371</Zip5>
+		<Zip4>1844</Zip4>
+		</Address>
+		</ZipCodeLookupResponse>
+		*/
+		$userid = "315VALZA8001";
+		$address2 = "6406 Ivy Lane";
+		$city = "Greenbelt";
+		$state = "MD";
+		$urlstring = "http://production.shippingapis.com/ShippingAPITest.dll?API=ZipCodeLookup&XML=";
+		$xmlstring = "<ZipCodeLookupRequest USERID='$userid'><Address ID='0'><Address1></Address1><Address2>$address2</Address2><City>$city</City><State>$state</State></Address></ZipCodeLookupRequest>";
+		//print($xml->asXML());
+		//$author_channel->send($urlstring . urlencode($xmlstring));
+	}
 }
 
 if ($creator || ($author_guild_id == "468979034571931648") ){ //These commands should only be relevant for use on this server
+	$staff_channel_id = "712685552155230278";
+	
 	if ($message_content_lower == $command_symbol . 'status' || $message_content_lower == '!s status'){ //;status
 		echo "[STATUS] $author_check" . PHP_EOL;
 		$ch = curl_init(); //create curl resource
@@ -3473,59 +3532,7 @@ if ($creator || ($author_guild_id == "468979034571931648") ){ //These commands s
 			});
 			return true;
 		}
-		if (substr($message_content_lower, 0, 12) == '!s whitelist'){ //!s whitelist ckey
-			if (substr($message_content_lower, 0, 14) == '!s whitelistme') return true; //It's a Civbot command and shouldn't be triggering this
-			echo "[WHITELIST] $author_check" . PHP_EOL;
-			$filter = "!s whitelist";
-			$ckey = trim(strtolower(str_replace($filter, "", $message_content_lower))); //echo "ckey: $ckey" . PHP_EOL;
-			$civ13_whitelist = VarLoad(null, "../civ13_whitelist.php");
-			if ($ckey != ""){
-				//$civ13_whitelist = VarLoad(null, "civ13_whitelist.php");
-				//Load whitelist from file
-				if (!in_array($ckey, $civ13_whitelist)){
-					$url = "http://www.byond.com/members/".urlencode($ckey)."?format=text";
-					$ch = curl_init(); //create curl resource
-					curl_setopt($ch, CURLOPT_URL, $url); //set url
-					curl_setopt($ch, CURLOPT_RETURNTRANSFER, true); //return the transfer as a string
-					curl_setopt($ch, CURLOPT_HTTPGET, true);
-					if( ! $byond_curl = curl_exec($ch)) trigger_error(curl_error($ch));
-					curl_close($ch);
-					$joined_pos = strpos($byond_curl , "joined"); //10  //Parse for the joined date
-					$joined = substr($byond_curl, ($joined_pos+10), 10); //Get the date in the YYYY-MM-DD format
-					
-					//Check yyyy-mm-dd format validity of joined
-					$regex = "^(19|20)\d\d[- /.](0[1-9]|1[012])[- /.](0[1-9]|[12][0-9]|3[01])^"; //echo "format match: " . preg_match($regex, $joined) . PHP_EOL;
-					$valid = preg_match($regex, $joined);
-					if ($valid == true){
-						//Add ckey to whitelist array
-						$civ13_whitelist[] = $ckey;
-						VarSave(null, "../civ13_whitelist.php", $civ13_whitelist);
-						if($react) $message->react("👍");
-						$message->reply("$ckey has been whitelisted!");
-						//Save modified whitelist
-					}else $message->reply("Byond account for $ckey does not exist!");
-				}else $message->reply("Byond account for $ckey is already whitelisted!");
-			}else{
-				//Display the whitelist
-				$civ13_whitelist = implode(", ", $civ13_whitelist);
-				//$message->reply("The following accounts are whitelisted: $civ13_whitelist");
-				if ($civ13_whitelist != ""){
-					$embed = new \CharlotteDunois\Yasmin\Models\MessageEmbed();
-					$embed
-						->setColor("e1452d")																	// Set a color (the thing on the left side)
-	//					->setDescription("$alias" /* . "\n" . $servers[1]["servername"] . "\nRound time: " . $rd[1] . "d " . $remainder . "h " . $rd[1] . "m" . "\n Host: ". $serverinfo[1]["host"] ." \nPlayers: " . $serverinfo[1]["players"]*/)									// Set a description (below title, above fields)
-						->addField("Whitelist", "$civ13_whitelist")														// New line after this
-						->setImage("$image_path")             													// Set an image (below everything except footer)
-						->setTimestamp()                                                                     	// Set a timestamp (gets shown next to footer)
-						->setFooter("Palace Bot by Valithor#5947")                             					// Set a footer without icon
-						->setURL("");                             												// Set the URL
-					$author_channel->send('', array('embed' => $embed))->done(null, function ($error){
-						echo "[ERROR]" . PHP_EOL . $error . PHP_EOL; //Echo any errors
-					});
-				}
-			}
-		}
-	}	
+	}
 	if ($creator || $owner || $dev){
 		if ($message_content_lower == $command_symbol . '?status'){ //;?status
 			include "../servers/getserverdata.php";
@@ -3588,104 +3595,103 @@ if ($author_id == "352898973578690561"){ //magmacreeper
 	}
 }
 */
-if ( ($role_verified_id != "") || ($role_verified_id != NULL) ) //This command only works if the Verified Role is setup
-if ($creator || $owner || $dev || $admin || $mod) //Only allow these roles to use this
-if ( (substr($message_content_lower, 0, 3) == $command_symbol . 'v ') || (substr(($message_content), 0, 8) == $command_symbol . 'verify ') ){ //Verify ;v ;verify
-	echo "[VERIFY] $author_check" . PHP_EOL;
-//	Get an array of people mentioned
-	$mentions_arr 												= $message->mentions->users; 									//echo "mentions_arr: " . PHP_EOL; var_dump ($mentions_arr); //Shows the collection object
-	$mention_role_name_queue_default							= "<@$author_id> verified the following users:" . PHP_EOL;
-	$mention_role_name_queue_full 								= $mention_role_name_queue_default;
-	
-	$filter = "$command_symbol" . "v ";
-	$value = str_replace($filter, "", $message_content_lower);
-	$filter = "$command_symbol" . "verify ";
-	$value = str_replace($filter, "", $value);
-	$value = str_replace("<@!", "", $value); $value = str_replace("<@", "", $value); $value = str_replace("<@", "", $value); $value = str_replace(">", "", $value);
-	
-	if(is_numeric($value)){
-		$mention_member				= $author_guild->members->get($value);
-		$mention_user				= $mention_member->user;
-		$mentions_arr				= array($mention_user);
-	}else return $message->reply("Invalid input! Please enter a valid ID or @mention the user.");
-	if ($mention_member == NULL) return $message->reply("Invalid ID or user not found! Are they in the server?"); //User not found
-	
-	foreach ( $mentions_arr as $mention_param ){																				//echo "mention_param: " . PHP_EOL; var_dump ($mention_param);
-//		id, username, discriminator, bot, avatar, email, mfaEnabled, verified, webhook, createdTimestamp
-		$mention_param_encode 									= json_encode($mention_param); 									//echo "mention_param_encode: " . $mention_param_encode . PHP_EOL;
-		$mention_json 											= json_decode($mention_param_encode, true); 					//echo "mention_json: " . PHP_EOL; var_dump($mention_json);
-		$mention_id 											= $mention_json['id']; 											//echo "mention_id: " . $mention_id . PHP_EOL; //Just the discord ID
-		
-//		$mention_discriminator 									= $mention_json['discriminator']; 								//echo "mention_discriminator: " . $mention_discriminator . PHP_EOL; //Just the discord ID
-//		$mention_check 											= $mention_username ."#".$mention_discriminator; 				//echo "mention_check: " . $mention_check . PHP_EOL; //Just the discord ID
-		
-//		Get the roles of the mentioned user
-		$target_guildmember 									= $message->guild->members->get($mention_id);
-		$target_guildmember_role_collection 					= $target_guildmember->roles;									//echo "target_guildmember_role_collection: " . (count($author_guildmember_role_collection)-1);
-
-//		Get the avatar URL of the mentioned user
-		$target_guildmember_user								= $target_guildmember->user;									//echo "member_class: " . get_class($target_guildmember_user) . PHP_EOL;
-		$mention_avatar 										= "{$target_guildmember_user->getAvatarURL()}";					//echo "mention_avatar: " . $mention_avatar . PHP_EOL;				//echo "target_guildmember_role_collection: " . (count($target_guildmember_role_collection)-1);
-		
-		$target_verified										= false; //Default
-		$x=0;
-		foreach ($target_guildmember_role_collection as $role){
-			if ($x!=0){ //0 is @everyone so skip it
-				if ($role->id == $role_verified_id)
-					$target_verified 							= true;
-			}
-			$x++;
-		}
-		if($target_verified == false){ //Add the verified role to the member
-			$target_guildmember->addRole($role_verified_id)->done(
-				function ($error) {
-					echo "[ERROR] $error".PHP_EOL;
-				}
-			); //echo "Verify role added ($role_verified_id)" . PHP_EOL;
-		
-//			Build the embed
-			$embed = new \CharlotteDunois\Yasmin\Models\MessageEmbed();
-			$embed
-//				->setTitle("Roles")																		// Set a title
-				->setColor("e1452d")																	// Set a color (the thing on the left side)
-//				->setDescription("$author_guild_name")													// Set a description (below title, above fields)
-				->addField("Verified", 		"<@$mention_id>")											// New line after this if ,true
-
-				->setThumbnail("$mention_avatar")														// Set a thumbnail (the image in the top right corner)
-//				->setImage('https://avatars1.githubusercontent.com/u/4529744?s=460&v=4')             	// Set an image (below everything except footer)
-				->setTimestamp()                                                                     	// Set a timestamp (gets shown next to footer)
-				->setAuthor("$author_check", "$author_avatar")  									// Set an author with icon
-				->setFooter("Palace Bot by Valithor#5947")                             					// Set a footer without icon
-				->setURL("");                             												// Set the URL
-//			Send the message
-			if($react) $message->react("👍");
-			//Log the verification
-			if($verifylog_channel){
-				$verifylog_channel->send('', array('embed' => $embed))->done(null, function ($error){
-					echo "[ERROR] $error".PHP_EOL; //Echo any errors
-				});
-			}elseif($modlog_channel){
-				$modlog_channel->send('', array('embed' => $embed))->done(null, function ($error){
-					echo "[ERROR] $error".PHP_EOL; //Echo any errors
-				});
-			}
-			//Welcome the verified user
-			if($general_channel){
-				$msg = "Welcome to $author_guild_name, <@$mention_id>!";
-				if($rolepicker_channel) $msg = $msg . " Feel free to pick out some roles in <#$rolepicker_channel_id>.";
-				if($general_channel)$general_channel->send($msg);
-			}
-			return true;
-		}else{
-			if($react) $message->react("👎");
-			$message->reply("$mention_check does not need to be verified!" . PHP_EOL);
-			return true;
-		}
-	}
-}
-
 
 if ($creator || $owner || $dev || $admin || $mod){ //Only allow these roles to use this
+	if ( (substr($message_content_lower, 0, 3) == $command_symbol . 'v ') || (substr(($message_content), 0, 8) == $command_symbol . 'verify ') ){ //Verify ;v ;verify
+		if ( ($role_verified_id != "") || ($role_verified_id != NULL) ){ //This command only works if the Verified Role is setup
+			echo "[VERIFY] $author_check" . PHP_EOL;
+		//	Get an array of people mentioned
+			$mentions_arr 												= $message->mentions->users; 									//echo "mentions_arr: " . PHP_EOL; var_dump ($mentions_arr); //Shows the collection object
+			$mention_role_name_queue_default							= "<@$author_id> verified the following users:" . PHP_EOL;
+			$mention_role_name_queue_full 								= $mention_role_name_queue_default;
+			
+			$filter = "$command_symbol" . "v ";
+			$value = str_replace($filter, "", $message_content_lower);
+			$filter = "$command_symbol" . "verify ";
+			$value = str_replace($filter, "", $value);
+			$value = str_replace("<@!", "", $value); $value = str_replace("<@", "", $value); $value = str_replace("<@", "", $value); $value = str_replace(">", "", $value);
+			
+			if(is_numeric($value)){
+				$mention_member				= $author_guild->members->get($value);
+				$mention_user				= $mention_member->user;
+				$mentions_arr				= array($mention_user);
+			}else return $message->reply("Invalid input! Please enter a valid ID or @mention the user.");
+			if ($mention_member == NULL) return $message->reply("Invalid ID or user not found! Are they in the server?"); //User not found
+			
+			foreach ( $mentions_arr as $mention_param ){																				//echo "mention_param: " . PHP_EOL; var_dump ($mention_param);
+		//		id, username, discriminator, bot, avatar, email, mfaEnabled, verified, webhook, createdTimestamp
+				$mention_param_encode 									= json_encode($mention_param); 									//echo "mention_param_encode: " . $mention_param_encode . PHP_EOL;
+				$mention_json 											= json_decode($mention_param_encode, true); 					//echo "mention_json: " . PHP_EOL; var_dump($mention_json);
+				$mention_id 											= $mention_json['id']; 											//echo "mention_id: " . $mention_id . PHP_EOL; //Just the discord ID
+				
+		//		$mention_discriminator 									= $mention_json['discriminator']; 								//echo "mention_discriminator: " . $mention_discriminator . PHP_EOL; //Just the discord ID
+		//		$mention_check 											= $mention_username ."#".$mention_discriminator; 				//echo "mention_check: " . $mention_check . PHP_EOL; //Just the discord ID
+				
+		//		Get the roles of the mentioned user
+				$target_guildmember 									= $message->guild->members->get($mention_id);
+				$target_guildmember_role_collection 					= $target_guildmember->roles;									//echo "target_guildmember_role_collection: " . (count($author_guildmember_role_collection)-1);
+
+		//		Get the avatar URL of the mentioned user
+				$target_guildmember_user								= $target_guildmember->user;									//echo "member_class: " . get_class($target_guildmember_user) . PHP_EOL;
+				$mention_avatar 										= "{$target_guildmember_user->getAvatarURL()}";					//echo "mention_avatar: " . $mention_avatar . PHP_EOL;				//echo "target_guildmember_role_collection: " . (count($target_guildmember_role_collection)-1);
+				
+				$target_verified										= false; //Default
+				$x=0;
+				foreach ($target_guildmember_role_collection as $role){
+					if ($x!=0){ //0 is @everyone so skip it
+						if ($role->id == $role_verified_id)
+							$target_verified 							= true;
+					}
+					$x++;
+				}
+				if($target_verified == false){ //Add the verified role to the member
+					$target_guildmember->addRole($role_verified_id)->done(
+						function ($error) {
+							echo "[ERROR] $error".PHP_EOL;
+						}
+					); //echo "Verify role added ($role_verified_id)" . PHP_EOL;
+				
+		//			Build the embed
+					$embed = new \CharlotteDunois\Yasmin\Models\MessageEmbed();
+					$embed
+		//				->setTitle("Roles")																		// Set a title
+						->setColor("e1452d")																	// Set a color (the thing on the left side)
+		//				->setDescription("$author_guild_name")													// Set a description (below title, above fields)
+						->addField("Verified", 		"<@$mention_id>")											// New line after this if ,true
+
+						->setThumbnail("$mention_avatar")														// Set a thumbnail (the image in the top right corner)
+		//				->setImage('https://avatars1.githubusercontent.com/u/4529744?s=460&v=4')             	// Set an image (below everything except footer)
+						->setTimestamp()                                                                     	// Set a timestamp (gets shown next to footer)
+						->setAuthor("$author_check", "$author_avatar")  									// Set an author with icon
+						->setFooter("Palace Bot by Valithor#5947")                             					// Set a footer without icon
+						->setURL("");                             												// Set the URL
+		//			Send the message
+					if($react) $message->react("👍");
+					//Log the verification
+					if($verifylog_channel){
+						$verifylog_channel->send('', array('embed' => $embed))->done(null, function ($error){
+							echo "[ERROR] $error".PHP_EOL; //Echo any errors
+						});
+					}elseif($modlog_channel){
+						$modlog_channel->send('', array('embed' => $embed))->done(null, function ($error){
+							echo "[ERROR] $error".PHP_EOL; //Echo any errors
+						});
+					}
+					//Welcome the verified user
+					if($general_channel){
+						$msg = "Welcome to $author_guild_name, <@$mention_id>!";
+						if($rolepicker_channel) $msg = $msg . " Feel free to pick out some roles in <#$rolepicker_channel_id>.";
+						if($general_channel)$general_channel->send($msg);
+					}
+					return true;
+				}else{
+					if($react) $message->react("👎");
+					$message->reply("$mention_check does not need to be verified!" . PHP_EOL);
+					return true;
+				}
+			}
+		}
+	}
 	if ( ($message_content_lower == $command_symbol . 'cv') || ( $message_content_lower == $command_symbol . 'clearv') ){ //;clearv ;cv Clear all messages in the get-verified channel
 		if( ($getverified_channel_id != "") || ($getverified_channel_id != NULL)){ //This command only works if the Get Verified Channel is setup
 			echo "[CV] $author_check" . PHP_EOL;
