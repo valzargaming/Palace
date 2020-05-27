@@ -1292,7 +1292,9 @@ if ($nsfw){ //This currently doesn't serve a purpose
 	}
 }
 if ($games){
-	//include "yahtzee.php";
+	if ($author_channel_id == $games_channel_id){
+		include "yahtzee.php";
+	}
 }
 if ($message_content_lower == $command_symbol . 'ping'){
 	echo 'PING' . PHP_EOL;
