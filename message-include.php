@@ -28,6 +28,14 @@ $author_id 														= $author_user->id;												//echo "author_id: " . $
 $author_avatar 													= $author_user->getAvatarURL();									//echo "author_avatar: " . $author_avatar . PHP_EOL;
 $author_check 													= "$author_username#$author_discriminator"; 					//echo "author_check: " . $author_check . PHP_EOL;
 
+if ($message_content_lower == ';invite'){
+	$author_user->createDM()->then(function($author_dmchannel) use ($discord){
+		$discord->generateOAuthInvite(8)->then(function($BOTINVITELINK) use ($author_dmchannel){
+			$author_dmchannel->send($BOTINVITELINK);
+		});
+	});
+	return true;
+}
 /*
 *********************
 *********************
@@ -1014,7 +1022,8 @@ Server Setup Functions
 */	
 
 if ($message_content_lower == $command_symbol . 'help'){ //;help
-	$documentation = "**Command symbol: $command_symbol**\n";
+	$documentation ="\n`;invite` sends a DM with an OAuth2 link to invite Palace Bot to your server.\n";
+	$documentation = $documentation . "**\nCommand symbol: $command_symbol**\n";
 	if($creator || $owner || $dev){ //toggle options
 		$documentation = $documentation . "\n__**Owner:**__\n";
 		//toggle options
@@ -1110,7 +1119,7 @@ if ($message_content_lower == $command_symbol . 'help'){ //;help
 		
 	}
 	if($vanity){
-		$documentation = $documentation . "\n__**Vanity commands:**__\n";
+		$documentation = $documentation . "\n__**Vanity:**__\n";
 		//cooldown
 		$documentation = $documentation . "`cooldown` or `cd` tells you how much time you must wait before using another Vanity command \n";
 		//hug/snuggle
@@ -1129,9 +1138,18 @@ if ($message_content_lower == $command_symbol . 'help'){ //;help
 	if($nsfw && $adult){
 		//TODO
 	}
+	if($games){
+		$documentation = $documentation . "\n__**Games:**__\n";
+		//yahtzee
+		$documentation = $documentation . "`yahtzee start` Starts a new game of Yahtzee\n";
+		$documentation = $documentation . "`yahtzee end` Ends the game and deletes all progress.\n";
+		$documentation = $documentation . "`yahtzee pause` Pauses the game and can be resumed later \n";
+		$documentation = $documentation . "`yahtzee resume` Resumes the paused game \n";
+		
+	}
 	//All other functions
 	$documentation = $documentation . "\n__**General:**__\n";
-	$documentation = $documentation . "`poll # description` creates a timed poll\n";
+	$documentation = $documentation . "`poll # description` creates a timed poll.\n";
 	//ping
 	$documentation = $documentation . "`ping` replies with 'Pong!'\n";
 	//roles / roles @
@@ -1473,7 +1491,7 @@ if ($message_content_lower == $command_symbol . 'avatar'){ //;avatar
 //			->addField("Total Given", 		"$vanity_give_count")									// New line after this
 			
 //			->setThumbnail("$author_avatar")														// Set a thumbnail (the image in the top right corner)
-			->setImage("$author_avatar")             												// Set an image (below everything except footer)
+			->setImage("$author_avatar")             													// Set an image (below everything except footer)
 			->setTimestamp()                                                                     	// Set a timestamp (gets shown next to footer)
 			->setAuthor("$author_check", "$author_guild_avatar")  									// Set an author with icon
 			->setFooter("Palace Bot by Valithor#5947")                             					// Set a footer without icon
