@@ -201,7 +201,7 @@ try {
 }catch (Throwable $e){
     echo "Captured Throwable: " . $e->getMessage() . PHP_EOL;
 	//Restart the bot if this gets called\
-	sleep(30);
+	sleep(300);
 	echo "RESTARTING BOT" . PHP_EOL;
 	$restart_cmd = 'cmd /c "'. __DIR__  . '\run.bat"'; //echo $restart_cmd . PHP_EOL;
 	system($restart_cmd);
