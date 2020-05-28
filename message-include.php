@@ -1022,7 +1022,7 @@ Server Setup Functions
 */	
 
 if ($message_content_lower == $command_symbol . 'help'){ //;help
-	$documentation ="\n`;invite` sends a DM with an OAuth2 link to invite Palace Bot to your server.\n";
+	$documentation ="\n`;invite` sends a DM with an OAuth2 link to invite Palace Bot to your server\n";
 	$documentation = $documentation . "**\nCommand symbol: $command_symbol**\n";
 	if($creator || $owner || $dev){ //toggle options
 		$documentation = $documentation . "\n__**Owner:**__\n";
@@ -1060,32 +1060,32 @@ if ($message_content_lower == $command_symbol . 'help'){ //;help
 	if($creator || $owner || $dev || $admin){
 		$documentation = $documentation . "\n__**High Staff:**__\n";
 		//current settings
-		$documentation = $documentation . "`settings` sends a DM with current settings.\n";
+		$documentation = $documentation . "`settings` sends a DM with current settings\n";
 		
 		//v
 		if( ($role_verified_id === NULL) || ($role_verified_id == "") || ($role_verified_id == "0") ) $documentation = $documentation . "~~";
-		$documentation = $documentation . "`v` or `verify` gives the verified role.\n";
+		$documentation = $documentation . "`v` or `verify` gives the verified role\n";
 		if( ($role_verified_id === NULL) || ($role_verified_id == "") || ($role_verified_id == "0") ) $documentation = $documentation . "~~";
 		//cv
 		if( ($getverified_channel === NULL) || ($getverified_channel == "") || ($getverified_channel == "0") )  $documentation = $documentation . "~~";
-		$documentation = $documentation . "`cv` or `clearv` clears the verification channel and posts a short notice.\n";
+		$documentation = $documentation . "`cv` or `clearv` clears the verification channel and posts a short notice\n";
 		if( ($getverified_channel === NULL) || ($getverified_channel == "") || ($getverified_channel == "0") )  $documentation = $documentation . "~~";
 		//clearall
-		$documentation = $documentation . "`clearall` clears the current channel of up to 100 messages.\n";
+		$documentation = $documentation . "`clearall` clears the current channel of up to 100 messages\n";
 		//clear #
-		$documentation = $documentation . "`clear #` clears the current channel of # messages.\n";
+		$documentation = $documentation . "`clear #` clears the current channel of # messages\n";
 		//watch
-		$documentation = $documentation . "`watch` sends a direct message to the author whenever the mentioned sends a message.\n";
+		$documentation = $documentation . "`watch` sends a direct message to the author whenever the mentioned sends a message\n";
 		//unwatch
-		$documentation = $documentation . "`unwatch` removes the effects of the watch command.\n";
+		$documentation = $documentation . "`unwatch` removes the effects of the watch command\n";
 		//vwatch
 		if( ($role_verified_id === NULL) || ($role_verified_id == "") || ($role_verified_id == "0") ) $documentation = $documentation . "~~";
-		$documentation = $documentation . "`vw` or `vwatch` gives the verified role to the mentioned and watches them.\n";
+		$documentation = $documentation . "`vw` or `vwatch` gives the verified role to the mentioned and watches them\n";
 		if( ($role_verified_id === NULL) || ($role_verified_id == "") || ($role_verified_id == "0") ) $documentation = $documentation . "~~";
 		//warn
-		$documentation = $documentation . "`warn` logs an infraction.\n";
+		$documentation = $documentation . "`warn` logs an infraction\n";
 		//infractions
-		$documentation = $documentation . "`infractions` replies with a list of infractions for someone.\n";
+		$documentation = $documentation . "`infractions` replies with a list of infractions for someone\n";
 		//removeinfraction
 		$documentation = $documentation . "`removeinfraction @mention #`\n";
 		//kick
@@ -1142,27 +1142,27 @@ if ($message_content_lower == $command_symbol . 'help'){ //;help
 		$documentation = $documentation . "\n__**Games:**__\n";
 		//yahtzee
 		$documentation = $documentation . "`yahtzee start` Starts a new game of Yahtzee\n";
-		$documentation = $documentation . "`yahtzee end` Ends the game and deletes all progress.\n";
+		$documentation = $documentation . "`yahtzee end` Ends the game and deletes all progress\n";
 		$documentation = $documentation . "`yahtzee pause` Pauses the game and can be resumed later \n";
 		$documentation = $documentation . "`yahtzee resume` Resumes the paused game \n";
 		
 	}
 	//All other functions
 	$documentation = $documentation . "\n__**General:**__\n";
-	$documentation = $documentation . "`poll # description` creates a timed poll.\n";
+	$documentation = $documentation . "`poll # description` creates a timed poll\n";
 	//ping
 	$documentation = $documentation . "`ping` replies with 'Pong!'\n";
 	//roles / roles @
-	$documentation = $documentation . "`roles` displays the roles for the author or user being mentioned.\n";
+	$documentation = $documentation . "`roles` displays the roles for the author or user being mentioned\n";
 	//avatar
-	$documentation = $documentation . "`avatar` displays the profile picture of the author or user being mentioned.\n";
+	$documentation = $documentation . "`avatar` displays the profile picture of the author or user being mentioned\n";
 	//poll
-	$documentation = $documentation . "`poll` creates a message for people to vote on.\n";
+	$documentation = $documentation . "`poll` creates a message for people to vote on\n";
 	//remindme
-	$documentation = $documentation . "`remindme #` send a DM after # of seconds have passed.\n";
+	$documentation = $documentation . "`remindme #` send a DM after # of seconds have passed\n";
 	//suggest
 	if ( ($suggestion_pending_channel === NULL) || ($suggestion_pending_channel == "") || ($suggestion_pending_channel == "0") ) $documentation = $documentation . "~~";
-	$documentation = $documentation . "`suggest` posts a suggestion for staff to vote on.\n";
+	$documentation = $documentation . "`suggest` posts a suggestion for staff to vote on\n";
 	if ( ($suggestion_pending_channel === NULL) || ($suggestion_pending_channel == "") || ($suggestion_pending_channel == "0") ) $documentation = $documentation . "~~";
 
 	$documentation_sanitized = str_replace("\n","",$documentation_sanitized);
