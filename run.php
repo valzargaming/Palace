@@ -213,6 +213,7 @@ try {
 		if ($message != "Undefined variable: suggestion_pending_channel") //Expected to be null
 			echo "Handler captured error $number: '$message'" . PHP_EOL  ;
 	});
+	
 	$discord->login($token)->done();
 	$loop->run();
 }catch (Throwable $e){ //Restart the bo
