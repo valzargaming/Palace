@@ -8,38 +8,55 @@
 //Use get_class($object->first())to verify you're getting the right kind of object. IE, $author_guildmember->roles should be Models\Role)
 //If any of these methods resolve to a class of React\Promise\Promise you're probably passing an invalid parameter for the class
 //Always subtract 1 when counting roles because everyone has an @everyone role
-	$vm = false; //Set this to true if using a VM that can be paused
+$vm = false; //Set this to true if using a VM that can be paused
 
-	include __DIR__ . '/vendor/autoload.php';
-	define('MAIN_INCLUDED', 1); //Token and SQL credential files are protected, this must be defined to access
-	ini_set('memory_limit', '-1'); //Unlimited memory usage
+include __DIR__ . '/vendor/autoload.php';
+define('MAIN_INCLUDED', 1); //Token and SQL credential files are protected, this must be defined to access
+ini_set('memory_limit', '-1'); //Unlimited memory usage
 
-	//Global variables
-	include 'config.php'; //Global config variables
-	include 'species.php'; //Used by the species role picker function
-	include 'sexualities.php'; //Used by the sexuality role picker function
-	include 'gender.php'; //Used by the gender role picker function
-	include 'custom_roles.php'; //Create your own roles with this template!
+//Global variables
+include 'config.php'; //Global config variables
+include 'species.php'; //Used by the species role picker function
+include 'sexualities.php'; //Used by the sexuality role picker function
+include 'gender.php'; //Used by the gender role picker function
+include 'custom_roles.php'; //Create your own roles with this template!
 
-	include 'blacklisted_owners.php'; //Array of guild owner user IDs that are not allowed to use this bot
-	include 'blacklisted_guilds.php'; //Array of Guilds that are not allowed to use this bot
-	include 'whitelisted_guilds.php'; //Only guilds in the $whitelisted_guilds array should be allowed to access the bot.
+include 'blacklisted_owners.php'; //Array of guild owner user IDs that are not allowed to use this bot
+include 'blacklisted_guilds.php'; //Array of Guilds that are not allowed to use this bot
+include 'whitelisted_guilds.php'; //Only guilds in the $whitelisted_guilds array should be allowed to access the bot.
 
-	require 'token.php';
-	use charlottedunois\yasmin;
-	$loop = \React\EventLoop\Factory::create();
-	$discord = new \CharlotteDunois\Yasmin\Client(array(), $loop);
-	echo PHP_EOL;
-	
-	use RestCord\DiscordClient;
-	$restcord = new DiscordClient(['token' => "{$token}"]); // Token is required
-	//var_dump($restcord->guild->getGuild(['guild.id' => 116927365652807686]));
+require 'token.php';
+use charlottedunois\yasmin;
+$loop = \React\EventLoop\Factory::create();
+$discord = new \CharlotteDunois\Yasmin\Client(array(), $loop);
+echo PHP_EOL;
 
-	/*
-	set_exception_handler(function (Throwable $e) {
-		// reconnect, log uncaught, etc etc
-	});
-	*/
+use RestCord\DiscordClient;
+$restcord = new DiscordClient(['token' => "{$token}"]); // Token is required
+//var_dump($restcord->guild->getGuild(['guild.id' => 116927365652807686]));
+
+/*
+set_exception_handler(function (Throwable $e) {
+	// reconnect, log uncaught, etc etc
+});
+*/
+
+include_once "custom_functions.php";
+$rescue = VarLoad("_globals", "RESCUE.php"); //Check if recovering from a fatal crash
+if ($rescue == true){ //Attempt to restore crashed session
+	echo "[RESCUE START]" . PHP_EOL;
+	$rescue_dir = __DIR__ . '/_globals';
+	$rescue_vars = scandir($rescue_dir);
+	foreach ($rescue_vars as $var){
+		$backup_var = VarLoad("_globals", "$var");
+		$GLOBALS["$var"] = $backup_var;
+		$target_dir = $rescue_dir . "/" . $var; echo $target_dir . PHP_EOL;
+		unlink($target_dir);
+	}
+	VarSave("_globals", "rescue.php", false);
+	echo "[RESCUE DONE]" . PHP_EOL;
+}
+
 try {	
 	$discord->on('error', function($error) { //Handling of thrown errors
 		echo "[ERROR] $error" . PHP_EOL;
@@ -198,11 +215,36 @@ try {
 	});
 	$discord->login($token)->done();
 	$loop->run();
-}catch (Throwable $e){
-    echo "Captured Throwable: " . $e->getMessage() . PHP_EOL;
-	//Restart the bot if this gets called\
+}catch (Throwable $e){ //Restart the bo
+	echo "Captured Throwable: " . $e->getMessage() . PHP_EOL;
+
+	//Rescue global variables
+	$GLOBALS["RESCUE"] = true;
+	$blacklist_globals = array (
+		"GLOBALS",
+		"loop",
+		"discord",
+		"restcord"
+	);
+	echo "Skipped: ";
+	foreach($GLOBALS as $key => $value){
+		$temp = array($value);
+		if (!in_array($key, $blacklist_globals)){
+			try{
+				VarSave("_globals", "$key.php", $value);
+			}catch (Throwable $e){ //This will probably crash the bot
+				echo "$key, ";
+			}
+		}else{
+			echo "$key, ";
+		}
+	}
+	echo PHP_EOL;
+    
 	sleep(300);
+	
 	echo "RESTARTING BOT" . PHP_EOL;
+	$discord->destroy();
 	$restart_cmd = 'cmd /c "'. __DIR__  . '\run.bat"'; //echo $restart_cmd . PHP_EOL;
 	system($restart_cmd);
 }
