@@ -123,8 +123,9 @@ if ($is_dm === false){ //Guild message
 	if ($author_id != $discord->user->id){
 		GLOBAL $server_invite;
 		echo "[DM-EARLY BREAK]" . PHP_EOL;			
-		$dm_text = "Please use commands for this bot within a server.";
-		$message->reply("$dm_text \n$server_invite");
+		$dm_text = "Please use commands for this bot within a server unless otherwise prompted.";
+		//$message->reply("$dm_text \n$server_invite");
+		$message->reply("$dm_text");
 	}
 	return true;
 }
@@ -2905,26 +2906,49 @@ if ($creator){ //Mostly just debug commands
 		}
 	}
 	if ($message_content_lower == $command_symbol . 'xml'){
-		/*
-		<Address ID="1">
-		<FirmName>XXXY COMP</FirmName>
-		<Address2>8 WILDWOOD DR</Address2>
-		<City>OLD LYME</City>
-		<State>CT</State>
-		<Urbanization>YES</Urbanization>
-		<Zip5>06371</Zip5>
-		<Zip4>1844</Zip4>
-		</Address>
-		</ZipCodeLookupResponse>
-		*/
-		$userid = "315VALZA8001";
-		$address2 = "6406 Ivy Lane";
-		$city = "Greenbelt";
-		$state = "MD";
-		$urlstring = "http://production.shippingapis.com/ShippingAPITest.dll?API=ZipCodeLookup&XML=";
-		$xmlstring = "<ZipCodeLookupRequest USERID='$userid'><Address ID='0'><Address1></Address1><Address2>$address2</Address2><City>$city</City><State>$state</State></Address></ZipCodeLookupRequest>";
-		//print($xml->asXML());
-		//$author_channel->send($urlstring . urlencode($xmlstring));
+		include "xml.php";
+	}
+	if ($message_content_lower == $command_symbol . 'saveglobal'){ //;saveglobal
+		echo "[SAVEGLOBAL]" . PHP_EOL;
+		$GLOBALS["RESCUE"] = true;
+		$blacklist_globals = array (
+			"GLOBALS",
+			"loop",
+			"discord",
+			"restcord"
+		);
+		echo "Skipped: ";
+		foreach($GLOBALS as $key => $value){
+			$temp = array($value);
+			if (!in_array($key, $blacklist_globals)){
+				try{
+					VarSave("_globals", "$key.php", $value);
+				}catch (Throwable $e){ //This will probably crash the bot
+					echo "$key, ";
+				}
+			}else{
+				echo "$key, ";
+			}
+		}
+		echo PHP_EOL;
+	}
+	if ($message_content_lower == $command_symbol . 'rescue'){ //;rescue
+		echo "[RESCUE]" . PHP_EOL;
+		include_once "custom_functions.php";
+		$rescue = VarLoad("_globals", "RESCUE.php"); //Check if recovering from a fatal crash
+		if ($rescue == true){ //Attempt to restore crashed session
+			echo "[RESCUE START]" . PHP_EOL;
+			$rescue_dir = __DIR__ . '/_globals';
+			$rescue_vars = scandir($rescue_dir);
+			foreach ($rescue_vars as $var){
+				$backup_var = VarLoad("_globals", "$var");
+				$GLOBALS["$var"] = $backup_var;
+				$target_dir = $rescue_dir . "/" . $var; echo $target_dir . PHP_EOL;
+				unlink($target_dir);
+			}
+			VarSave("_globals", "rescue.php", false);
+			echo "[RESCUE DONE]" . PHP_EOL;
+		}
 	}
 }
 
