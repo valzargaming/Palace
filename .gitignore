@@ -20,3 +20,4 @@ users
 users/*
 tmp
 tmp/*
+_globals/*
