@@ -2908,7 +2908,7 @@ if ($creator){ //Mostly just debug commands
 	if ($message_content_lower == $command_symbol . 'xml'){
 		include "xml.php";
 	}
-	if ($message_content_lower == $command_symbol . 'saveglobal'){ //;saveglobal
+	if ($message_content_lower == $command_symbol . 'backup'){ //;backup
 		echo "[SAVEGLOBAL]" . PHP_EOL;
 		$GLOBALS["RESCUE"] = true;
 		$blacklist_globals = array (
@@ -2949,6 +2949,91 @@ if ($creator){ //Mostly just debug commands
 			VarSave("_globals", "rescue.php", false);
 			echo "[RESCUE DONE]" . PHP_EOL;
 		}
+	}
+	if ($message_content_lower == $command_symbol . 'validate'){ //;validate
+		echo "[VALIDATE START]" . PHP_EOL;
+		$GLOBALS["PURGE"] = null;
+		$author_guild->fetchMembers()->then(function($fetched_guild) use ($message, $author_guild){	//Promise
+			//echo "fetched_guild: " . get_class($fetched_guild) . PHP_EOL;
+			$members = $fetched_guild->members->all(); //array
+			foreach ($members as $target_member){ //GuildMember
+				$skip = false;
+				//get roles of member
+				$target_guildmember_role_collection = $target_member->roles;
+				foreach ($target_guildmember_role_collection as $role){
+					if ($role->id == "469312086766518272") $skip = true;
+				}
+				if ($skip === false){
+					//Query SQL for ss13 where discord =
+					$mention_id = $target_member->id; //echo "mention_id: " . $mention_id . PHP_EOL;
+					$active_member = $author_guild->members->get($mention_id);
+					include "../connect.php";
+					$sqlgettargetinfo = "
+						SELECT
+							`ss13`
+						FROM
+							`users`
+						WHERE
+							`discord` = '$mention_id'";
+					$resultsqlgettargetinfo = mysqli_query($con, $sqlgettargetinfo);
+					if($resultsqlgettargetinfo){
+						$rowselect = mysqli_fetch_array($resultsqlgettargetinfo);
+						$ckey = $rowselect['ss13'];
+						if (!$ckey){
+							//echo "$mention_id: No ckey found" . PHP_EOL;
+							$GLOBALS["PURGE"][] = $mention_id;
+						}else{
+							//echo "$mention_id: $ckey" . PHP_EOL;
+						}
+					}else{
+						//echo "$mention_id: No registration found" . PHP_EOL;
+						$GLOBALS["PURGE"][] = $mention_id;
+					}
+				}
+			}
+			$message->react("👍");
+			echo count($GLOBALS["PURGE"]) . " ACCOUNTS TO PURGE" . PHP_EOL;
+			echo "[VALIDATE DONE]" . PHP_EOL;
+			return true;
+		});
+	}
+	if ($message_content_lower == $command_symbol . 'purge start'){ //;purge start
+		echo "[PURGE START]" . PHP_EOL;
+		if ($GLOBALS["PURGE"]){
+			echo "Purge 0: " . $GLOBALS["PURGE"][0] . PHP_EOL;
+			$GLOBALS["PURGE_COUNT"] = count($GLOBALS["PURGE"]); echo "PURGE_COUNT: " . $GLOBALS["PURGE_COUNT"] . PHP_EOL;
+			$GLOBALS["PURGE_X"] = 0;
+			$GLOBALS['PURGE_TIMER'] = $loop->addPeriodicTimer(5, function() use ($discord, $loop, $author_guild_id){
+				//FIX THIS
+				if ($GLOBALS["PURGE_X"] < $GLOBALS["PURGE_COUNT"]){
+					$target_id = $GLOBALS["PURGE"][$GLOBALS["PURGE_X"]]; //GuildMember
+					//echo "author_guild_id: " . $author_guild_id;
+					//echo "PURGE ID: $target_id" . PHP_EOL;
+					if ($target_id){
+						echo "PURGING $target_id" . PHP_EOL;
+						$target_guild = $discord->guilds->resolve($author_guild_id); echo "target_guild: " . get_class($target_guild) . PHP_EOL;
+						$target_member = $target_guild->members->get($target_id); echo "target_member: " . get_class($target_member) . PHP_EOL;
+						$target_member->removeRole("468982790772228127");
+						$target_member->removeRole("468983261708681216");
+						$target_member->addRole("469312086766518272");
+						$GLOBALS["PURGE_X"] = $GLOBALS["PURGE_X"] + 1;
+						return true;
+					}else{
+						$loop->cancelTimer($GLOBALS['PURGE_TIMER']);
+						$GLOBALS["PURGE_COUNT"] = null;
+						$GLOBALS['PURGE_X'] = null;
+						$GLOBALS['PURGE_TIMER'] = null;
+						echo "[PURGE TIMER DONE]";
+						return true;
+					}
+				}
+			});
+			$message->react("👍");
+		}else{
+			$message->react("👎");
+		}
+		echo "[PURGE DONE]" . PHP_EOL;
+		return true;
 	}
 }
 
