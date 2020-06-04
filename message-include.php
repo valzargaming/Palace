@@ -2957,13 +2957,15 @@ if ($creator){ //Mostly just debug commands
 			//echo "fetched_guild: " . get_class($fetched_guild) . PHP_EOL;
 			$members = $fetched_guild->members->all(); //array
 			foreach ($members as $target_member){ //GuildMember
-				$skip = false;
+				$target_skip = false;
+				$target_bot = false;
 				//get roles of member
 				$target_guildmember_role_collection = $target_member->roles;
 				foreach ($target_guildmember_role_collection as $role){
-					if ($role->id == "469312086766518272") $skip = true;
+					if ($role->name == "Cadet") $target_skip = true;
+					if ($role->name == "Bots") $target_bot = true;
 				}
-				if ($skip === false){
+				if ( ($target_skip === false) && ($target_bot === false) ){
 					//Query SQL for ss13 where discord =
 					$mention_id = $target_member->id; //echo "mention_id: " . $mention_id . PHP_EOL;
 					$active_member = $author_guild->members->get($mention_id);
