@@ -1118,7 +1118,7 @@ if ($message_content_lower == $command_symbol . 'help'){ //;help
 		//whois
 		$documentation = $documentation . "`whois @mention` displays known information about a user\n";
 		//lookup
-		$documentation = $documentation . "`lookup @mention` retrieves a username#discriminator using a discord id or mention\n";
+		$documentation = $documentation . "`lookup @mention` retrieves a username#discriminator using either a discord id or mention\n";
 		
 	}
 	if($vanity){
@@ -2944,7 +2944,11 @@ if ($creator){ //Mostly just debug commands
 			$rescue_vars = scandir($rescue_dir);
 			foreach ($rescue_vars as $var){
 				$backup_var = VarLoad("_globals", "$var");
-				$GLOBALS["$var"] = $backup_var;
+				
+				$filter = ".php";
+				$value = str_replace($filter, "", $var);
+				$GLOBALS["$value"] = $backup_var;
+				
 				$target_dir = $rescue_dir . "/" . $var; echo $target_dir . PHP_EOL;
 				unlink($target_dir);
 			}
