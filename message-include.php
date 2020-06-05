@@ -1116,7 +1116,9 @@ if ($message_content_lower == $command_symbol . 'help'){ //;help
 		//Strikeout invalid options
 		if ( ($role_muted_id === NULL) || ($role_muted_id == "") || ($role_muted_id == "0") ) $documentation = $documentation . "~~"; //Strikeout invalid options
 		//whois
-		$documentation = $documentation . "`whois @mention`\n";
+		$documentation = $documentation . "`whois @mention` displays known information about a user\n";
+		//lookup
+		$documentation = $documentation . "`lookup @mention` retrieves a username#discriminator using a discord id or mention\n";
 		
 	}
 	if($vanity){
@@ -3040,7 +3042,8 @@ if ($creator){ //Mostly just debug commands
 }
 
 if ($creator || ($author_guild_id == "468979034571931648") ){ //These commands should only be relevant for use on this server
-	$staff_channel_id = "712685552155230278";
+	$staff_channel_id = "562715700360380434";
+	$staff_bot_channel_id = "712685552155230278";
 	
 	if ($message_content_lower == $command_symbol . 'status' || $message_content_lower == '!s status'){ //;status
 		echo "[STATUS] $author_check" . PHP_EOL;
@@ -3981,6 +3984,25 @@ if ($creator || $owner || $dev || $admin || $mod){ //Only allow these roles to u
 			});
 		}else $message->reply("Invalid input! Please enter an ID or @mention the user");
 		return true;
+	}
+	if (substr($message_content_lower, 0, 8) == $command_symbol . 'lookup '){ //;whois
+		echo "[WHOIS] $author_check" . PHP_EOL;			
+		$filter = "$command_symbol" . "lookup ";
+		$value = str_replace($filter, "", $message_content_lower);
+		$value = str_replace("<@!", "", $value); $value = str_replace("<@", "", $value); $value = str_replace("<@", "", $value); 
+		$value = str_replace(">", "", $value);
+		$value = trim($value);
+		if(is_numeric($value)){
+			try{
+				$restcord_user = $restcord->user->getUser(['user.id' => intval($value)]);
+				$restcord_nick = $restcord_user->username;
+				$restcord_discriminator = $restcord_user->discriminator;
+				$restcord_result = "Discord ID is registered to  $restcord_nick#$restcord_discriminator (<@$value>)";
+			}catch (Exception $e){
+				$restcord_result = "Unable to locate user for ID $value";
+			}
+			$message->reply($restcord_result);
+		}
 	}
 	if ($message_content_lower == $command_symbol . 'clearall'){ //;clearall Clear as many messages in the author's channel at once as possible
 		echo "[CLEARALL] $author_check" . PHP_EOL;
