@@ -49,7 +49,11 @@ if ($rescue == true){ //Attempt to restore crashed session
 	$rescue_vars = scandir($rescue_dir);
 	foreach ($rescue_vars as $var){
 		$backup_var = VarLoad("_globals", "$var");
-		$GLOBALS["$var"] = $backup_var;
+				
+		$filter = ".php";
+		$value = str_replace($filter, "", $var);
+		$GLOBALS["$value"] = $backup_var;
+		
 		$target_dir = $rescue_dir . "/" . $var; echo $target_dir . PHP_EOL;
 		unlink($target_dir);
 	}
@@ -211,7 +215,8 @@ try {
 
 	set_error_handler(function(int $number, string $message) {
 		if ($message != "Undefined variable: suggestion_pending_channel") //Expected to be null
-			echo "Handler captured error $number: '$message'" . PHP_EOL  ;
+		if ($message != "Trying to access array offset on value of type null") //Expected to be null, part of ;validate
+			echo PHP_EOL . PHP_EOL . "Handler captured error $number: '$message'" . PHP_EOL . PHP_EOL;
 	});
 	
 	$discord->login($token)->done();
