@@ -3255,11 +3255,9 @@ if ($creator || ($author_guild_id == "468979034571931648") ){ //These commands s
 				}else{
 					$desc_string = $desc_string . $varname . ": " . urldecode($varvalue) . "\n";
 				}
-				$desc_string_array[] = $desc_string;
+				$desc_string_array[] = $desc_string ?? "null";
 				$desc_string = "";
 			}
-			
-			$desc_string = $desc_string ?? "null"; //can't be an empty string
 			/*
 			//Build the embed message
 			if (strlen($desc_string) <= 2042){
