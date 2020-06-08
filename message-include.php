@@ -3058,15 +3058,13 @@ if ($creator || ($author_guild_id == "468979034571931648") ){ //These commands s
 	}
 	if ($author_channel_id != "468979034571931650"){ //Don't let people use these in #general
 		if ($message_content_lower == $command_symbol . 'serverstatus' || $message_content_lower == '!s serverstatus'){ //;serverstatus
-			
 			echo "[SERVER STATUS] $author_check" . PHP_EOL;
 			//VirtualBox state
 			$ch = curl_init(); //create curl resource
 			curl_setopt($ch, CURLOPT_URL, "http://10.0.0.18:81/civ13/serverstate.txt"); // set url
 			curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1); //return the transfer as a string
 			if (curl_exec($ch) != "playing"){ //Don't even try to process anything (including webhooks) if the persistence server is saving.
-				$author_channel->send("Persistence server is saving!");
-				return true;
+				$author_channel->send("Persistence is either saving or the webserver is down!");
 			}
 			include "../servers/getserverdata.php"; //Do this async?
 			$sent = false; //No message has been sent yet.		
@@ -3230,6 +3228,77 @@ if ($creator || ($author_guild_id == "468979034571931648") ){ //These commands s
 			}
 			return true;
 		}
+		if ($message_content_lower == $command_symbol . 'serverstate' || $message_content_lower == '!s serverstate'){ //;serverstatus
+			//Sends a message containing data for each server we host as collected from serverinfo.json
+			echo "[SERVER STATE] $author_check" . PHP_EOL;
+			
+			$data = array();
+			//get json from website
+			$ch = curl_init(); //create curl resource
+			curl_setopt($ch, CURLOPT_URL, "http://www.valzargaming.com/servers/serverinfo.json"); // set url
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1); //return the transfer as a string
+			curl_setopt($ch, CURLOPT_POST, false);
+			$ch_data = curl_exec($ch);
+			curl_close($ch);
+			
+			$data_json = json_decode($ch_data, true); //iterable with $data_json["key"]
+			$desc_string_array = array();
+			$desc_string = "";
+			foreach ($data_json as $varname => $varvalue){ //individual servers
+				echo strlen($desc_string) . PHP_EOL;
+				if(is_array($varvalue)){
+					//$varvalue = json_encode($varvalue);
+					foreach ($varvalue as $varname2 => $varvalue2){ //invalid
+						$varvalue2 = json_encode($varvalue2);
+						$desc_string = $desc_string . $varname2 . ": " . urldecode($varvalue2) . "\n";
+					}
+				}else{
+					$desc_string = $desc_string . $varname . ": " . urldecode($varvalue) . "\n";
+				}
+				$desc_string_array[] = $desc_string;
+				$desc_string = "";
+			}
+			
+			$desc_string = $desc_string ?? "null"; //can't be an empty string
+			/*
+			//Build the embed message
+			if (strlen($desc_string) <= 2042){
+				$embed = new \CharlotteDunois\Yasmin\Models\MessageEmbed();
+				$embed
+					//->setTitle("$author_check")															// Set a title
+					//->setColor("e1452d")																	// Set a color (the thing on the left side)
+					->setDescription("Data\n" . $desc_string)												// Set a description (below title, above fields)
+					//->addField("Players (" . $serverinfo[0]["players"].")", urldecode($playerlist))		// New line after this
+					
+					//->setThumbnail("$author_avatar")														// Set a thumbnail (the image in the top right corner)
+					//->setImage('https://avatars1.githubusercontent.com/u/4529744?s=460&v=4')             	// Set an image (below everything except footer)
+					//->setImage("$image_path")             												// Set an image (below everything except footer)
+					->setTimestamp()                                                                     	// Set a timestamp (gets shown next to footer)
+					//->setAuthor("$author_check", "$author_guild_avatar")  								// Set an author with icon
+					//->setFooter("Palace Bot by Valithor#5947")                             					// Set a footer without icon
+					->setURL("");
+				$message->channel->send('', array('embed' => $embed))->done(null, function ($error){
+					echo "[ERROR] $error".PHP_EOL; //Echo any errors
+				});
+			}else{
+				$message->channel->send("$desc_string");
+			}
+			*/
+			
+			$server_index[] = "Persistence" . PHP_EOL;
+			$server_index[] = "TDM" . PHP_EOL;
+			$server_index[] = "Nomads" . PHP_EOL;
+			$x=0;
+			foreach ($desc_string_array as $output_string){
+				if ($output_string != "" && $output_string != NULL){
+					$author_channel->send($server_index[$x] . "```$output_string```")->done(null, function ($error){
+						echo "[ERROR] $error".PHP_EOL; //Echo any errors
+					});
+					$x++;
+				}
+			}
+		}
+		
 		if ($message_content_lower == $command_symbol . 'players' || $message_content_lower == '!s players'){ //;players
 			echo "[PLAYERS] $author_check" . PHP_EOL;
 			include "../servers/getserverdata.php";
@@ -3685,6 +3754,97 @@ if ($creator || ($author_guild_id == "468979034571931648") ){ //These commands s
 			});
 			return true;
 		}
+		if ( ($message_content_lower == $command_symbol . 'host persistence') || ($message_content_lower == $command_symbol . 'host pers') ){
+			echo "[HOST PERSISTENCE] $author_check" . PHP_EOL;
+			$message->react("👍");
+			$message->react("⏰")->then(function($author_channel) use ($message){	//Promise
+				//Trigger the php script remotely
+				$ch = curl_init(); //create curl resource
+				curl_setopt($ch, CURLOPT_URL, "http://10.0.0.18:81/civ13/host.php"); // set url
+				curl_setopt($ch, CURLOPT_POST, true);
+					
+				curl_setopt($ch, CURLOPT_USERAGENT, 'Palace Bot');
+				
+				curl_setopt($ch, CURLOPT_TIMEOUT, 1); 
+				curl_setopt($ch, CURLOPT_HEADER, 0);
+				curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+				curl_setopt($ch, CURLOPT_FORBID_REUSE, true);
+				curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 1);
+				curl_setopt($ch, CURLOPT_DNS_CACHE_TIMEOUT, 10);
+				
+				curl_setopt($ch, CURLOPT_FRESH_CONNECT, true);
+				
+				curl_exec($ch);
+				curl_close($ch);
+				
+				$dt = new DateTime("now", new DateTimeZone('America/New_York'));  // convert UNIX timestamp to PHP DateTime
+				$time = $dt->format('d-m-Y H:i:s'); // output = 2017-01-01 00:00:00
+				$message->reply("$time EST");
+				return true;
+			});
+			return true;
+		}
+		if ( ($message_content_lower == $command_symbol . 'kill persistence') || ($message_content_lower == $command_symbol . 'kill pers') ){
+			echo "[HOST PERSISTENCE] $author_check" . PHP_EOL;
+			$message->react("👍");
+			$message->react("⏰")->then(function($author_channel) use ($message){	//Promise
+				//Trigger the php script remotely
+				$ch = curl_init(); //create curl resource
+				curl_setopt($ch, CURLOPT_URL, "http://10.0.0.18:81/civ13/kill.php"); // set url
+				curl_setopt($ch, CURLOPT_POST, true);
+					
+				curl_setopt($ch, CURLOPT_USERAGENT, 'Palace Bot');
+				
+				curl_setopt($ch, CURLOPT_TIMEOUT, 1); 
+				curl_setopt($ch, CURLOPT_HEADER, 0);
+				curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+				curl_setopt($ch, CURLOPT_FORBID_REUSE, true);
+				curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 1);
+				curl_setopt($ch, CURLOPT_DNS_CACHE_TIMEOUT, 10);
+				
+				curl_setopt($ch, CURLOPT_FRESH_CONNECT, true);
+				
+				curl_exec($ch);
+				curl_close($ch);
+				
+				$dt = new DateTime("now", new DateTimeZone('America/New_York'));  // convert UNIX timestamp to PHP DateTime
+				$time = $dt->format('d-m-Y H:i:s'); // output = 2017-01-01 00:00:00
+				$message->reply("$time EST");
+				return true;
+			});
+			return true;
+		}
+		if ( ($message_content_lower == $command_symbol . 'update persistence') || ($message_content_lower == $command_symbol . 'update pers') ){
+			echo "[HOST PERSISTENCE] $author_check" . PHP_EOL;
+			$message->react("👍");
+			$message->react("⏰")->then(function($author_channel) use ($message){	//Promise
+				//Trigger the php script remotely
+				$ch = curl_init(); //create curl resource
+				curl_setopt($ch, CURLOPT_URL, "http://10.0.0.18:81/civ13/update.php"); // set url
+				curl_setopt($ch, CURLOPT_POST, true);
+					
+				curl_setopt($ch, CURLOPT_USERAGENT, 'Palace Bot');
+				
+				curl_setopt($ch, CURLOPT_TIMEOUT, 1); 
+				curl_setopt($ch, CURLOPT_HEADER, 0);
+				curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+				curl_setopt($ch, CURLOPT_FORBID_REUSE, true);
+				curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 1);
+				curl_setopt($ch, CURLOPT_DNS_CACHE_TIMEOUT, 10);
+				
+				curl_setopt($ch, CURLOPT_FRESH_CONNECT, true);
+				
+				curl_exec($ch);
+				curl_close($ch);
+				
+				$dt = new DateTime("now", new DateTimeZone('America/New_York'));  // convert UNIX timestamp to PHP DateTime
+				$time = $dt->format('d-m-Y H:i:s'); // output = 2017-01-01 00:00:00
+				$message->reply("$time EST");
+				return true;
+			});
+			return true;
+		}
+		
 	}
 	if ($creator || $owner || $dev){
 		if ($message_content_lower == $command_symbol . '?status'){ //;?status
@@ -4001,7 +4161,7 @@ if ($creator || $owner || $dev || $admin || $mod){ //Only allow these roles to u
 				$restcord_user = $restcord->user->getUser(['user.id' => intval($value)]);
 				$restcord_nick = $restcord_user->username;
 				$restcord_discriminator = $restcord_user->discriminator;
-				$restcord_result = "Discord ID is registered to  $restcord_nick#$restcord_discriminator (<@$value>)";
+				$restcord_result = "Discord ID is registered to $restcord_nick#$restcord_discriminator (<@$value>)";
 			}catch (Exception $e){
 				$restcord_result = "Unable to locate user for ID $value";
 			}
