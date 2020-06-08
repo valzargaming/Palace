@@ -3295,8 +3295,8 @@ if ($creator || ($author_guild_id == "468979034571931648") ){ //These commands s
 					$x++;
 				}
 			}
+			return true;
 		}
-		
 		if ($message_content_lower == $command_symbol . 'players' || $message_content_lower == '!s players'){ //;players
 			echo "[PLAYERS] $author_check" . PHP_EOL;
 			include "../servers/getserverdata.php";
@@ -3759,7 +3759,6 @@ if ($creator || ($author_guild_id == "468979034571931648") ){ //These commands s
 		}
 		if ( ($message_content_lower == $command_symbol . 'host persistence') || ($message_content_lower == $command_symbol . 'host pers') ){
 			echo "[HOST PERSISTENCE] $author_check" . PHP_EOL;
-			$message->react("👍");
 			$message->react("⏰")->then(function($author_channel) use ($message){	//Promise
 				//Trigger the php script remotely
 				$ch = curl_init(); //create curl resource
@@ -3780,16 +3779,18 @@ if ($creator || ($author_guild_id == "468979034571931648") ){ //These commands s
 				curl_exec($ch);
 				curl_close($ch);
 				
+				/*
 				$dt = new DateTime("now", new DateTimeZone('America/New_York'));  // convert UNIX timestamp to PHP DateTime
 				$time = $dt->format('d-m-Y H:i:s'); // output = 2017-01-01 00:00:00
 				$message->reply("$time EST");
+				*/
+				$message->react("👍");
 				return true;
 			});
 			return true;
 		}
 		if ( ($message_content_lower == $command_symbol . 'kill persistence') || ($message_content_lower == $command_symbol . 'kill pers') ){
 			echo "[HOST PERSISTENCE] $author_check" . PHP_EOL;
-			$message->react("👍");
 			$message->react("⏰")->then(function($author_channel) use ($message){	//Promise
 				//Trigger the php script remotely
 				$ch = curl_init(); //create curl resource
@@ -3809,17 +3810,19 @@ if ($creator || ($author_guild_id == "468979034571931648") ){ //These commands s
 				
 				curl_exec($ch);
 				curl_close($ch);
-				
+				/*
 				$dt = new DateTime("now", new DateTimeZone('America/New_York'));  // convert UNIX timestamp to PHP DateTime
 				$time = $dt->format('d-m-Y H:i:s'); // output = 2017-01-01 00:00:00
 				$message->reply("$time EST");
+				*/
+				$message->react("👍");
 				return true;
 			});
 			return true;
 		}
 		if ( ($message_content_lower == $command_symbol . 'update persistence') || ($message_content_lower == $command_symbol . 'update pers') ){
 			echo "[HOST PERSISTENCE] $author_check" . PHP_EOL;
-			$message->react("👍");
+			/*
 			$message->react("⏰")->then(function($author_channel) use ($message){	//Promise
 				//Trigger the php script remotely
 				$ch = curl_init(); //create curl resource
@@ -3843,8 +3846,12 @@ if ($creator || ($author_guild_id == "468979034571931648") ){ //These commands s
 				$dt = new DateTime("now", new DateTimeZone('America/New_York'));  // convert UNIX timestamp to PHP DateTime
 				$time = $dt->format('d-m-Y H:i:s'); // output = 2017-01-01 00:00:00
 				$message->reply("$time EST");
+				
+				$message->react("👍");
 				return true;
 			});
+			*/
+			if($react) $message->react("👎");
 			return true;
 		}
 		
