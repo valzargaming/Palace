@@ -3230,8 +3230,8 @@ if ($creator || ($author_guild_id == "468979034571931648") ){ //These commands s
 		}
 		if ($message_content_lower == $command_symbol . 'serverstate' || $message_content_lower == '!s serverstate'){ //;serverstatus
 			//Sends a message containing data for each server we host as collected from serverinfo.json
+			//This method does not have to be called locally, so it can be moved to VZG Verifier
 			echo "[SERVER STATE] $author_check" . PHP_EOL;
-			
 			$data = array();
 			//get json from website
 			$ch = curl_init(); //create curl resource
@@ -3259,28 +3259,7 @@ if ($creator || ($author_guild_id == "468979034571931648") ){ //These commands s
 				$desc_string = "";
 			}
 			/*
-			//Build the embed message
-			if (strlen($desc_string) <= 2042){
-				$embed = new \CharlotteDunois\Yasmin\Models\MessageEmbed();
-				$embed
-					//->setTitle("$author_check")															// Set a title
-					//->setColor("e1452d")																	// Set a color (the thing on the left side)
-					->setDescription("Data\n" . $desc_string)												// Set a description (below title, above fields)
-					//->addField("Players (" . $serverinfo[0]["players"].")", urldecode($playerlist))		// New line after this
-					
-					//->setThumbnail("$author_avatar")														// Set a thumbnail (the image in the top right corner)
-					//->setImage('https://avatars1.githubusercontent.com/u/4529744?s=460&v=4')             	// Set an image (below everything except footer)
-					//->setImage("$image_path")             												// Set an image (below everything except footer)
-					->setTimestamp()                                                                     	// Set a timestamp (gets shown next to footer)
-					//->setAuthor("$author_check", "$author_guild_avatar")  								// Set an author with icon
-					//->setFooter("Palace Bot by Valithor#5947")                             					// Set a footer without icon
-					->setURL("");
-				$message->channel->send('', array('embed' => $embed))->done(null, function ($error){
-					echo "[ERROR] $error".PHP_EOL; //Echo any errors
-				});
-			}else{
-				$message->channel->send("$desc_string");
-			}
+			
 			*/
 			
 			$server_index[] = "Persistence" . PHP_EOL;
@@ -3289,9 +3268,30 @@ if ($creator || ($author_guild_id == "468979034571931648") ){ //These commands s
 			$x=0;
 			foreach ($desc_string_array as $output_string){
 				if ($output_string != "" && $output_string != NULL){
-					$author_channel->send($server_index[$x] . "```$output_string```")->done(null, function ($error){
-						echo "[ERROR] $error".PHP_EOL; //Echo any errors
-					});
+					//Build the embed message
+					if (strlen($output_string) <= 2042){
+						$embed = new \CharlotteDunois\Yasmin\Models\MessageEmbed();
+						$embed
+							//->setTitle("$author_check")															// Set a title
+							->setColor("e1452d")																	// Set a color (the thing on the left side)
+							->setDescription($server_index[$x] . "```$output_string```")												// Set a description (below title, above fields)
+							//->addField("Players (" . $serverinfo[0]["players"].")", urldecode($playerlist))		// New line after this
+							
+							//->setThumbnail("$author_avatar")														// Set a thumbnail (the image in the top right corner)
+							//->setImage('https://avatars1.githubusercontent.com/u/4529744?s=460&v=4')             	// Set an image (below everything except footer)
+							//->setImage("$image_path")             												// Set an image (below everything except footer)
+							->setTimestamp()                                                                     	// Set a timestamp (gets shown next to footer)
+							//->setAuthor("$author_check", "$author_avatar")  								// Set an author with icon
+							->setFooter("Palace Bot by Valithor#5947")                             					// Set a footer without icon
+							->setURL("");
+						$message->channel->send('', array('embed' => $embed))->done(null, function ($error){
+							echo "[ERROR] $error".PHP_EOL; //Echo any errors
+						});
+					}else{
+						$author_channel->send($server_index[$x] . "```$output_string```")->done(null, function ($error){
+							echo "[ERROR] $error".PHP_EOL; //Echo any errors
+						});
+					}
 					$x++;
 				}
 			}
@@ -3417,28 +3417,33 @@ if ($creator || ($author_guild_id == "468979034571931648") ){ //These commands s
 		if ($message_content_lower == $command_symbol . 'admins' || $message_content_lower == '!s admins'){ //;admins
 			echo "[ADMINS] $author_check" . PHP_EOL;
 			include "../servers/getserverdata.php";
-			$admins = $serverinfo[0]["admins"];
-			$alias = "<byond://" . $servers[0]["alias"] . ":$port>";
-			//echo "image_path: " . $image_path . PHP_EOL;
-		//	Build the embed message
-			$embed = new \CharlotteDunois\Yasmin\Models\MessageEmbed();
-			$embed
-		//		->setTitle("$author_check")																// Set a title
-				->setColor("e1452d")																	// Set a color (the thing on the left side)
-				->setDescription("$alias\n" . $servers[0]["servername"])								// Set a description (below title, above fields)
-				->addField("Admins", $admins)															// New line after this
+			$x=0;
+			foreach ($serverinfo as $server){
+				$admins = $serverinfo[$x]["admins"] ?? "None";
+				$alias = "<byond://" . $servers[$x]["alias"] . ":$port>";
+				$servername = $servers[$x]["servername"] ?? "None";
+				//echo "image_path: " . $image_path . PHP_EOL;
+			//	Build the embed message
+				$embed = new \CharlotteDunois\Yasmin\Models\MessageEmbed();
+				$embed
+			//		->setTitle("$author_check")																// Set a title
+					->setColor("e1452d")																	// Set a color (the thing on the left side)
+					->setDescription($alias . "\n" . $servername )								// Set a description (below title, above fields)
+					->addField("Admins", $admins)															// New line after this
+					
+			//		->setThumbnail("$author_avatar")														// Set a thumbnail (the image in the top right corner)
+			//		->setImage('https://avatars1.githubusercontent.com/u/4529744?s=460&v=4')             	// Set an image (below everything except footer)
+			//		->setImage("$image_path")             													// Set an image (below everything except footer)
+					->setTimestamp()                                                                     	// Set a timestamp (gets shown next to footer)
+			//		->setAuthor("$author_check", "$author_guild_avatar")  									// Set an author with icon
+					->setFooter("Palace Bot by Valithor#5947")                             					// Set a footer without icon
+					->setURL("");                             												// Set the URL
 				
-		//		->setThumbnail("$author_avatar")														// Set a thumbnail (the image in the top right corner)
-		//		->setImage('https://avatars1.githubusercontent.com/u/4529744?s=460&v=4')             	// Set an image (below everything except footer)
-		//		->setImage("$image_path")             													// Set an image (below everything except footer)
-				->setTimestamp()                                                                     	// Set a timestamp (gets shown next to footer)
-		//		->setAuthor("$author_check", "$author_guild_avatar")  									// Set an author with icon
-				->setFooter("Palace Bot by Valithor#5947")                             					// Set a footer without icon
-				->setURL("");                             												// Set the URL
-			
-			$author_channel->send('', array('embed' => $embed))->done(null, function ($error){
-				echo "[ERROR] $error".PHP_EOL; //Echo any errors
-			});
+				$author_channel->send('', array('embed' => $embed))->done(null, function ($error){
+					echo "[ERROR] $error".PHP_EOL; //Echo any errors
+				});
+				$x++;
+			}
 			return true;
 		}
 	}
