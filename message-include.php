@@ -2960,18 +2960,16 @@ if ($creator){ //Mostly just debug commands
 		echo "[VALIDATE START]" . PHP_EOL;
 		$GLOBALS["PURGE"] = null;
 		$author_guild->fetchMembers()->then(function($fetched_guild) use ($message, $author_guild){	//Promise
-			//echo "fetched_guild: " . get_class($fetched_guild) . PHP_EOL;
 			$members = $fetched_guild->members->all(); //array
 			foreach ($members as $target_member){ //GuildMember
 				$target_skip = false;
-				$target_bot = false;
 				//get roles of member
 				$target_guildmember_role_collection = $target_member->roles;
 				foreach ($target_guildmember_role_collection as $role){
 					if ($role->name == "Cadet") $target_skip = true;
-					if ($role->name == "Bots") $target_bot = true;
+					if ($role->name == "Bots") $target_skip = true;
 				}
-				if ( ($target_skip === false) && ($target_bot === false) ){
+				if ($target_skip === false){
 					//Query SQL for ss13 where discord =
 					$mention_id = $target_member->id; //echo "mention_id: " . $mention_id . PHP_EOL;
 					$active_member = $author_guild->members->get($mention_id);
@@ -3419,7 +3417,7 @@ if ($creator || ($author_guild_id == "468979034571931648") ){ //These commands s
 			include "../servers/getserverdata.php";
 			$x=0;
 			foreach ($serverinfo as $server){
-				$admins = $serverinfo[$x]["admins"] ?? "None";
+				$admins = $serverinfo[$x]["admins"] ?? "N/A";
 				$alias = "<byond://" . $servers[$x]["alias"] . ":$port>";
 				$servername = $servers[$x]["servername"] ?? "None";
 				//echo "image_path: " . $image_path . PHP_EOL;
