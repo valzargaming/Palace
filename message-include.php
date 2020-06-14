@@ -4086,74 +4086,115 @@ if ($creator || $owner || $dev || $admin || $mod){ //Only allow these roles to u
 		$value = trim($value);
 		if(is_numeric($value)){
 			$mention_member				= $author_guild->members->get($value);
-			if ($mention_member == NULL) return $message->reply("Invalid input! Please enter an ID or @mention the user");
-			$mention_user				= $mention_member->user;
-			
-			$mention_id					= $mention_member->id;
-			$mention_check				= $mention_user->tag;
-			$mention_nickname			= $mention_member->displayName;
-			$mention_avatar 			= $mention_user->getAvatarURL();
-			
-			$mention_joined				= $mention_member->joinedAt;
-			$mention_joinedTimestamp	= $mention_member->joinedTimestamp;
-			$mention_joinedDate			= date("D M j H:i:s Y", $mention_joinedTimestamp);
-			$mention_joinedDateTime		= new DateTime('@' . $mention_joinedTimestamp);
-			
-			$mention_created			= $mention_user->createdAt;
-			$mention_createdTimestamp	= $mention_user->createdTimestamp;
-			$mention_createdDate		= date("D M j H:i:s Y", $mention_createdTimestamp);
-			$mention_createdDateTime	= new DateTime('@' . $mention_createdTimestamp);
-			
-			$mention_joinedAge = $mention_joinedDateTime->diff($now)->days . " days";
-			$mention_createdAge = $mention_createdDateTime->diff($now)->days . " days";
-			
-			//Load history
-			$mention_folder = "users/$mention_id";
-			CheckDir($mention_folder);
-			$mention_nicknames_array = array_reverse(VarLoad($mention_folder, "nicknames.php"));
-			$x=0;
-			if ($mention_nicknames_array)
-			foreach ($mention_nicknames_array as $nickname){
-				if ($x<5)
-					$mention_nicknames = $mention_nicknames . $nickname . "\n";
-				$x++;
-			}
-			if ($mention_nicknames == NULL) $mention_nicknames = "No nicknames tracked";
-			
-			$mention_tags_array = array_reverse(VarLoad($mention_folder, "tags.php"));
-			$x=0;
-			if ($mention_tags_array)
-			foreach ($mention_tags_array as $tag){
-				if ($x<5)
-					$mention_tags = $mention_tags . $tag . "\n";
-				$x++;
-			}
-			if ($mention_tags == NULL) $mention_tags = "No tags tracked";
-			 
-			$embed = new \CharlotteDunois\Yasmin\Models\MessageEmbed();
-			$embed
-				->setTitle("$mention_check ($mention_nickname)")																// Set a title
-				->setColor("e1452d")																	// Set a color (the thing on the left side)
-	//					->setDescription("$author_guild_name")									// Set a description (below title, above fields)
-				->addField("ID", "$mention_id", true)
-				->addField("Avatar", "[Link]($mention_avatar)", true)
-				->addField("Account Created", "$mention_createdDate", true)
-				->addField("Account Age", "$mention_createdAge", true)
-				->addField("Joined Server", "$mention_joinedDate", true)
-				->addField("Server Age", "$mention_joinedAge", true)
-				->addField("Tag history (last 5)", "`$mention_tags`")
-				->addField("Nickname history (last 5)", "`$mention_nicknames`")
+			if ($mention_member != NULL){ //$message->reply("Invalid input! Please enter an ID or @mention the user");
+				$mention_user				= $mention_member->user;
+				
+				$mention_id					= $mention_member->id;
+				$mention_check				= $mention_user->tag;
+				$mention_nickname			= $mention_member->displayName;
+				$mention_avatar 			= $mention_user->getAvatarURL();
+				
+				$mention_joined				= $mention_member->joinedAt;
+				$mention_joinedTimestamp	= $mention_member->joinedTimestamp;
+				$mention_joinedDate			= date("D M j H:i:s Y", $mention_joinedTimestamp);
+				$mention_joinedDateTime		= new DateTime('@' . $mention_joinedTimestamp);
+				
+				$mention_created			= $mention_user->createdAt;
+				$mention_createdTimestamp	= $mention_user->createdTimestamp;
+				$mention_createdDate		= date("D M j H:i:s Y", $mention_createdTimestamp);
+				$mention_createdDateTime	= new DateTime('@' . $mention_createdTimestamp);
+				
+				$mention_joinedAge = $mention_joinedDateTime->diff($now)->days . " days";
+				$mention_createdAge = $mention_createdDateTime->diff($now)->days . " days";
+				
+				//Load history
+				$mention_folder = "users/$mention_id";
+				CheckDir($mention_folder);
+				$mention_nicknames_array = array_reverse(VarLoad($mention_folder, "nicknames.php"));
+				$x=0;
+				if ($mention_nicknames_array)
+				foreach ($mention_nicknames_array as $nickname){
+					if ($x<5)
+						$mention_nicknames = $mention_nicknames . $nickname . "\n";
+					$x++;
+				}
+				if ($mention_nicknames == NULL) $mention_nicknames = "No nicknames tracked";
+				
+				$mention_tags_array = array_reverse(VarLoad($mention_folder, "tags.php"));
+				$x=0;
+				if ($mention_tags_array)
+				foreach ($mention_tags_array as $tag){
+					if ($x<5)
+						$mention_tags = $mention_tags . $tag . "\n";
+					$x++;
+				}
+				if ($mention_tags == NULL) $mention_tags = "No tags tracked";
+				 
+				$embed = new \CharlotteDunois\Yasmin\Models\MessageEmbed();
+				$embed
+					->setTitle("$mention_check ($mention_nickname)")																// Set a title
+					->setColor("e1452d")																	// Set a color (the thing on the left side)
+		//					->setDescription("$author_guild_name")									// Set a description (below title, above fields)
+					->addField("ID", "$mention_id", true)
+					->addField("Avatar", "[Link]($mention_avatar)", true)
+					->addField("Account Created", "$mention_createdDate", true)
+					->addField("Account Age", "$mention_createdAge", true)
+					->addField("Joined Server", "$mention_joinedDate", true)
+					->addField("Server Age", "$mention_joinedAge", true)
+					->addField("Tag history (last 5)", "`$mention_tags`")
+					->addField("Nickname history (last 5)", "`$mention_nicknames`")
 
-				->setThumbnail("$mention_avatar")														// Set a thumbnail (the image in the top right corner)
-	//					->setImage('https://avatars1.githubusercontent.com/u/4529744?s=460&v=4')             	// Set an image (below everything except footer)
-	//					->setImage("$image_path")             													// Set an image (below everything except footer)
-				->setTimestamp()                                                                     	// Set a timestamp (gets shown next to footer)
-	//					->setAuthor("$author_check", "$author_guild_avatar")  									// Set an author with icon
-				->setFooter("Palace Bot by Valithor#5947")                             					// Set a footer without icon
-				->setURL("");                             												// Set the URL
-			$author_channel->send('', array('embed' => $embed))->done(null, function ($error){
-				echo "[ERROR] $error".PHP_EOL; //Echo any errors
-			});
+					->setThumbnail("$mention_avatar")														// Set a thumbnail (the image in the top right corner)
+		//					->setImage('https://avatars1.githubusercontent.com/u/4529744?s=460&v=4')             	// Set an image (below everything except footer)
+		//					->setImage("$image_path")             													// Set an image (below everything except footer)
+					->setTimestamp()                                                                     	// Set a timestamp (gets shown next to footer)
+		//					->setAuthor("$author_check", "$author_guild_avatar")  									// Set an author with icon
+					->setFooter("Palace Bot by Valithor#5947")                             					// Set a footer without icon
+					->setURL("");                             												// Set the URL
+				$author_channel->send('', array('embed' => $embed))->done(null, function ($error){
+					echo "[ERROR] $error".PHP_EOL; //Echo any errors
+				});
+			}else{
+				$restcord_timestamp = snowflake_timestamp($value);
+				$restcord_date = date("D M j H:i:s Y", $restcord_timestamp);
+				$restcord_DateTime = new DateTime();
+				$restcord_DateTime->setTimestamp($restcord_timestamp);
+				$restcord_Age = $restcord_DateTime->diff($now)->days . " days"; //fails
+				try{
+					$restcord_user = $restcord->user->getUser(['user.id' => intval($value)]);
+					$restcord_nick = $restcord_user->username;
+					$restcord_discriminator = $restcord_user->discriminator;
+					$restcord_avatar = $restcord_user->getAvatar();
+					//$date = new DateTime("$restcord_timestamp"); 
+					//echo "date: " . $date;
+					//$restcord_result = "Discord ID is registered to $restcord_nick#$restcord_discriminator created on $restcord_timestamp";
+				}catch (Exception $e){
+					$restcord_result = "Unable to locate user for ID $value";
+				}
+				$embed = new \CharlotteDunois\Yasmin\Models\MessageEmbed();
+				$embed
+					->setTitle("$restcord_nick#$restcord_discriminator")																// Set a title
+					->setColor("e1452d")																	// Set a color (the thing on the left side)
+					//->setDescription("$author_guild_name")									// Set a description (below title, above fields)
+					->addField("ID", "$value", true)
+					->addField("Avatar", "[Link]($restcord_avatar)", true)
+					->addField("Account Created", "$restcord_date", true)
+					->addField("Account Age", "$restcord_Age", true)
+					//->addField("Tag history (last 5)", "`$mention_tags`")
+					//->addField("Nickname history (last 5)", "`$mention_nicknames`")
+
+					->setThumbnail("$restcord_avatar")														// Set a thumbnail (the image in the top right corner)
+					//->setImage('https://avatars1.githubusercontent.com/u/4529744?s=460&v=4')             	// Set an image (below everything except footer)
+					//	->setImage("$image_path")             													// Set an image (below everything except footer)
+					->setTimestamp()                                                                     	// Set a timestamp (gets shown next to footer)
+					//->setAuthor("$author_check", "$author_guild_avatar")  									// Set an author with icon
+					->setFooter("Palace Bot by Valithor#5947")                             					// Set a footer without icon
+					->setURL("");                             												// Set the URL
+				$restcord_result = $restcord_result ?? '';
+				$message->channel->send($restcord_result, array('embed' => $embed))->done(null, function ($error){
+					echo "[ERROR] $error".PHP_EOL; //Echo any errors
+				});
+			}
 		}else $message->reply("Invalid input! Please enter an ID or @mention the user");
 		return true;
 	}
