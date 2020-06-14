@@ -4190,6 +4190,33 @@ if ($creator || $owner || $dev || $admin || $mod){ //Only allow these roles to u
 					//->setAuthor("$author_check", "$author_guild_avatar")  									// Set an author with icon
 					->setFooter("Palace Bot by Valithor#5947")                             					// Set a footer without icon
 					->setURL("");                             												// Set the URL
+				
+				//Load history
+				$mention_folder = "users/$value";
+				CheckDir($mention_folder);
+				$mention_nicknames_array = array_reverse(VarLoad($mention_folder, "nicknames.php"));
+				$x=0;
+				if ($mention_nicknames_array)
+				foreach ($mention_nicknames_array as $nickname){
+					if ($x<5)
+						$mention_nicknames = $mention_nicknames . $nickname . "\n";
+					$x++;
+				}
+				if ($mention_nicknames == NULL) $mention_nicknames = "No nicknames tracked";
+				
+				$mention_tags_array = array_reverse(VarLoad($mention_folder, "tags.php"));
+				$x=0;
+				if ($mention_tags_array)
+				foreach ($mention_tags_array as $tag){
+					if ($x<5)
+						$mention_tags = $mention_tags . $tag . "\n";
+					$x++;
+				}
+				if ($mention_tags == NULL) $mention_tags = "No tags tracked";
+				
+				$embed->addField("Tag history (last 5)", "`$mention_tags`");
+				$embed->addField("Nickname history (last 5)", "`$mention_nicknames`");
+				
 				$restcord_result = $restcord_result ?? '';
 				$message->channel->send($restcord_result, array('embed' => $embed))->done(null, function ($error){
 					echo "[ERROR] $error".PHP_EOL; //Echo any errors
