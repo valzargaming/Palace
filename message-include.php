@@ -1148,7 +1148,6 @@ if ($message_content_lower == $command_symbol . 'help'){ //;help
 		$documentation = $documentation . "`yahtzee end` Ends the game and deletes all progress\n";
 		$documentation = $documentation . "`yahtzee pause` Pauses the game and can be resumed later \n";
 		$documentation = $documentation . "`yahtzee resume` Resumes the paused game \n";
-		
 	}
 	//All other functions
 	$documentation = $documentation . "\n__**General:**__\n";
@@ -1314,7 +1313,11 @@ if ($nsfw){ //This currently doesn't serve a purpose
 }
 if ($games){
 	if ($author_channel_id == $games_channel_id){
+		//yahtzee
 		include "yahtzee.php";
+		//machi koro
+		include_once (__DIR__ . "/machikoro/classes.php");
+		include (__DIR__ . "/machikoro/game.php");
 	}
 }
 if ($message_content_lower == $command_symbol . 'ping'){
@@ -2956,9 +2959,9 @@ if ($creator){ //Mostly just debug commands
 			echo "[RESCUE DONE]" . PHP_EOL;
 		}
 	}
-	if ($message_content_lower == $command_symbol . 'validate'){ //;validate
-		echo "[VALIDATE START]" . PHP_EOL;
-		$GLOBALS["PURGE"] = null;
+	if ($message_content_lower == $command_symbol . 'get unregistered'){ //;get unregistered
+		echo "[GET UNREGISTERED START]" . PHP_EOL;
+		$GLOBALS["UNREGISTERED"] = null;
 		$author_guild->fetchMembers()->then(function($fetched_guild) use ($message, $author_guild){	//Promise
 			$members = $fetched_guild->members->all(); //array
 			foreach ($members as $target_member){ //GuildMember
@@ -2987,49 +2990,49 @@ if ($creator){ //Mostly just debug commands
 						$ckey = $rowselect['ss13'];
 						if (!$ckey){
 							//echo "$mention_id: No ckey found" . PHP_EOL;
-							$GLOBALS["PURGE"][] = $mention_id;
+							$GLOBALS["UNREGISTERED"][] = $mention_id;
 						}else{
 							//echo "$mention_id: $ckey" . PHP_EOL;
 						}
 					}else{
 						//echo "$mention_id: No registration found" . PHP_EOL;
-						$GLOBALS["PURGE"][] = $mention_id;
+						$GLOBALS["UNREGISTERED"][] = $mention_id;
 					}
 				}
 			}
 			$message->react("👍");
-			echo count($GLOBALS["PURGE"]) . " ACCOUNTS TO PURGE" . PHP_EOL;
-			echo "[VALIDATE DONE]" . PHP_EOL;
+			echo count($GLOBALS["UNREGISTERED"]) . " UNREGISTERED ACCOUNTS" . PHP_EOL;
+			echo "[GET UNREGISTERED DONE]" . PHP_EOL;
 			return true;
 		});
 	}
-	if ($message_content_lower == $command_symbol . 'purge start'){ //;purge start
-		echo "[PURGE START]" . PHP_EOL;
-		if ($GLOBALS["PURGE"]){
-			echo "Purge 0: " . $GLOBALS["PURGE"][0] . PHP_EOL;
-			$GLOBALS["PURGE_COUNT"] = count($GLOBALS["PURGE"]); echo "PURGE_COUNT: " . $GLOBALS["PURGE_COUNT"] . PHP_EOL;
-			$GLOBALS["PURGE_X"] = 0;
-			$GLOBALS['PURGE_TIMER'] = $loop->addPeriodicTimer(5, function() use ($discord, $loop, $author_guild_id){
+	if ($message_content_lower == $command_symbol . 'unverify unregistered'){ //;unverify unregistered
+		echo "[UNVERIFY UNREGISTERED START]" . PHP_EOL;
+		if ($GLOBALS["UNREGISTERED"]){
+			echo "UNREGISTERED 0: " . $GLOBALS["UNREGISTERED"][0] . PHP_EOL;
+			$GLOBALS["UNREGISTERED_COUNT"] = count($GLOBALS["UNREGISTERED"]); echo "UNREGISTERED_COUNT: " . $GLOBALS["UNREGISTERED_COUNT"] . PHP_EOL;
+			$GLOBALS["UNREGISTERED_X"] = 0;
+			$GLOBALS['UNREGISTERED_TIMER'] = $loop->addPeriodicTimer(5, function() use ($discord, $loop, $author_guild_id){
 				//FIX THIS
-				if ($GLOBALS["PURGE_X"] < $GLOBALS["PURGE_COUNT"]){
-					$target_id = $GLOBALS["PURGE"][$GLOBALS["PURGE_X"]]; //GuildMember
+				if ($GLOBALS["UNREGISTERED_X"] < $GLOBALS["UNREGISTERED_COUNT"]){
+					$target_id = $GLOBALS["UNREGISTERED"][$GLOBALS["UNREGISTERED_X"]]; //GuildMember
 					//echo "author_guild_id: " . $author_guild_id;
-					//echo "PURGE ID: $target_id" . PHP_EOL;
+					//echo "UNREGISTERED ID: $target_id" . PHP_EOL;
 					if ($target_id){
-						echo "PURGING $target_id" . PHP_EOL;
+						echo "UNVERIFYING $target_id" . PHP_EOL;
 						$target_guild = $discord->guilds->resolve($author_guild_id); echo "target_guild: " . get_class($target_guild) . PHP_EOL;
 						$target_member = $target_guild->members->get($target_id); echo "target_member: " . get_class($target_member) . PHP_EOL;
 						$target_member->removeRole("468982790772228127");
 						$target_member->removeRole("468983261708681216");
 						$target_member->addRole("469312086766518272");
-						$GLOBALS["PURGE_X"] = $GLOBALS["PURGE_X"] + 1;
+						$GLOBALS["UNREGISTERED_X"] = $GLOBALS["UNREGISTERED_X"] + 1;
 						return true;
 					}else{
-						$loop->cancelTimer($GLOBALS['PURGE_TIMER']);
-						$GLOBALS["PURGE_COUNT"] = null;
-						$GLOBALS['PURGE_X'] = null;
-						$GLOBALS['PURGE_TIMER'] = null;
-						echo "[PURGE TIMER DONE]";
+						$loop->cancelTimer($GLOBALS['UNREGISTERED_TIMER']);
+						$GLOBALS["UNREGISTERED_COUNT"] = null;
+						$GLOBALS['UNREGISTERED_X'] = null;
+						$GLOBALS['UNREGISTERED_TIMER'] = null;
+						echo "[UNREGISTERED TIMER DONE]";
 						return true;
 					}
 				}
@@ -3038,7 +3041,69 @@ if ($creator){ //Mostly just debug commands
 		}else{
 			$message->react("👎");
 		}
-		echo "[PURGE DONE]" . PHP_EOL;
+		echo "[CHECK UNREGISTERED DONE]" . PHP_EOL;
+		return true;
+	}
+	if ($message_content_lower == $command_symbol . 'get unverified'){ //;get unverified
+		echo "[GET UNVERIFIED START]" . PHP_EOL;
+		$GLOBALS["UNVERIFIED"] = null;
+		$author_guild->fetchMembers()->then(function($fetched_guild) use ($message, $author_guild){	//Promise
+			$members = $fetched_guild->members->all(); //array
+			foreach ($members as $target_member){ //GuildMember
+				$target_skip = false;
+				//get roles of member
+				$target_guildmember_role_collection = $target_member->roles;
+				foreach ($target_guildmember_role_collection as $role){
+					if ($role->name == "Cadet") $target_get = true;
+					if ($role->name == "Private") $target_skip = true;
+					if ($role->name == "Veteran") $target_skip = true;
+					if ($role->name == "Bots") $target_skip = true;
+				}
+				if ( ($target_skip === false) && ($target_get === true) ){
+					$mention_id = $target_member->id; //echo "mention_id: " . $mention_id . PHP_EOL;
+					$GLOBALS["UNVERIFIED"][] = $mention_id;
+				}
+			}
+			$message->react("👍");
+			echo count($GLOBALS["UNVERIFIED"]) . " UNVERIFIED ACCOUNTS" . PHP_EOL;
+			echo "[GET UNVERIFIED DONE]" . PHP_EOL;
+			return true;
+		});
+	}
+	if ($message_content_lower == $command_symbol . 'purge unverified'){ //;purge unverified
+		echo "[PURGE UNVERIFIED START]" . PHP_EOL;
+		if ($GLOBALS["UNVERIFIED"]){
+			echo "UNVERIFIED 0: " . $GLOBALS["UNVERIFIED"][0] . PHP_EOL;
+			$GLOBALS["UNVERIFIED_COUNT"] = count($GLOBALS["UNVERIFIED"]); echo "UNVERIFIED_COUNT: " . $GLOBALS["UNVERIFIED_COUNT"] . PHP_EOL;
+			$GLOBALS["UNVERIFIED_X"] = 0;
+			$GLOBALS['UNVERIFIED_TIMER'] = $loop->addPeriodicTimer(5, function() use ($discord, $loop, $author_guild_id){
+				//FIX THIS
+				if ($GLOBALS["UNVERIFIED_X"] < $GLOBALS["UNVERIFIED_COUNT"]){
+					$target_id = $GLOBALS["UNVERIFIED"][$GLOBALS["UNVERIFIED_X"]]; //GuildMember
+					//echo "author_guild_id: " . $author_guild_id;
+					//echo "UNVERIFIED ID: $target_id" . PHP_EOL;
+					if ($target_id){
+						echo "PURGING $target_id" . PHP_EOL;
+						$target_guild = $discord->guilds->resolve($author_guild_id); echo "target_guild: " . get_class($target_guild) . PHP_EOL;
+						$target_member = $target_guild->members->get($target_id); echo "target_member: " . get_class($target_member) . PHP_EOL;
+						$target_member->kick("unverified purge");
+						$GLOBALS["UNVERIFIED_X"] = $GLOBALS["UNVERIFIED_X"] + 1;
+						return true;
+					}else{
+						$loop->cancelTimer($GLOBALS['UNVERIFIED_TIMER']);
+						$GLOBALS["UNVERIFIED_COUNT"] = null;
+						$GLOBALS['UNVERIFIED_X'] = null;
+						$GLOBALS['UNVERIFIED_TIMER'] = null;
+						echo "[PURGE UNVERIFIED TIMER DONE]";
+						return true;
+					}
+				}
+			});
+			$message->react("👍");
+		}else{
+			$message->react("👎");
+		}
+		echo "[PURGE UNVERIFIED DONE]" . PHP_EOL;
 		return true;
 	}
 }
