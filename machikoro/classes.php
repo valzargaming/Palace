@@ -33,7 +33,7 @@ class CustomLandmark extends Landmark{
 		$this->img = $param_img;
 	}
 	
-	abstract public function ActiveEffect($player, $player2){
+	abstract public function ActiveEffect($player, $game, $player2){
 		return true;
 	}
 }
@@ -44,25 +44,25 @@ class TrainStation extends Landmark{
 	protected $cost = 4; //int
 	protected $img = "https://vignette.wikia.nocookie.net/machi-koro/images/3/37/Train_Station.svg"; //URL
 	
-	public function ActiveEffect($player, $player2){
+	public function ActiveEffect($player, $game, $player2){
 		//This card has no active effect
 	}
 }
 class ShoppingMall extends Landmark{	// Properties
 	//Abstract Methods
-	public function ActiveEffect($player, $player2){
+	public function ActiveEffect($player, $game, $player2){
 		//
 	}
 }
 class AmusementPark extends Landmark{	// Properties
 	//Abstract Methods
-	public function ActiveEffect($player, $player2){
+	public function ActiveEffect($player, $game, $player2){
 		//
 	}
 }
 class RadioTower extends Landmark{	// Properties
 	//Abstract Methods
-	public function ActiveEffect($player, $player2){
+	public function ActiveEffect($player, $game, $player2){
 		//
 	}
 }
@@ -104,7 +104,7 @@ abstract class Card{
 	}
 	
 	//Methods
-	abstract public function ActiveEffect($player, $player2);
+	abstract public function ActiveEffect($player, $game, $player2);
 }
 class CustomCard extends Card{
 	// Constructor
@@ -119,7 +119,7 @@ class CustomCard extends Card{
 		$this->img = $param_img;
 	}
 	
-	public function ActiveEffect($player, $player2){
+	public function ActiveEffect($player, $game, $player2){
 		//Refer the the active effect of a prefab card?
 		return true;
 	}
@@ -136,7 +136,7 @@ class WheatField extends Card{
 	protected $income = 1;
 	protected $img = "https://www.yucata.de/Games/MachiKoro/images/est1_e.gif";
 	
-	public function ActiveEffect($player, $player2){
+	public function ActiveEffect($player, $game, $player2){
 		$player->addCoins($this->income);
 		return true;
 	}
@@ -152,7 +152,7 @@ class Bakery extends Card{
 	protected $income = 1;
 	protected $img = "https://www.yucata.de/Games/MachiKoro/images/est1_e.gif";	
 	
-	public function ActiveEffect($player, $player2){
+	public function ActiveEffect($player, $game, $player2){
 		$player->addCoins($this->income);
 		return true;
 	}
@@ -160,79 +160,79 @@ class Bakery extends Card{
 
 class Ranch extends Card{	// Properties
 	//Abstract Methods
-	public function ActiveEffect($player, $player2){
+	public function ActiveEffect($player, $game, $player2){
 		//
 	}
 }
 class Forest extends Card{	// Properties
 	//Abstract Methods
-	public function ActiveEffect($player, $player2){
+	public function ActiveEffect($player, $game, $player2){
 		//
 	}
 }
 class Mine extends Card{	// Properties
 	//Abstract Methods
-	public function ActiveEffect($player, $player2){
+	public function ActiveEffect($player, $game, $player2){
 		//
 	}
 }
 class AppleOrchard extends Card{	// Properties
 	//Abstract Methods
-	public function ActiveEffect($player, $player2){
+	public function ActiveEffect($player, $game, $player2){
 		//
 	}
 }
 class ConvenienceStore extends Card{	// Properties
 	//Abstract Methods
-	public function ActiveEffect($player, $player2){
+	public function ActiveEffect($player, $game, $player2){
 		//
 	}
 }
 class CheeseFactory extends Card{	// Properties
 	//Abstract Methods
-	public function ActiveEffect($player, $player2){
+	public function ActiveEffect($player, $game, $player2){
 		//
 	}
 }
 class FurnitureFactory extends Card{	// Properties
 	//Abstract Methods
-	public function ActiveEffect($player, $player2){
+	public function ActiveEffect($player, $game, $player2){
 		//
 	}
 }
 class FruitandVegetableMarket extends Card{	// Properties
 	//Abstract Methods
-	public function ActiveEffect($player, $player2){
+	public function ActiveEffect($player, $game, $player2){
 		//
 	}
 }
 class Cafe extends Card{	// Properties
 	//Abstract Methods
-	public function ActiveEffect($player, $player2){
+	public function ActiveEffect($player, $game, $player2){
 		//
 	}
 }
 class FamilyRestaurant extends Card{	// Properties
 	//Abstract Methods
-	public function ActiveEffect($player, $player2){
+	public function ActiveEffect($player, $game, $player2){
 		//
 	}
 }
 class Stadium extends Card{	// Properties
 	//Abstract Methods
-	public function ActiveEffect($player, $player2){
+	public function ActiveEffect($player, $game, $player2){
 		//
 	}
 }
 class TVStation extends Card{	// Properties
 	//Abstract Methods
-	public function ActiveEffect($player, $player2){
+	public function ActiveEffect($player, $game, $player2){
 		//
 	}
 }
 class BusinessCenter extends Card{	// Properties
 	//Abstract Methods
-	public function ActiveEffect($player, $player2){
+	public function ActiveEffect($player, $game, $player2){
 		//
 	}
 }
@@ -493,39 +493,44 @@ class MKGame{
 		$temp_array = $this->roll;
 		$temp_roll = array_sum($temp_array);
 		
-		/*
-		foreach($turn->Hand->restaurant as $card){ //Restaurant
-			if ( in_array( $temp_roll, $card->getActivationNumbers() ) ) {
-			  // Trigger effect for current player
-			}
-		}
-		*/
-		
-		$current_player = $this->getPlayers($player[$this->turn]);
-		$secondary = $current_player->getSecondary();
-		foreach($secondary as $card){ //Secondary
-			if ( in_array( $temp_roll, $card->getActivationNumbers() ) ) {
-			  // Trigger effect for current player
-			}
-		}
-		foreach ($players as $player) { //Primary
-			$primary = $player->Hand->getPrimary();
-			foreach( $primary as $card){
-				if ( in_array($temp_roll, $card->getActivationNumbers() ) ) {
-					// Trigger effect for all players
+		 //Restaurant
+		foreach ($players as $player) {
+			$restaurant = $player->getRestaurant();			
+			foreach($restaurant as $card){
+				if ( in_array( $temp_roll, $card->getActivationNumbers() ) ) {
+				  // Trigger effect for current player
 				}
 			}
 		}
-		
-		/*
+		//Secondary
+		$current_player = $this->getPlayers($player[$this->turn]);
+		$secondary = $current_player->getSecondary();
+		foreach($secondary as $card){
+			$temp_array = $card->getActivationNumbers();
+			if ( in_array( $temp_roll, $card->getActivationNumbers() ) ) {
+			  // Trigger effect for current player
+			  $card->ActiveEffect($current_player, $this, null);
+			}
+		}
+		//Primary
+		foreach ($players as $player) {
+			$primary = $player->Hand->getPrimary();
+			foreach( $primary as $card){
+				$temp_array = $card->getActivationNumbers();
+				if ( in_array($temp_roll, $temp_array) ) {
+					// Trigger effect for all players
+					$card->ActiveEffect($player, $this, null);
+				}
+			}
+		}
+		/*//Major Establishments
 		$major_establishment = 
-		foreach($turn->Hand->major_establishment as $card){ //Major Establishments
+		foreach($turn->Hand->major_establishment as $card){
 			if ( in_array( $temp_roll, $card->getActivationNumbers() ) ) {
 			  // Trigger effect for current player
 			}
 		}
 		*/
-		
 		return true;
 	}
 	public function start($author_id){
