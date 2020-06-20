@@ -76,11 +76,7 @@ if(substr($message_content_lower, 0, 4) == "$machikoro_symbol "){
 	if($message_filtered == "start"){
 		if($game !== NULL){
 			$gamestate = $game->start($author_id);
-			if($gamestate){
-				$message->reply("$gamestate");
-			}else{
-				//Get reason
-			}
+			if($gamestate) $message->reply("$gamestate"); //Sending null strings is a fatal error, so obligatory if
 		}
 	}
 	if($message_filtered == "end"){
@@ -191,9 +187,11 @@ if(substr($message_content_lower, 0, 4) == "$machikoro_symbol "){
 						$sum_rolls = array_sum($rolls);
 						$reroll_string = $reroll_string . "Your current roll is $sum_rolls";
 						$message->reply($reroll_string);
-						$game->setPhase("INCOME");
+						
 						$phase = "INCOME";
-						//Continue down to income phase
+						$game->setPhase("INCOME");
+						$game->diceActivation(); //Trigger card effects
+						//It's safe to move straight to the INCOME phase
 					}else{
 						$message->reply("Please provide which die you would like to reroll");
 						return true;
@@ -230,12 +228,18 @@ if(substr($message_content_lower, 0, 4) == "$machikoro_symbol "){
 					if($gems > 0){
 						$game->canReroll(true);
 						$reroll_question = "Would you like to reroll either of your die?\n**0** for no\n**1** to reroll your first die\n**2\\ to reroll your second die";
+						return true; //Situational command needed
 					}
 					//When rolling two dice, the dice are always summed together.
 					if($rollarray[1]){ //Rolled twice
 						$message->channel->send("<@$author_id> rolled a " . $rollarray[0] . " and a " . $rollarray[1] . " for a final roll of " . array_sum($rollarray) . "." . $reroll_question);
 					}else{
 						$message->channel->send("<@$author_id> rolled a " . $rollarray[0] . "."  . $reroll_question);
+						
+						$phase = "INCOME";
+						$game->setPhase("INCOME");
+						$game->diceActivation(); //Trigger card effects
+						//It's safe to move straight to the INCOME phase
 					}
 				}
 			}
@@ -243,8 +247,6 @@ if(substr($message_content_lower, 0, 4) == "$machikoro_symbol "){
 			if($phase == "INCOME"){
 				//
 			}
-			
-			//Income?
 			
 			if($phase == "CONSTRUCT"){
 				if(substr($message_filtered, 0, 9) == "construct"){
@@ -259,13 +261,12 @@ if(substr($message_content_lower, 0, 4) == "$machikoro_symbol "){
 			///////////////////////////////
 			*/
 			
-			
-			
 			/*
 			///////////////////////////////
 			Commands that work only during a certain phase of someone elses turn
 			///////////////////////////////
 			*/
+			
 		}
 	}
 	
