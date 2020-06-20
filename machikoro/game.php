@@ -49,9 +49,9 @@ if (substr($message_content_lower, 0, 4) == "$machikoro_symbol "){
 	}
 	if ($message_filtered == "start"){
 		if ($game !== NULL){
-			$gamestate = $game->start();
-			if ($gamestate === true){
-				$message->reply("Machi Koro game $game_id has been started by the host!");
+			$gamestate = $game->start($author_id);
+			if ($gamestate){
+				$message->reply("$gamestate");
 			}else{
 				//Get reason
 			}
@@ -59,17 +59,15 @@ if (substr($message_content_lower, 0, 4) == "$machikoro_symbol "){
 	}
 	if ($message_filtered == "end"){
 		if ($game !== NULL){
-			$game_host = $game->getHost();
 			$game_id = $game->getID();
-			$game_host_id = $game_host->getDiscordID();
-			if ($author_id == $game_host_id){
+			if ($author_id == $game_id){
 				if ($game_key !== NULL){
 					unset($GLOBALS['MachiKoro_Games'][$game_key]);
 				}else echo "No game_key found!" . PHP_EOL;
-				$message->reply("You ended the Machi Koro game $game_id!");
+				$message->reply("Machi Koro game $game_id has been ended by the host!");
 				return true;
 			}else{
-				$message->reply("You are not the host of your Machi Koro game! Ask <@$game_host_id>");
+				$message->reply("You are not the host of your Machi Koro game! Ask <@$game_id>.");
 				return true;
 			}
 		}else{
@@ -89,17 +87,14 @@ if (substr($message_content_lower, 0, 4) == "$machikoro_symbol "){
 						$valid = true;
 						$result = $mkgame->addPlayer($author_id); //returns false if game is lockeds
 						if ( $result === true ){
-							$joined = true;
+							$message->reply("Successfully joined game $message_filtered!");
+							return true;
+						}else{
+							$message->reply("Unable to locate game with ID $message_filtered!");
+							return true;
 						}
 					}
-				}
-				if($joined === true){
-					$message->reply("Successfully joined game $message_filtered!");
-					return true;
-				}else{
-					$message->reply("Unable to locate game with ID $message_filtered!");
-					return true;
-				}
+				}	
 			}else{
 				$message->reply("You need to include the game's ID!");
 				return true;
