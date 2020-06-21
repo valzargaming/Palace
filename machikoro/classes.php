@@ -33,7 +33,7 @@ class CustomLandmark extends Landmark{
 		$this->img = $param_img;
 	}
 	
-	abstract public function ActiveEffect($player, $game, $player2){
+	abstract public function ActiveEffect($player, $game){
 		return true;
 	}
 }
@@ -44,25 +44,25 @@ class TrainStation extends Landmark{
 	protected $cost = 4; //int
 	protected $img = "https://vignette.wikia.nocookie.net/machi-koro/images/3/37/Train_Station.svg"; //URL
 	
-	public function ActiveEffect($player, $game, $player2){
+	public function ActiveEffect($player, $game){
 		//This card has no active effect
 	}
 }
 class ShoppingMall extends Landmark{	// Properties
 	//Abstract Methods
-	public function ActiveEffect($player, $game, $player2){
+	public function ActiveEffect($player, $game){
 		//
 	}
 }
 class AmusementPark extends Landmark{	// Properties
 	//Abstract Methods
-	public function ActiveEffect($player, $game, $player2){
+	public function ActiveEffect($player, $game){
 		//
 	}
 }
 class RadioTower extends Landmark{	// Properties
 	//Abstract Methods
-	public function ActiveEffect($player, $game, $player2){
+	public function ActiveEffect($player, $game){
 		//
 	}
 }
@@ -104,7 +104,7 @@ abstract class Card{
 	}
 	
 	//Methods
-	abstract public function ActiveEffect($player, $game, $player2);
+	abstract public function ActiveEffect($player, $game);
 }
 class CustomCard extends Card{
 	// Constructor
@@ -119,7 +119,7 @@ class CustomCard extends Card{
 		$this->img = $param_img;
 	}
 	
-	public function ActiveEffect($player, $game, $player2){
+	public function ActiveEffect($player, $game){
 		//Refer the the active effect of a prefab card?
 		return true;
 	}
@@ -136,7 +136,7 @@ class WheatField extends Card{
 	protected $income = 1;
 	protected $img = "https://www.yucata.de/Games/MachiKoro/images/est1_e.gif";
 	
-	public function ActiveEffect($player, $game, $player2){
+	public function ActiveEffect($player, $game, $$turn_player){
 		$player->addCoins($this->income);
 		return true;
 	}
@@ -152,7 +152,7 @@ class Bakery extends Card{
 	protected $income = 1;
 	protected $img = "https://www.yucata.de/Games/MachiKoro/images/est1_e.gif";	
 	
-	public function ActiveEffect($player, $game, $player2){
+	public function ActiveEffect($player, $game){
 		$player->addCoins($this->income);
 		return true;
 	}
@@ -160,79 +160,79 @@ class Bakery extends Card{
 
 class Ranch extends Card{	// Properties
 	//Abstract Methods
-	public function ActiveEffect($player, $game, $player2){
+	public function ActiveEffect($player, $game){
 		//
 	}
 }
 class Forest extends Card{	// Properties
 	//Abstract Methods
-	public function ActiveEffect($player, $game, $player2){
+	public function ActiveEffect($player, $game){
 		//
 	}
 }
 class Mine extends Card{	// Properties
 	//Abstract Methods
-	public function ActiveEffect($player, $game, $player2){
+	public function ActiveEffect($player, $game){
 		//
 	}
 }
 class AppleOrchard extends Card{	// Properties
 	//Abstract Methods
-	public function ActiveEffect($player, $game, $player2){
+	public function ActiveEffect($player, $game){
 		//
 	}
 }
 class ConvenienceStore extends Card{	// Properties
 	//Abstract Methods
-	public function ActiveEffect($player, $game, $player2){
+	public function ActiveEffect($player, $game){
 		//
 	}
 }
 class CheeseFactory extends Card{	// Properties
 	//Abstract Methods
-	public function ActiveEffect($player, $game, $player2){
+	public function ActiveEffect($player, $game){
 		//
 	}
 }
 class FurnitureFactory extends Card{	// Properties
 	//Abstract Methods
-	public function ActiveEffect($player, $game, $player2){
+	public function ActiveEffect($player, $game){
 		//
 	}
 }
 class FruitandVegetableMarket extends Card{	// Properties
 	//Abstract Methods
-	public function ActiveEffect($player, $game, $player2){
+	public function ActiveEffect($player, $game){
 		//
 	}
 }
 class Cafe extends Card{	// Properties
 	//Abstract Methods
-	public function ActiveEffect($player, $game, $player2){
+	public function ActiveEffect($player, $game){
 		//
 	}
 }
 class FamilyRestaurant extends Card{	// Properties
 	//Abstract Methods
-	public function ActiveEffect($player, $game, $player2){
+	public function ActiveEffect($player, $game){
 		//
 	}
 }
 class Stadium extends Card{	// Properties
 	//Abstract Methods
-	public function ActiveEffect($player, $game, $player2){
+	public function ActiveEffect($player, $game){
 		//
 	}
 }
 class TVStation extends Card{	// Properties
 	//Abstract Methods
-	public function ActiveEffect($player, $game, $player2){
+	public function ActiveEffect($player, $game){
 		//
 	}
 }
 class BusinessCenter extends Card{	// Properties
 	//Abstract Methods
-	public function ActiveEffect($player, $game, $player2){
+	public function ActiveEffect($player, $game){
 		//
 	}
 }
@@ -484,12 +484,7 @@ class MKGame{
 		$this->roll = $temp_array;
 		return $this->roll;
 	}
-	public function reroll($die){
-		$roll = rand(1,6);
-		$this->roll[$die] = $roll;
-		return $roll;
-	}
-	private function diceActivation(){
+	private function diceActivation(){ //Split up into multiple phases
 		$temp_array = $this->roll;
 		$temp_roll = array_sum($temp_array);
 		
