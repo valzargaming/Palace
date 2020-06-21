@@ -174,17 +174,17 @@ if(substr($message_content_lower, 0, 4) == "$machikoro_symbol "){
 							$rolls = $game->getRoll();
 						}
 						if($message_filtered == 1){
-							$roll = $game->reroll(0);
+							$roll = $game->rollDie(1);
 							$rolls = $game->getRoll();
 						}
 						if($message_filtered == 2){
-							$roll = $game->reroll(1);
+							$roll = $game->rollDie(2);
 							$rolls = $game->getRoll();
 						}
-						if($roll){
-							$reroll_string = "You rerolled die $message_filtered and got a $roll. ";
-						}
 						$sum_rolls = array_sum($rolls);
+						if ($roll[0]) $roll_string = "" . $roll[0];
+						if ($roll[1]) $roll_string = " and a " . $roll[1];
+						if($roll) $reroll_string = "You rolled $message_filtered die and got a $roll_string. ";
 						$reroll_string = $reroll_string . "Your current roll is $sum_rolls";
 						$message->reply($reroll_string);
 						
@@ -193,7 +193,7 @@ if(substr($message_content_lower, 0, 4) == "$machikoro_symbol "){
 						$game->diceActivation(); //Trigger card effects
 						//It's safe to move straight to the INCOME phase
 					}else{
-						$message->reply("Please provide which die you would like to reroll");
+						$message->reply("Please provide the number of die you would like to roll!");
 						return true;
 					}
 				}
@@ -227,7 +227,7 @@ if(substr($message_content_lower, 0, 4) == "$machikoro_symbol "){
 					}
 					if($gems > 0){
 						$game->canReroll(true);
-						$reroll_question = "Would you like to reroll either of your die?\n**0** for no\n**1** to reroll your first die\n**2\\ to reroll your second die";
+						$reroll_question = "Would you like to reroll your die? If so, how many?";
 						return true; //Situational command needed
 					}
 					//When rolling two dice, the dice are always summed together.
@@ -245,7 +245,7 @@ if(substr($message_content_lower, 0, 4) == "$machikoro_symbol "){
 			}
 			
 			if($phase == "INCOME"){
-				//
+				//Card effects happen first
 			}
 			
 			if($phase == "CONSTRUCT"){
