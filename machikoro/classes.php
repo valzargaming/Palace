@@ -20,7 +20,7 @@ abstract class Landmark{
 		return $this->img;
 	}
 }
-class CustomLandmark extends Landmark{	
+abstract class CustomLandmark extends Landmark{	
 	// Constructor
 	public function __construct($param_name, $param_alias, $param_type, $param_activation_numbers, $param_cost, $param_income, $param_img){
 		$this->name = $param_name;
@@ -33,9 +33,7 @@ class CustomLandmark extends Landmark{
 		$this->img = $param_img;
 	}
 	
-	abstract public function ActiveEffect($player, $game, $current_player){
-		return true;
-	}
+	abstract public function ActiveEffect($player, $game, $current_player);
 }
 class TrainStation extends Landmark{
 	// Properties
@@ -257,7 +255,7 @@ class Board{ //Cards available for purchase
 	private $secondary;
 	private $restaurant;
 	private $major_establishment;
-	private $landmarklandmark;
+	private $landmark;
 	
 	public function __construct($param_board){ //Populate cards on the board from an prefabricated array
 		$this->primary = $param_board[0];
@@ -268,9 +266,140 @@ class Board{ //Cards available for purchase
 	}
 	
 	// Methods
-	
-	
+	public function remove($param_string){ //Takes an expected card name or alias
+		$card = __search($param_string);
+		if($card !== NULL){
+			$remove_result = __remove($card[0], $card[1]);
+		}else{
+			//Card not found error
+		}
+		if($result !== false){
+			//Successfully removed card message
+		}else{
+			//Card found but cannot remove error (if this triggers then something has gone terribly wrong)
+		}
+	}
 	// Internal Methods
+	private function __search($param_string){ //Returns a reference to a Card object and string (SLOW)
+		$result = NULL;
+		foreach ($this->primary as $card){
+			$name = $card->getName();
+			$alias = $card->getAlias();
+			if ( ($name == $param_string) || ($alias == $param_string) ){
+				return array($card, "primary");
+			}
+		}
+		foreach ($this->secondary as $card){
+			$name = $card->getName();
+			$alias = $card->getAlias();
+			if ( ($name == $param_string) || ($alias == $param_string) ){
+				return array($card, "secondary");
+			}
+		}
+		foreach ($this->restaurant as $card){
+			$name = $card->getName();
+			$alias = $card->getAlias();
+			if ( ($name == $param_string) || ($alias == $param_string) ){
+				return array($card, "restaurant");
+			}
+		}
+		foreach ($this->major_establishment as $card){
+			$name = $card->getName();
+			$alias = $card->getAlias();
+			if ( ($name == $param_string) || ($alias == $param_string) ){
+				return array($card, "major_establishment");
+			}
+		}
+		foreach ($this->landmark as $card){
+			$name = $card->getName();
+			$alias = $card->getAlias();
+			if ( ($name == $param_string) || ($alias == $param_string) ){
+				return array($card, "landmark");
+			}
+		}
+		return $result; //NULL
+	}
+	private function __remove($param_card, $param_string){ //Remove an object from an array
+		if ($param_string){ //FAST
+			switch ($param_string):
+				case "primary":
+					foreach ($this->primary as $key => $card){
+						if ($card == $param_card){
+							unset $this->primary[$key];
+							return true;
+						}
+					}
+					return false;
+				case "secondary":
+					foreach ($this->secondary as $key => $card){
+						if ($card == $param_card){
+							unset $this->secondary[$key];
+							return true;
+						}
+					}
+					return false;
+				case "restaurant":
+					foreach ($this->restaurant as $key => $card){
+						if ($card == $param_card){
+							unset $this->restaurant[$key];
+							return true;
+						}
+					}
+					return false;
+				case "major_establishment":
+					foreach ($this->major_establishment as $key => $card){
+						if ($card == $param_card){
+							unset $this->major_establishment[$key];
+							return true;
+						}
+					}
+					return false;
+				case "landmark":
+					foreach ($this->landmark as $key => $card){
+						if ($card == $param_card){
+							unset $this->landmark[$key];
+							return true;
+						}
+					}
+					return false;
+				default:
+					return false;
+			endswitch;
+		}else{ //SLOW
+			foreach ($this->primary as $key => $card){
+				if ($card == $param_card){
+					unset $this->primary[$key];
+					return true;
+				}
+			}
+			foreach ($this->secondary as $key => $card){
+				if ($card == $param_card){
+					unset $this->secondary[$key];
+					return true;
+				}
+			}
+			foreach ($this->restaurant as $key => $card){
+				if ($card == $param_card){
+					unset $this->restaurant[$key];
+					return true;
+				}
+			}
+			foreach ($this->major_establishment as $key => $card){
+				if ($card == $param_card){
+					unset $this->major_establishment[$key];
+					return true;
+				}
+			}
+			foreach ($this->landmark as $key => $card){
+				if ($card == $param_card){
+					unset $this->landmark[$key];
+					return true;
+				}
+			}
+			return false;
+		}
+    }
+
 }
 class Hand{
 	// Properties
@@ -399,7 +528,6 @@ class MKGame{
 		$temp_player = new Player($param_discord, 3, 0);
 		$this->players[$param_discord] = $temp_player;
 		
-		
 		$this->legacy = false; //Not yet implemented
 		$this->harbor = false; //Not yet implemented, expansion
 		
@@ -479,11 +607,10 @@ class MKGame{
 		return false;
 	}
 	
-	
 	// Setters
 	public function addPlayer($param_discord){ //returns false if MKGame already has max number of players
 		if ($this->locked !== true){
-			if (array_sum < 4){
+			if (count($this->players) < 4){
 				$this->players[] = new Player($param_discord, 3, 0);
 				return true;
 			}
@@ -498,7 +625,28 @@ class MKGame{
 		$this->phase = $string;
 		return true;
 	}
-	// Methods	
+	// Methods
+	public function start($author_id){
+		echo "author_id: $author_id" . PHP_EOL;
+		echo "this->id: " . $this->id . PHP_EOL;
+		if ($author_id == $this->id){
+			if ($this->locked !== false){
+				$player_count = count($this->players); echo "player_count: $player_count" . PHP_EOL;
+				if ($player_count > 1){
+					$this->locked = true; //Prevent new players from joining
+					//Set game phase
+					return "**Machi Koro game $author_id has been started by the host!**";
+					
+				}else{
+					return "Not enough players!";
+				}
+			}else{
+				return "This game has already started!";
+			}
+		}else{
+			return "You are not the host! Please ask <@$author_id> so start the game.";
+		}
+	}
 	public function rollDie($num){
 		$temp_array = array();
 		for ($i = 0; $i < $num; $i++){
@@ -507,7 +655,7 @@ class MKGame{
 		$this->roll = $temp_array;
 		return $this->roll;
 	}
-	private function diceActivation(){
+	public function diceActivation(){
 		$temp_array = $this->roll;
 		$temp_roll = array_sum($temp_array);
 		$current_player = $this->getPlayers($player[$this->turn]);
@@ -529,9 +677,9 @@ class MKGame{
 			foreach($restaurant as $card){
 				if ( in_array( $temp_roll, $card->getActivationNumbers() ) ) {
 					$temp_result = $card->ActiveEffect($player, $this, $current_player); //Steal coins from the current turn's player
-					//Build a string with temp_result and append it to a string of other results to be output later, perhaps as a rich embed showing totals changed?
 				}
 			}
+			//Build an array using the temp_result arrays and assign it to a foreach(players->getDiscordID)=>temp_array to be output later, perhaps as a rich embed showing totals changed?
 			prev($this->players) ?? end($this->players);
 		}while (current($this->players)->discord != $this->turn);
 		//Secondary
@@ -564,22 +712,12 @@ class MKGame{
 		*/
 		return true;
 	}
-	public function start($author_id){
-		if ($author_id != $this->id){
-			if ($this->locked !== false){
-				if (array_sum($this->players) > 1){
-					$this->locked = true; //Prevent new players from joining
-					//Set game phase
-					return "**Machi Koro game $game_id has been started by the host!**";
-				}else{
-					return "Not enough players!";
-				}
-			}else{
-				return "This game has already started!";
-			}
-		}else{
-			return "You are not the host! Please ask <@$game_id> so start the game.";
-		}
+	public function construct($string){
+		//Search board to check if card is available on the board
+		
+		//Get value of card
+		//Check if player has enough cold to afford the card
+		//Add the card to the player's hand and remove it from the board
 	}
 	// Internal Methods
 	public function nextTurn(){
