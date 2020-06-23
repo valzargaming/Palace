@@ -519,6 +519,8 @@ class MKGame{
 	protected $turn; //Player (might just use current($players)
 	//Calculated
 	private $can_reroll; //Assumed false, calculated on die roll
+	private $can_swap; //Assumed false, calculated on die roll
+	
 	
 	public function __construct($param_discord){ //Discord ID of person who started the MKGame
 		$this->id = $param_discord;
@@ -578,6 +580,10 @@ class MKGame{
 	public function getCanReroll(){
 		return $this->can_reroll;
 	}
+	public function getCanSwap(){
+		return $this->can_swap;
+	}
+	
 	public function getLegacy(){
 		return $this->legacy;
 	}
@@ -619,6 +625,10 @@ class MKGame{
 	}
 	public function canReroll($bool){
 		$this->can_reroll = $bool;
+		return true;
+	}
+	public function canSwap($bool){
+		$this->can_swap = $bool;
 		return true;
 	}
 	public function setPhase($string){
