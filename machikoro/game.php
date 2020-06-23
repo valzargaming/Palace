@@ -35,7 +35,7 @@ if(substr($message_content_lower, 0, 4) == "$machikoro_symbol "){
 		$mkgame_class = get_class($mkgame);
 		if($mkgame_class == "MKGame"){
 			$mkplayers = $mkgame->getPlayers(); //Array of Player objects
-			$game_id = $mkgame->getID;
+			$game_id = $mkgame->getID();
 			foreach ($mkplayers as $key => $mkplayer){
 				$mkplayer_id = $mkplayer->getDiscordID();
 				if($author_id == $mkplayer_id){
@@ -76,6 +76,9 @@ if(substr($message_content_lower, 0, 4) == "$machikoro_symbol "){
 	if($message_filtered == "start"){
 		if($game !== NULL){
 			$gamestate = $game->start($author_id);
+			//set phase
+			$phase = "ROLL";
+			$game->setPhase("ROLL");
 			if($gamestate) $message->reply("$gamestate"); //Sending null strings is a fatal error, so obligatory if
 		}
 	}
@@ -98,23 +101,27 @@ if(substr($message_content_lower, 0, 4) == "$machikoro_symbol "){
 	if(substr($message_filtered, 0, 4) == "join"){
 		if($game === NULL){ //Can't join a game if you're already part of one!
 			$message_filtered = trim(str_replace("join", "", $message_filtered));
+			$message_filtered = str_replace("<@!", "", $message_filtered); $message_filtered = str_replace("<@", "", $message_filtered);
+			$message_filtered = str_replace(">", "", $message_filtered);
 			if(is_numeric($message_filtered)){
 				$valid = true;
 				$joined = false;
 				foreach ($GLOBALS['MachiKoro_Games'] as $mkgame){
-					$mkgame_id = $mkgame->getID;
+					$mkgame_id = $mkgame->getID();
 					if($message_filtered == $mkgame_id){
 						$valid = true;
 						$result = $mkgame->addPlayer($author_id); //returns false if game is lockeds
 						if( $result === true ){
 							$message->reply("Successfully joined game $message_filtered!");
-							return true;
-						}else{
-							$message->reply("Unable to locate game with ID $message_filtered!");
+							$game_found = true;
 							return true;
 						}
 					}
-				}	
+				}
+				if ($game_found !== true){
+					$message->reply("Unable to locate game with ID $message_filtered!");
+					return true;
+				}
 			}else{
 				$message->reply("You need to include the game's ID!");
 				return true;
@@ -153,7 +160,7 @@ if(substr($message_content_lower, 0, 4) == "$machikoro_symbol "){
 			$tworolls = false;
 			$landmarks = $hand->getLandmark();
 			foreach ($landmarks as $landmark){
-				$landmark_name = $landmark->getName();
+				if ($landmark) $landmark_name = $landmark->getName();
 				if($landmark_name == "Train Station"){
 					$tworolls = true;
 				}
@@ -238,20 +245,28 @@ if(substr($message_content_lower, 0, 4) == "$machikoro_symbol "){
 						
 						$phase = "INCOME";
 						$game->setPhase("INCOME");
-						$game->diceActivation(); //Trigger card effects
 						//It's safe to move straight to the INCOME phase
 					}
 				}
 			}
 			
-			if($phase == "INCOME"){
-				//Card effects happen first
+			if($phase == "INCOME"){ //Card effects happen here
+				$game->diceActivation(); //Trigger card effects
+				$phase = "CONSTRUCTION";
+				$game->setPhase("CONSTRUCTION");
+				//Send message with buy options
 			}
 			
 			if($phase == "CONSTRUCT"){
-				if(substr($message_filtered, 0, 9) == "construct"){
+				if(substr($message_filtered, 0, 9) == "construct" || substr($message_filtered, 0, 3) == "buy"){
 					$message_filtered = trim(str_replace("construct", "", $message_filtered));
-					//
+					$message_filtered = trim(str_replace("buy", "", $message_filtered));
+					$result = $game->construct($message_filtered); //Name of card being built
+					if ($result){
+						//$message->reply($result); //string response from game class
+					}else{
+						$message->reply("Something went wrong! Please use the format `construct buildingname` or `buy buildingname`");
+					}
 				}
 			}
 		}else{
