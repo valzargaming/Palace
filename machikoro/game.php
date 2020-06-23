@@ -26,6 +26,7 @@ if(substr($message_content_lower, 0, 4) == "$machikoro_symbol "){
 	$turn = NULL; //Discord ID of current turn's player
 	$phase = NULL; //String
 	$can_reroll = NULL; //Boolean
+	$can_swap = NULL; //Boolean
 	//Player variables
 	$player = NULL; //Player object
 	$hand = NULL; //Hand object
@@ -43,6 +44,7 @@ if(substr($message_content_lower, 0, 4) == "$machikoro_symbol "){
 					$turn = $mkgame->getTurn();
 					$phase = $mkgame->getPhase();
 					$can_reroll = $mkgame->getCanReroll();
+					$can_swap = $mkgame->getCanSwap();
 					
 					$player = $mkgame->getPlayer($author_id);
 					$hand = $player->getHand();
@@ -205,7 +207,26 @@ if(substr($message_content_lower, 0, 4) == "$machikoro_symbol "){
 					}
 				}
 			}
-			
+			if($can_swap === true){ //Player made a roll that allows them to swap another person's card with one of their own
+				//Name a player
+					//Check if player exists
+						//Get Player object reference
+						//Assign to game object
+					//Else
+						//Prompt to select a player in this game
+				//Name any card that isnt a major establish card that another player owns
+					//Check if player owns card
+						//Get Card object reference
+						//Assign to game object
+				//Name any card that isnt a major establish card that current player owns
+					//Check if player owns card
+						//Get Card object reference
+						//Assign to game object
+				//Check if all 3 are assigned
+					//Tell the game to process the swap
+				//Else
+					//Error message and restart prompt
+			}
 			/*
 			///////////////////////////////
 			Phase-specific comamnds
