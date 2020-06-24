@@ -752,7 +752,6 @@ class MKGame{
 	public function construct($param_string){
 		$current_player = $this->getPlayer($this->turn);
 		$current_hand = $current_player->getHand();
-		
 		//Search board to check if card is available on the board
 		$card = $this->board->__search($param_string);
 		if ($card !== NULL){
@@ -768,14 +767,12 @@ class MKGame{
 				$remove_result = $this->board->__remove($card[0], $card[1]);
 			}
 			if ($remove_result === true){
-				return "You bought a $card_name for $cost coins!";
+				return "You bought a $card_name for $cost coins! You have $coins coins remaining.";
 			}
 		}
 		return "Unable to locate card matching the name '$param_string!'";
 	}
-	// Internal Methods
 	public function nextTurn(){
-		//Restaurant
 		$current_player = $this->getPlayer($this->turn);
 		$current_player_pos = array_search($current_player, $this->players); //Variable is not used, but it sets the internal pointer
 		$next_player = next($this->players);
