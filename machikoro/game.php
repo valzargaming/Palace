@@ -47,9 +47,11 @@ if(substr($message_content_lower, 0, 4) == "$machikoro_symbol "){
 					$can_swap = $mkgame->getCanSwap();
 					
 					$player = $mkgame->getPlayer($author_id);
-					$hand = $player->getHand();
-					$gems = $player->getGems();
-					$coins = $player->getCoins();
+					if ($player !== FALSE){
+						$hand = $player->getHand();
+						$gems = $player->getGems();
+						$coins = $player->getCoins();
+					}else $message->reply("Error getting Player variables for <@author_id>!");
 					break;
 				}
 			}
@@ -280,13 +282,17 @@ if(substr($message_content_lower, 0, 4) == "$machikoro_symbol "){
 				//Send message with buy options
 			}
 			
-			if($phase == "CONSTRUCT"){
+			if($phase == "CONSTRUCTION"){
 				if(substr($message_filtered, 0, 9) == "construct" || substr($message_filtered, 0, 3) == "buy"){
 					$message_filtered = trim(str_replace("construct", "", $message_filtered));
 					$message_filtered = trim(str_replace("buy", "", $message_filtered));
 					$result = $game->construct($message_filtered); //Name of card being built
 					if ($result !== null){
 						$message->reply($result); //string response from game class
+						$game->nextTurn();
+						$phase = "ROLL";
+						$game->setPhase("ROLL");
+						return true;
 					}else{
 						$message->reply("Something went wrong! Please use the format `construct buildingname` or `buy buildingname`");
 					}
