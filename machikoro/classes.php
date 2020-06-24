@@ -320,86 +320,81 @@ class Board{ //Cards available for purchase
 		return $result; //NULL
 	}
 	private function __remove($param_card, $param_string){ //Remove an object from an array
-		if ($param_string){ //FAST
-			switch ($param_string):
-				case "primary":
-					foreach ($this->primary as $key => $card){
-						if ($card == $param_card){
-							unset $this->primary[$key];
-							return true;
-						}
+		switch ($param_string): //FAST
+			case "primary":
+				foreach ($this->primary as $key => $card){
+					if ($card == $param_card){
+						unset($this->primary[$key]);
+						return true;
 					}
-					return false;
-				case "secondary":
-					foreach ($this->secondary as $key => $card){
-						if ($card == $param_card){
-							unset $this->secondary[$key];
-							return true;
-						}
+				}
+				return false;
+			case "secondary":
+				foreach ($this->secondary as $key => $card){
+					if ($card == $param_card){
+						unset($this->secondary[$key]);
+						return true;
 					}
-					return false;
-				case "restaurant":
-					foreach ($this->restaurant as $key => $card){
-						if ($card == $param_card){
-							unset $this->restaurant[$key];
-							return true;
-						}
+				}
+				return false;
+			case "restaurant":
+				foreach ($this->restaurant as $key => $card){
+					if ($card == $param_card){
+						unset($this->restaurant[$key]);
+						return true;
 					}
-					return false;
-				case "major_establishment":
-					foreach ($this->major_establishment as $key => $card){
-						if ($card == $param_card){
-							unset $this->major_establishment[$key];
-							return true;
-						}
+				}
+				return false;
+			case "major_establishment":
+				foreach ($this->major_establishment as $key => $card){
+					if ($card == $param_card){
+						unset($this->major_establishment[$key]);
+						return true;
 					}
-					return false;
-				case "landmark":
-					foreach ($this->landmark as $key => $card){
-						if ($card == $param_card){
-							unset $this->landmark[$key];
-							return true;
-						}
+				}
+				return false;
+			case "landmark":
+				foreach ($this->landmark as $key => $card){
+					if ($card == $param_card){
+						unset($this->landmark[$key]);
+						return true;
 					}
-					return false;
-				default:
-					return false;
-			endswitch;
-		}else{ //SLOW
-			foreach ($this->primary as $key => $card){
-				if ($card == $param_card){
-					unset $this->primary[$key];
-					return true;
 				}
-			}
-			foreach ($this->secondary as $key => $card){
-				if ($card == $param_card){
-					unset $this->secondary[$key];
-					return true;
+				return false;
+			default: //SLOW
+				foreach ($this->primary as $key => $card){
+					if ($card == $param_card){
+						unset($this->primary[$key]);
+						return true;
+					}
 				}
-			}
-			foreach ($this->restaurant as $key => $card){
-				if ($card == $param_card){
-					unset $this->restaurant[$key];
-					return true;
+				foreach ($this->secondary as $key => $card){
+					if ($card == $param_card){
+						unset($this->secondary[$key]);
+						return true;
+					}
 				}
-			}
-			foreach ($this->major_establishment as $key => $card){
-				if ($card == $param_card){
-					unset $this->major_establishment[$key];
-					return true;
+				foreach ($this->restaurant as $key => $card){
+					if ($card == $param_card){
+						unset($this->restaurant[$key]);
+						return true;
+					}
 				}
-			}
-			foreach ($this->landmark as $key => $card){
-				if ($card == $param_card){
-					unset $this->landmark[$key];
-					return true;
+				foreach ($this->major_establishment as $key => $card){
+					if ($card == $param_card){
+						unset($this->major_establishment[$key]);
+						return true;
+					}
 				}
-			}
-			return false;
-		}
+				foreach ($this->landmark as $key => $card){
+					if ($card == $param_card){
+						unset($this->landmark[$key]);
+						return true;
+					}
+				}
+				return false;
+		endswitch;
     }
-
 }
 class Hand{
 	// Properties
@@ -419,7 +414,7 @@ class Hand{
 	}
 	
 	// Methods
-	public function getPriamry(){
+	public function getPrimary(){
 		return $this->primary;
 	}
 	public function getSecondary(){
@@ -433,6 +428,25 @@ class Hand{
 	}
 	public function getLandmark(){
 		return $this->landmark;
+	}
+	public function addCard($param_card, $param_string){
+		switch ($param_string): //FAST
+			case "primary":
+				$this->primary[] = $card;
+				return true;
+			case "secondary":
+				$this->secondary[] = $card;
+				return true;
+			case "restaurant":
+				$this->restaurant[] = $card;
+				return true;
+			case "major_establishment":
+				$this->major_establishment[] = $card;
+				return true;
+			case "landmark":
+				$this->landmark[] = $card;
+				return true;
+		endswitch;
 	}
 	// Internal Methods
 	
@@ -722,12 +736,24 @@ class MKGame{
 		*/
 		return true;
 	}
-	public function construct($string){
-		//Search board to check if card is available on the board
+	public function construct($param_string){
+		$current_player = $this->getPlayers($player[$this->turn]);
 		
-		//Get value of card
-		//Check if player has enough cold to afford the card
-		//Add the card to the player's hand and remove it from the board
+		//Search board to check if card is available on the board
+		$card = $this->board->__search($param_string);
+		$cost = $card[0]->getCost();
+		$coins = $current_player->getCoins();
+		if ($coins >= $cost){ //Add the card to the player's hand and remove it from the board
+			$add_result = $player->hand->addCard($card[0], $card[1]);
+		}
+		if ($add_result === true){
+			$remove_result = $this->board->__remove($card[0], $card[1]);
+		}
+		if ($remove_result === true){
+			return true;
+		}
+		return false;
+		
 	}
 	// Internal Methods
 	public function nextTurn(){
