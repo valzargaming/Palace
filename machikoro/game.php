@@ -109,14 +109,16 @@ if(substr($message_content_lower, 0, 4) == "$machikoro_symbol "){
 				$valid = true;
 				$joined = false;
 				foreach ($GLOBALS['MachiKoro_Games'] as $mkgame){
-					$mkgame_id = $mkgame->getID();
-					if($message_filtered == $mkgame_id){
-						$valid = true;
-						$result = $mkgame->addPlayer($author_id); //returns false if game is lockeds
-						if( $result === true ){
-							$message->reply("Successfully joined game $message_filtered!");
-							$game_found = true;
-							return true;
+					if ($mkgame){
+						$mkgame_id = $mkgame->getID();
+						if($message_filtered == $mkgame_id){
+							$valid = true;
+							$result = $mkgame->addPlayer($author_id); //returns false if game is lockeds
+							if( $result === true ){
+								$message->reply("Successfully joined game $message_filtered!");
+								$game_found = true;
+								return true;
+							}
 						}
 					}
 				}
@@ -283,8 +285,8 @@ if(substr($message_content_lower, 0, 4) == "$machikoro_symbol "){
 					$message_filtered = trim(str_replace("construct", "", $message_filtered));
 					$message_filtered = trim(str_replace("buy", "", $message_filtered));
 					$result = $game->construct($message_filtered); //Name of card being built
-					if ($result){
-						//$message->reply($result); //string response from game class
+					if ($result !== null){
+						$message->reply($result); //string response from game class
 					}else{
 						$message->reply("Something went wrong! Please use the format `construct buildingname` or `buy buildingname`");
 					}
