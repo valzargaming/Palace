@@ -492,8 +492,8 @@ class Player{
 		return $this->hand;
 	}
 	//Setter Methods
-	public function setDiscord($discord){
-		$this->discord = $discord;
+	public function setDiscord($param_discord){
+		$this->discord = $param_discord;
 	}
 	public function setName($name){
 		$this->name = $name;
@@ -693,36 +693,44 @@ class MKGame{
 		*/
 		
 		//Restaurant
-		while(current($this->players)->discord != $this->turn){ //start with current player
-			next($this->players) ?? reset($this->players);
+		$target_player = reset($this->players);
+		while($target_player->getDiscordID() != $this->turn){ //start with current player
+			$target_player = next($this->players) ?? reset($this->players);
 		}
 		do{ //process for current player and work backwards
-			$restaurant = current($this->players)->getRestaurant();
+			$hand = $target_player->getHand();
+			$restaurant = $hand->getRestaurant();
 			foreach($restaurant as $card){
-				if ( in_array( $temp_roll, $card->getActivationNumbers() ) ) {
-					$temp_result = $card->ActiveEffect($player, $this, $current_player); //Steal coins from the current turn's player
+				if ($card){
+					if ( in_array( $temp_roll, $card->getActivationNumbers() ) ) {
+						$temp_result = $card->ActiveEffect($player, $this, $current_player); //Steal coins from the current turn's player
+					}
 				}
 			}
 			//Build an array using the temp_result arrays and assign it to a foreach(players->getDiscordID)=>temp_array to be output later, perhaps as a rich embed showing totals changed?
-			prev($this->players) ?? end($this->players);
-		}while (current($this->players)->discord != $this->turn);
+			$target_player = prev($this->players) ?? end($this->players);
+		}while ($target_player->getDiscordID() != $this->turn);
 		//Secondary
 		$secondary = $current_player->getSecondary();
 		foreach($secondary as $card){
-			$temp_array = $card->getActivationNumbers();
-			if ( in_array( $temp_roll, $card->getActivationNumbers() ) ) {
-			  // Trigger effect for current player
-			  $card->ActiveEffect($current_player, $this, null);
+			if ($card){
+				$temp_array = $card->getActivationNumbers();
+				if ( in_array( $temp_roll, $card->getActivationNumbers() ) ) {
+				  // Trigger effect for current player
+				  $card->ActiveEffect($current_player, $this, null);
+				}
 			}
 		}
 		//Primary
 		foreach ($players as $player) {
 			$primary = $player->Hand->getPrimary();
-			foreach( $primary as $card){
-				$temp_array = $card->getActivationNumbers();
-				if ( in_array($temp_roll, $temp_array) ) {
-					// Trigger effect for all players
-					$card->ActiveEffect($player, $this, null);
+			foreach($primary as $card){
+				if ($card){
+					$temp_array = $card->getActivationNumbers();
+					if ( in_array($temp_roll, $temp_array) ) {
+						// Trigger effect for all players
+						$card->ActiveEffect($player, $this, null);
+					}
 				}
 			}
 		}
@@ -741,19 +749,21 @@ class MKGame{
 		
 		//Search board to check if card is available on the board
 		$card = $this->board->__search($param_string);
+		$card_name = $card[0]->getName();
 		$cost = $card[0]->getCost();
 		$coins = $current_player->getCoins();
 		if ($coins >= $cost){ //Add the card to the player's hand and remove it from the board
 			$add_result = $player->hand->addCard($card[0], $card[1]);
+		}else{
+			return "$card_name costs $cost coins and you only own $coins.";
 		}
 		if ($add_result === true){
 			$remove_result = $this->board->__remove($card[0], $card[1]);
 		}
 		if ($remove_result === true){
-			return true;
+			return "You bought a $card_name for $cost coins!";
 		}
-		return false;
-		
+		return null;
 	}
 	// Internal Methods
 	public function nextTurn(){
