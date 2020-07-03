@@ -314,8 +314,14 @@ GLOBAL $sexualities, $sexuality_message_text;
 GLOBAL $customroles, $customroles_message_text;
 
 if(substr($message_content_lower, 0, 1) == $command_symbol){
-	$message_content_lower = substr($message_content_lower, 1);
-	$message_content = substr($message_content, 1);
+	$message_content_lower = trim(substr($message_content_lower, 1));
+	$message_content = trim(substr($message_content, 1));
+}elseif (substr($message_content_lower, 0, 2) == '!s'){
+	$message_content_lower = trim(substr($message_content_lower, 2));
+	$message_content = trim(substr($message_content, 2));
+}else{ //Expected prefix is missing
+	return true;
+}
 	/*
 	*********************
 	*********************
@@ -325,189 +331,393 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 	*/
 
 	if ($creator || $owner || $dev){
-		if ($message_content_lower == 'setup'){ //;setup	
-			$documentation = $documentation . "`currentsetup` send DM with current settings\n";
-			$documentation = $documentation . "`updateconfig` updates the configuration file (needed for updates)\n";
-			$documentation = $documentation . "`clearconfig` deletes all configuration information for the srver\n";
-			//Roles
-			$documentation = $documentation . "\n**Roles:**\n";
-			$documentation = $documentation . "`setup dev @role`\n";
-			$documentation = $documentation . "`setup admin @role`\n";
-			$documentation = $documentation . "`setup mod @role`\n";
-			$documentation = $documentation . "`setup bot @role`\n";
-			$documentation = $documentation . "`setup vzg @role` (Role with the name Palace Bot, not the actual bot)\n";
-			$documentation = $documentation . "`setup muted @role`\n";
-			$documentation = $documentation . "`setup verified @role`\n";
-			$documentation = $documentation . "`setup adult @role`\n";
-			//User
-			/* Deprecated
-			$documentation = $documentation . "**Users:**\n";
-			$documentation = $documentation . "`setup rolepicker @user` The user who posted the rolepicker messages\n";
-			*/
-			//Channels
-			$documentation = $documentation . "**Channels:**\n";
-			$documentation = $documentation . "`setup general #channel` The primary chat channel, also welcomes new users to everyone\n";
-			$documentation = $documentation . "`setup welcome #channel` Simple welcome message tagging new user\n";
-			$documentation = $documentation . "`setup welcomelog #channel` Detailed message about the user\n";
-			$documentation = $documentation . "`setup log #channel` Detailed log channel\n"; //Modlog
-			$documentation = $documentation . "`setup verify channel #channel` Detailed log channel\n";
-			$documentation = $documentation . "`setup watch #channel` ;watch messages are duplicated here instead of in a DM\n";
-			/* Deprecated
-			$documentation = $documentation . "`setup rolepicker channel #channel` Where users pick a role\n";
-			*/
-			$documentation = $documentation . "`setup games channel #channel` Where users can play games\n";
-			$documentation = $documentation . "`setup suggestion pending #channel` \n";
-			$documentation = $documentation . "`setup suggestion approved #channel` \n";
-			//Messages
-			
-			$documentation = $documentation . "**Messages:**\n";
-			/* Deprecated
-			$documentation = $documentation . "`setup species messageid`\n";
-			$documentation = $documentation . "`setup species2 messageid`\n";
-			$documentation = $documentation . "`setup species3 messageid`\n";
-			$documentation = $documentation . "`setup sexuality messageid`\n";
-			$documentation = $documentation . "`setup gender messageid`\n";
-			$documentation = $documentation . "`setup customroles messageid`\n";
-			*/
-			$documentation = $documentation . "`message species`\n";
-			$documentation = $documentation . "`message species2`\n";
-			$documentation = $documentation . "`message species3`\n";
-			$documentation = $documentation . "`message gender`\n";
-			$documentation = $documentation . "`message sexuality`\n";
-			$documentation = $documentation . "`message customroles`\n";
-			
-			$documentation_sanitized = str_replace("\n","",$documentation);
-			$doc_length = strlen($documentation_sanitized);
-			if ($doc_length < 1025){
-
-				$embed = new \CharlotteDunois\Yasmin\Models\MessageEmbed();
-				$embed
-					->setTitle("Setup commands for $author_guild_name")														// Set a title
-					->setColor("e1452d")																	// Set a color (the thing on the left side)
-					->setDescription("$documentation")														// Set a description (below title, above fields)
-		//					->addField("⠀", "$documentation")														// New line after this			
-		//					->setThumbnail("$author_avatar")														// Set a thumbnail (the image in the top right corner)
-		//					->setImage('https://avatars1.githubusercontent.com/u/4529744?s=460&v=4')             	// Set an image (below everything except footer)
-		//					->setTimestamp()                                                                     	// Set a timestamp (gets shown next to footer)
-		//					->setAuthor("$author_check", "$author_guild_avatar")  									// Set an author with icon
-					->setFooter("Palace Bot by Valithor#5947")                             					// Set a footer without icon
-					->setURL("");                             												// Set the URL
-		//				Open a DM channel then send the rich embed message
-				$author_user->createDM()->then(function($author_dmchannel) use ($message, $embed){	//Promise
-					echo "[;SETUP EMBED]" . PHP_EOL;
-					return $author_dmchannel->send('', array('embed' => $embed))->done(null, function ($error){
-						echo "[ERROR] $error" . PHP_EOL; //Echo any errors
+		switch ($message_content_lower){
+			case 'setup': //;setup
+				$documentation = $documentation . "`currentsetup` send DM with current settings\n";
+				$documentation = $documentation . "`updateconfig` updates the configuration file (needed for updates)\n";
+				$documentation = $documentation . "`clearconfig` deletes all configuration information for the srver\n";
+				//Roles
+				$documentation = $documentation . "\n**Roles:**\n";
+				$documentation = $documentation . "`setup dev @role`\n";
+				$documentation = $documentation . "`setup admin @role`\n";
+				$documentation = $documentation . "`setup mod @role`\n";
+				$documentation = $documentation . "`setup bot @role`\n";
+				$documentation = $documentation . "`setup vzg @role` (Role with the name Palace Bot, not the actual bot)\n";
+				$documentation = $documentation . "`setup muted @role`\n";
+				$documentation = $documentation . "`setup verified @role`\n";
+				$documentation = $documentation . "`setup adult @role`\n";
+				//User
+				/* Deprecated
+				$documentation = $documentation . "**Users:**\n";
+				$documentation = $documentation . "`setup rolepicker @user` The user who posted the rolepicker messages\n";
+				*/
+				//Channels
+				$documentation = $documentation . "**Channels:**\n";
+				$documentation = $documentation . "`setup general #channel` The primary chat channel, also welcomes new users to everyone\n";
+				$documentation = $documentation . "`setup welcome #channel` Simple welcome message tagging new user\n";
+				$documentation = $documentation . "`setup welcomelog #channel` Detailed message about the user\n";
+				$documentation = $documentation . "`setup log #channel` Detailed log channel\n"; //Modlog
+				$documentation = $documentation . "`setup verify channel #channel` Detailed log channel\n";
+				$documentation = $documentation . "`setup watch #channel` ;watch messages are duplicated here instead of in a DM\n";
+				/* Deprecated
+				$documentation = $documentation . "`setup rolepicker channel #channel` Where users pick a role\n";
+				*/
+				$documentation = $documentation . "`setup games channel #channel` Where users can play games\n";
+				$documentation = $documentation . "`setup suggestion pending #channel` \n";
+				$documentation = $documentation . "`setup suggestion approved #channel` \n";
+				//Messages
+				
+				$documentation = $documentation . "**Messages:**\n";
+				/* Deprecated
+				$documentation = $documentation . "`setup species messageid`\n";
+				$documentation = $documentation . "`setup species2 messageid`\n";
+				$documentation = $documentation . "`setup species3 messageid`\n";
+				$documentation = $documentation . "`setup sexuality messageid`\n";
+				$documentation = $documentation . "`setup gender messageid`\n";
+				$documentation = $documentation . "`setup customroles messageid`\n";
+				*/
+				$documentation = $documentation . "`message species`\n";
+				$documentation = $documentation . "`message species2`\n";
+				$documentation = $documentation . "`message species3`\n";
+				$documentation = $documentation . "`message gender`\n";
+				$documentation = $documentation . "`message sexuality`\n";
+				$documentation = $documentation . "`message customroles`\n";
+				
+				$documentation_sanitized = str_replace("\n","",$documentation);
+				$doc_length = strlen($documentation_sanitized);
+				if ($doc_length < 1024){
+					$embed = new \CharlotteDunois\Yasmin\Models\MessageEmbed();
+					$embed
+						->setTitle("Setup commands for $author_guild_name")														// Set a title
+						->setColor("e1452d")																	// Set a color (the thing on the left side)
+						->setDescription("$documentation")														// Set a description (below title, above fields)
+						//->addField("⠀", "$documentation")														// New line after this			
+						//->setThumbnail("$author_avatar")														// Set a thumbnail (the image in the top right corner)
+						//->setImage('https://avatars1.githubusercontent.com/u/4529744?s=460&v=4')             	// Set an image (below everything except footer)
+						//->setTimestamp()                                                                     	// Set a timestamp (gets shown next to footer)
+						//->setAuthor("$author_check", "$author_guild_avatar")  									// Set an author with icon
+						->setFooter("Palace Bot by Valithor#5947")                             					// Set a footer without icon
+						->setURL("");                             												// Set the URL
+					//Open a DM channel then send the rich embed message
+					$author_user->createDM()->then(function($author_dmchannel) use ($message, $embed){	//Promise
+						echo "[;SETUP EMBED]" . PHP_EOL;
+						return $author_dmchannel->send('', array('embed' => $embed))->done(null, function ($error){
+							echo "[ERROR] $error" . PHP_EOL; //Echo any errors
+						});
 					});
-				});
-				return true;
-			}else{
-				$author_user->createDM()->then(function($author_dmchannel) use ($message, $documentation){	//Promise
-					echo "[;SETUP MESSAGE]" . PHP_EOL;
-					$author_dmchannel->send($documentation);
-				});
-				return true;
-			}
-		}
-		if ($message_content_lower == 'currentsetup'){ //;currentsetup
-			//Send DM with current settings
-			//Roles
-			$documentation = $documentation . "\n**Roles:**\n";
-			$documentation = $documentation . "`dev @role` $role_dev_id\n";
-			$documentation = $documentation . "`admin @role` $role_admin_id\n";
-			$documentation = $documentation . "`mod @role` $role_mod_id\n";
-			$documentation = $documentation . "`bot @role` $role_bot_id\n";
-			$documentation = $documentation . "`vzg @role` $role_vzgbot_id\n";
-			$documentation = $documentation . "`muted @role` $role_muted_id\n";
-			$documentation = $documentation . "`verified @role` $role_verified_id\n";
-			$documentation = $documentation . "`adult @role` $role_18_id\n";
-			//User
-			$documentation = $documentation . "**Users:**\n";
-			$documentation = $documentation . "`rolepicker @user` $rolepicker_id\n";
-			//Channels
-			$documentation = $documentation . "**Channels:**\n";
-			$documentation = $documentation . "`general #channel` $general_channel\n";
-			$documentation = $documentation . "`welcome #channel` $welcome_public_channel\n";
-			$documentation = $documentation . "`welcomelog #channel` $welcome_log_channel\n";
-			$documentation = $documentation . "`log #channel` $modlog_channel\n";
-			$documentation = $documentation . "`verify channel #channel` $getverified_channel\n";
-			if ($verifylog_channel_id)
-				$documentation = $documentation . "`verifylog #channel` $verifylog_channel\n";
-			else $documentation = $documentation . "`verifylog #channel` (defaulted to log channel)\n";
-			if ($watch_channel_id)
-				$documentation = $documentation . "`watch #channel` $watch_channel\n";
-			else $documentation = $documentation . "`watch #channel` (defaulted to direct message only)\n";
-			$documentation = $documentation . "`rolepicker channel #channel` $rolepicker_channel\n";
-			$documentation = $documentation . "`games #channel` $games_channel\n";
-			$documentation = $documentation . "`suggestion pending #channel` $suggestion_pending_channel\n";
-			$documentation = $documentation . "`suggestion approved #channel` $suggestion_approved_channel\n";
-			//Messages
-			$documentation = $documentation . "**Messages:**\n";
-			if ($species_message_id) $documentation = $documentation . "`species messageid` $species_message_id\n";
-			else $documentation = $documentation . "`species messageid` Message not yet sent!\n";
-			if ($species2_message_id) $documentation = $documentation . "`species2 messageid` $species2_message_id\n";
-			else $documentation = $documentation . "`species2 messageid` Message not yet sent!\n";
-			if ($species3_message_id) $documentation = $documentation . "`species3 messageid` $species3_message_id\n";
-			else $documentation = $documentation . "`species3 messageid` Message not yet sent!\n";
-			if ($gender_message_id) $documentation = $documentation . "`gender messageid` $gender_message_id\n";
-			else $documentation = $documentation . "`gender messageid` Message not yet sent!\n";
-			if ($sexuality_message_id) $documentation = $documentation . "`sexuality messageid` $sexuality_message_id\n";
-			else $documentation = $documentation . "`sexuality messageid` Message not yet sent!\n";
-			if ($customroles_message_id) $documentation = $documentation . "`customroles messageid` $customroles_message_id\n";
-			else $documentation = $documentation . "`customroles messageid` Message not yet sent!\n";
-			
-			$documentation_sanitized = str_replace("\n","",$documentation);
-			$doc_length = strlen($documentation_sanitized);
-			if ($doc_length < 1025){
-
-				$embed = new \CharlotteDunois\Yasmin\Models\MessageEmbed();
-				$embed
-					->setTitle("Current setup for $author_guild_name")														// Set a title
-					->setColor("e1452d")																	// Set a color (the thing on the left side)
-					->setDescription("$documentation")														// Set a description (below title, above fields)
-		//					->addField("⠀", "$documentation")														// New line after this			
-		//					->setThumbnail("$author_avatar")														// Set a thumbnail (the image in the top right corner)
-		//					->setImage('https://avatars1.githubusercontent.com/u/4529744?s=460&v=4')             	// Set an image (below everything except footer)
-		//					->setTimestamp()                                                                     	// Set a timestamp (gets shown next to footer)
-		//					->setAuthor("$author_check", "$author_guild_avatar")  									// Set an author with icon
-					->setFooter("Palace Bot by Valithor#5947")                             					// Set a footer without icon
-					->setURL("");                             												// Set the URL
-		//				Open a DM channel then send the rich embed message
-				$author_user->createDM()->then(function($author_dmchannel) use ($message, $embed){	//Promise
-					echo "[;CURRENTSETUP EMBED]" . PHP_EOL;
-					return $author_dmchannel->send('', array('embed' => $embed))->done(null, function ($error){
-						echo "[ERROR] $error" . PHP_EOL; //Echo any errors
+					return true;
+				}else{
+					$author_user->createDM()->then(function($author_dmchannel) use ($message, $documentation){	//Promise
+						echo "[;SETUP MESSAGE]" . PHP_EOL;
+						$author_dmchannel->send($documentation);
 					});
+					return true;
+				}
+				break;
+			case 'currentsetup': //;currentsetup
+				//Send DM with current settings
+				//Roles
+				$documentation = $documentation . "\n**Roles:**\n";
+				$documentation = $documentation . "`dev @role` $role_dev_id\n";
+				$documentation = $documentation . "`admin @role` $role_admin_id\n";
+				$documentation = $documentation . "`mod @role` $role_mod_id\n";
+				$documentation = $documentation . "`bot @role` $role_bot_id\n";
+				$documentation = $documentation . "`vzg @role` $role_vzgbot_id\n";
+				$documentation = $documentation . "`muted @role` $role_muted_id\n";
+				$documentation = $documentation . "`verified @role` $role_verified_id\n";
+				$documentation = $documentation . "`adult @role` $role_18_id\n";
+				//User
+				$documentation = $documentation . "**Users:**\n";
+				$documentation = $documentation . "`rolepicker @user` $rolepicker_id\n";
+				//Channels
+				$documentation = $documentation . "**Channels:**\n";
+				$documentation = $documentation . "`general #channel` $general_channel\n";
+				$documentation = $documentation . "`welcome #channel` $welcome_public_channel\n";
+				$documentation = $documentation . "`welcomelog #channel` $welcome_log_channel\n";
+				$documentation = $documentation . "`log #channel` $modlog_channel\n";
+				$documentation = $documentation . "`verify channel #channel` $getverified_channel\n";
+				if ($verifylog_channel_id)
+					$documentation = $documentation . "`verifylog #channel` $verifylog_channel\n";
+				else $documentation = $documentation . "`verifylog #channel` (defaulted to log channel)\n";
+				if ($watch_channel_id)
+					$documentation = $documentation . "`watch #channel` $watch_channel\n";
+				else $documentation = $documentation . "`watch #channel` (defaulted to direct message only)\n";
+				$documentation = $documentation . "`rolepicker channel #channel` $rolepicker_channel\n";
+				$documentation = $documentation . "`games #channel` $games_channel\n";
+				$documentation = $documentation . "`suggestion pending #channel` $suggestion_pending_channel\n";
+				$documentation = $documentation . "`suggestion approved #channel` $suggestion_approved_channel\n";
+				//Messages
+				$documentation = $documentation . "**Messages:**\n";
+				if ($species_message_id) $documentation = $documentation . "`species messageid` $species_message_id\n";
+				else $documentation = $documentation . "`species messageid` Message not yet sent!\n";
+				if ($species2_message_id) $documentation = $documentation . "`species2 messageid` $species2_message_id\n";
+				else $documentation = $documentation . "`species2 messageid` Message not yet sent!\n";
+				if ($species3_message_id) $documentation = $documentation . "`species3 messageid` $species3_message_id\n";
+				else $documentation = $documentation . "`species3 messageid` Message not yet sent!\n";
+				if ($gender_message_id) $documentation = $documentation . "`gender messageid` $gender_message_id\n";
+				else $documentation = $documentation . "`gender messageid` Message not yet sent!\n";
+				if ($sexuality_message_id) $documentation = $documentation . "`sexuality messageid` $sexuality_message_id\n";
+				else $documentation = $documentation . "`sexuality messageid` Message not yet sent!\n";
+				if ($customroles_message_id) $documentation = $documentation . "`customroles messageid` $customroles_message_id\n";
+				else $documentation = $documentation . "`customroles messageid` Message not yet sent!\n";
+				
+				$documentation_sanitized = str_replace("\n","",$documentation);
+				$doc_length = strlen($documentation_sanitized);
+				if ($doc_length < 1024){
+					$embed = new \CharlotteDunois\Yasmin\Models\MessageEmbed();
+					$embed
+						->setTitle("Current setup for $author_guild_name")														// Set a title
+						->setColor("e1452d")																	// Set a color (the thing on the left side)
+						->setDescription("$documentation")														// Set a description (below title, above fields)
+			//					->addField("⠀", "$documentation")														// New line after this			
+			//					->setThumbnail("$author_avatar")														// Set a thumbnail (the image in the top right corner)
+			//					->setImage('https://avatars1.githubusercontent.com/u/4529744?s=460&v=4')             	// Set an image (below everything except footer)
+			//					->setTimestamp()                                                                     	// Set a timestamp (gets shown next to footer)
+			//					->setAuthor("$author_check", "$author_guild_avatar")  									// Set an author with icon
+						->setFooter("Palace Bot by Valithor#5947")                             					// Set a footer without icon
+						->setURL("");                             												// Set the URL
+			//				Open a DM channel then send the rich embed message
+					$author_user->createDM()->then(function($author_dmchannel) use ($message, $embed){	//Promise
+						echo "[;CURRENTSETUP EMBED]" . PHP_EOL;
+						return $author_dmchannel->send('', array('embed' => $embed))->done(null, function ($error){
+							echo "[ERROR] $error" . PHP_EOL; //Echo any errors
+						});
+					});
+					return true;
+				}else{
+					$author_user->createDM()->then(function($author_dmchannel) use ($message, $documentation){	//Promise
+						echo "[;CURRENTSETUP MESSAGE]" . PHP_EOL;
+						$author_dmchannel->send($documentation);
+					});
+					return true;
+				}
+				break;
+			case 'updateconfig': //;updateconfig
+				$file = 'guild_config_template.php';
+				if (sha1_file($guild_config_path) == sha1_file('guild_config_template.php')) {
+					$message->reply("Guild configuration is already up to date!");
+				}else{
+					if (!copy($file, $guild_config_path)){
+						$message->reply("Failed to create guild_config file! Please contact <@116927250145869826> for assistance.");
+					}else $author_channel->send("The server's configuration file was recently updated by <@$author_id>. Please check the ;currentsetup");
+				}
+				break;
+			case 'clearconfig': //;clearconfig
+				$files = glob(__DIR__  . "$guild_folder" . '/*');
+				// Deleting all the files in the list 
+				foreach($files as $file) { 
+					if(is_file($file))
+						unlink($file); //Delete the file
+				}
+				$author_channel->send("The server's configuration files were recently delete by <@$author_id>. Please run the ;setup commands again.");
+				return true;
+				break;
+			//Role Messages Setup
+			case 'message species': //;message species
+				VarSave($guild_folder, "rolepicker_channel_id.php", strval($author_channel_id)); //Make this channel the rolepicker channel
+				$author_channel->send($species_message_text)->then(function($new_message) use ($guild_folder, $species, $message){
+					VarSave($guild_folder, "species_message_id.php", strval($new_message->id));
+					foreach($species as $var_name => $value){
+						$new_message->react($value);
+					}
+					$message->delete();
+					return true;
 				});
 				return true;
-			}else{
-				$author_user->createDM()->then(function($author_dmchannel) use ($message, $documentation){	//Promise
-					echo "[;CURRENTSETUP MESSAGE]" . PHP_EOL;
-					$author_dmchannel->send($documentation);
+				break;
+			case 'message species2': //;message species2
+				VarSave($guild_folder, "rolepicker_channel_id.php", strval($author_channel_id)); //Make this channel the rolepicker channel
+				$author_channel->send($species2_message_text)->then(function($new_message) use ($guild_folder, $species2, $message){;
+					VarSave($guild_folder, "species2_message_id.php", strval($new_message->id));
+					foreach($species2 as $var_name => $value){
+						$new_message->react($value);
+					}
+					$message->delete();
+					return true;
 				});
 				return true;
-			}
+				break;
+			case 'message species3': //;message species3
+				VarSave($guild_folder, "rolepicker_channel_id.php", strval($author_channel_id)); //Make this channel the rolepicker channel
+				$author_channel->send($species3_message_text)->then(function($new_message) use ($guild_folder, $species3, $message){;
+					VarSave($guild_folder, "species3_message_id.php", strval($new_message->id));
+					foreach($species3 as $var_name => $value){
+						$new_message->react($value);
+					}
+					$message->delete();
+					return true;
+				});
+				return true;
+				break;
+			case 'message gender': //;message gender
+				echo '[GENDER MESSAGE GEN]' . PHP_EOL;
+				VarSave($guild_folder, "rolepicker_channel_id.php", strval($author_channel_id)); //Make this channel the rolepicker channel
+				$author_channel->send($gender_message_text)->then(function($new_message) use ($guild_folder, $gender, $message){;
+					VarSave($guild_folder, "gender_message_id.php", strval($new_message->id));
+					foreach($gender as $var_name => $value){
+						$new_message->react($value);
+					}
+					$message->delete();
+					return true;
+				});
+				return true;
+				break;
+			case 'message sexuality':
+			case 'message sexualities':
+				VarSave($guild_folder, "rolepicker_channel_id.php", strval($author_channel_id)); //Make this channel the rolepicker channel
+				$author_channel->send($sexuality_message_text)->then(function($new_message) use ($guild_folder, $sexualities, $message){;
+					VarSave($guild_folder, "sexuality_message_id.php", strval($new_message->id));
+					foreach($sexualities as $var_name => $value){
+						$new_message->react($value);
+					}
+					$message->delete();
+					return true;
+				});
+				return true;
+				break;
+			case 'message customroles': //;message customroles
+				VarSave($guild_folder, "rolepicker_channel_id.php", strval($author_channel_id)); //Make this channel the rolepicker channel
+				$author_channel->send($customroles_message_text)->then(function($new_message) use ($guild_folder, $customroles, $message){;
+					VarSave($guild_folder, "customroles_message_id.php", strval($new_message->id));
+					foreach($customroles as $var_name => $value){
+						$new_message->react($value);
+					}
+					$message->delete();
+					return true;
+				});
+				return true;
+				break;
+		//Toggles
+			case 'react':
+				if(!CheckFile($guild_folder, "react_option.php")){
+					VarSave($guild_folder, "react_option.php", $react_option);
+					echo "[NEW REACT OPTION FILE]";
+				}
+				$react_var = VarLoad($guild_folder, "react_option.php");
+				$react_flip = !$react_var;
+				VarSave($guild_folder, "react_option.php", $react_flip);
+				if($react) $message->react("👍");
+				if ($react_flip === true)
+					$message->reply("Reaction functions enabled!");
+				else $message->reply("Reaction functions disabled!");
+				return true;
+				break;
+			case 'vanity': //toggle vanity functions ;vanity
+				if(!CheckFile($guild_folder, "vanity_option.php")){
+					VarSave($guild_folder, "vanity_option.php", $vanity_option);
+					echo "[NEW VANITY OPTION FILE]" . PHP_EOL;
+				}
+				$vanity_var = VarLoad($guild_folder, "vanity_option.php");
+				$vanity_flip = !$vanity_var;
+				VarSave($guild_folder, "vanity_option.php", $vanity_flip);
+				if($react) $message->react("👍");
+				if ($vanity_flip === true)
+					$message->reply("Vanity functions enabled!");
+				else $message->reply("Vanity functions disabled!");
+				return true;
+				break;
+			case 'nsfw':
+				if(!CheckFile($guild_folder, "nsfw_option.php")){
+					VarSave($guild_folder, "nsfw_option.php", $nsfw_option);
+					echo "[NEW NSFW OPTION FILE]" . PHP_EOL;
+				}
+				$nsfw_var = VarLoad($guild_folder, "nsfw_option.php");
+				$nsfw_flip = !$nsfw_var;
+				VarSave($guild_folder, "nsfw_option.php", $nsfw_flip);
+				if($react) $message->react("👍");
+				if ($nsfw_flip === true)
+					$message->reply("NSFW functions enabled!");
+				else $message->reply("NSFW functions disabled!");
+				return true;
+				break;
+			case 'games':
+				if(!CheckFile($guild_folder, "games_option.php")){
+					VarSave($guild_folder, "games_option.php", $games_option);
+					echo "[NEW GAMES OPTION FILE]" . PHP_EOL;
+				}
+				$games_var = VarLoad($guild_folder, "games_option.php");
+				$games_flip = !$games_var;
+				VarSave($guild_folder, "games_option.php", $games_flip);
+				if($react) $message->react("👍");
+				if ($games_flip === true)
+					$message->reply("Games functions enabled!");
+				else $message->reply("Games functions disabled!");
+				return true;
+				break;
+			case 'rolepicker':
+				if(!CheckFile($guild_folder, "rolepicker_option.php")){
+					VarSave($guild_folder, "rolepicker_option.php", $rolepicker_option);
+					echo "[NEW ROLEPICKER FILE]" . PHP_EOL;
+				}
+				$rolepicker_var = VarLoad($guild_folder, "rolepicker_option.php");
+				$rolepicker_flip = !$rolepicker_var;
+				VarSave($guild_folder, "rolepicker_option.php", $rolepicker_flip);
+				if($react) $message->react("👍");
+				if ($rolepicker_flip === true)
+					$message->reply("Rolepicker enabled!");
+				else $message->reply("Rolepicker disabled!");
+				return true;
+				break;
+			case 'species':
+				if(!CheckFile($guild_folder, "species_option.php")){
+					VarSave($guild_folder, "species_option.php", $species_option);
+					echo "[NEW SPECIES FILE]" . PHP_EOL;
+				}
+				$species_var = VarLoad($guild_folder, "species_option.php");
+				$species_flip = !$species_var;
+				VarSave($guild_folder, "species_option.php", $species_flip);
+				if($react) $message->react("👍");
+				if ($species_flip === true)
+					$message->reply("Species roles enabled!");
+				else $message->reply("Species roles	disabled!");
+				return true;
+				break;
+			case 'gender':
+				if(!CheckFile($guild_folder, "gender_option.php")){
+					VarSave($guild_folder, "gender_option.php", $gender_option);
+					echo "[NEW GENDER FILE]" . PHP_EOL;
+				}
+				$gender_var = VarLoad($guild_folder, "gender_option.php");
+				$gender_flip = !$gender_var;
+				VarSave($guild_folder, "gender_option.php", $gender_flip);
+				if($react) $message->react("👍");
+				if ($gender_flip === true)
+					$message->reply("Gender roles enabled!");
+				else $message->reply("Gender roles disabled!");
+				return true;
+				break;
+			case 'sexuality':
+				if(!CheckFile($guild_folder, "sexuality_option.php")){
+					VarSave($guild_folder, "sexuality_option.php", $sexuality_option);
+					echo "[NEW SEXUALITY FILE]" . PHP_EOL;
+				}
+				$sexuality_var = VarLoad($guild_folder, "sexuality_option.php");
+				$sexuality_flip = !$sexuality_var;
+				VarSave($guild_folder, "sexuality_option.php", $sexuality_option);
+				if($react) $message->react("👍");
+				if ($sexuality_flip === true)
+					$message->reply("Sexuality roles enabled!");
+				else $message->reply("Sexuality roles disabled!");
+				return true;
+				break;
+			case 'customroles':
+				if(!CheckFile($guild_folder, "custom_option.php")){
+					VarSave($guild_folder, "custom_option.php", $custom_option);
+					echo "[NEW CUSTOM ROLE OPTION FILE]" . PHP_EOL;
+				}
+				$custom_var = VarLoad($guild_folder, "custom_option.php");
+				$custom_flip = !$custom_var;
+				VarSave($guild_folder, "custom_option.php", $custom_flip);
+				if($react) $message->react("👍");
+				if ($custom_flip === true)
+					$message->reply("Custom roles enabled!");
+				else $message->reply("Custom roles disabled!");
+				return true;
+				break;
 		}
-		if ($message_content_lower == 'updateconfig'){ //;updateconfig
-			$file = 'guild_config_template.php';
-			if (sha1_file($guild_config_path) == sha1_file('guild_config_template.php')) {
-				$message->reply("Guild configuration is already up to date!");
-			}else{
-				if (!copy($file, $guild_config_path)){
-					$message->reply("Failed to create guild_config file! Please contact <@116927250145869826> for assistance.");
-				}else $author_channel->send("The server's configuration file was recently updated by <@$author_id>. Please check the ;currentsetup");
-			}
-		}
-		if ($message_content_lower == 'clearconfig'){ //;clearconfig		
-			$files = glob(__DIR__  . "$guild_folder" . '/*');
-			// Deleting all the files in the list 
-			foreach($files as $file) { 
-				if(is_file($file))
-					unlink($file); //Delete the file
-			}
-			$author_channel->send("The server's configuration files were recently delete by <@$author_id>. Please run the ;setup commands again.");
-		}
+		//End switch
 		//Roles
-		if (substr($message_content_lower, 0, 11) == 'setup dev '){
+		if (substr($message_content_lower, 0, 10) == 'setup dev '){
 			$filter = "setup dev ";
 			$value = str_replace($filter, "", $message_content_lower);
 			$value = str_replace("<@&", "", $value);
@@ -519,7 +729,7 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 			}else $message->reply("Invalid input! Please enter an ID or @mention the role");
 			return true;
 		}
-		if (substr($message_content_lower, 0, 13) == 'setup admin '){
+		if (substr($message_content_lower, 0, 12) == 'setup admin '){
 			$filter = "setup admin ";
 			$value = str_replace($filter, "", $message_content_lower);
 			$value = str_replace("<@&", "", $value);
@@ -531,7 +741,7 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 			}else $message->reply("Invalid input! Please enter an ID or @mention the role");
 			return true;
 		}
-		if (substr($message_content_lower, 0, 11) == 'setup mod '){
+		if (substr($message_content_lower, 0, 10) == 'setup mod '){
 			$filter = "setup mod ";
 			$value = str_replace($filter, "", $message_content_lower);
 			$value = str_replace("<@&", "", $value);
@@ -543,7 +753,7 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 			}else $message->reply("Invalid input! Please enter an ID or @mention the role");
 			return true;
 		}
-		if (substr($message_content_lower, 0, 11) == 'setup bot '){
+		if (substr($message_content_lower, 0, 10) == 'setup bot '){
 			$filter = "setup bot ";
 			$value = str_replace($filter, "", $message_content_lower);
 			$value = str_replace("<@&", "", $value);
@@ -555,7 +765,7 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 			}else $message->reply("Invalid input! Please enter an ID or @mention the role");
 			return true;
 		}
-		if (substr($message_content_lower, 0, 14) == 'setup vzgbot '){
+		if (substr($message_content_lower, 0, 13) == 'setup vzgbot '){
 			$filter = "setup vzgbot ";
 			$value = str_replace($filter, "", $message_content_lower);
 			$value = str_replace("<@&", "", $value);
@@ -567,7 +777,7 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 			}else $message->reply("Invalid input! Please enter an ID or @mention the role");
 			return true;
 		}
-		if (substr($message_content_lower, 0, 13) == 'setup muted '){
+		if (substr($message_content_lower, 0, 12) == 'setup muted '){
 			$filter = "setup muted ";
 			$value = str_replace($filter, "", $message_content_lower);
 			$value = str_replace("<@&", "", $value);
@@ -579,7 +789,7 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 			}else $message->reply("Invalid input! Please enter an ID or @mention the role");
 			return true;
 		}
-		if (substr($message_content_lower, 0, 16) == 'setup verified '){
+		if (substr($message_content_lower, 0, 15) == 'setup verified '){
 			$filter = "setup verified ";
 			$value = str_replace($filter, "", $message_content_lower);
 			$value = str_replace("<@&", "", $value);
@@ -591,7 +801,7 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 			}else $message->reply("Invalid input! Please enter an ID or @mention the role");
 			return true;
 		}
-		if (substr($message_content_lower, 0, 13) == 'setup adult '){
+		if (substr($message_content_lower, 0, 12) == 'setup adult '){
 			$filter = "setup adult ";
 			$value = str_replace($filter, "", $message_content_lower);
 			$value = str_replace("<@&", "", $value);
@@ -604,7 +814,7 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 			return true;
 		}
 		//Channels
-		if (substr($message_content_lower, 0, 15) == 'setup general '){
+		if (substr($message_content_lower, 0, 14) == 'setup general '){
 			$filter = "setup general ";
 			$value = str_replace($filter, "", $message_content_lower);
 			$value = str_replace("<#", "", $value);
@@ -616,7 +826,7 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 			}else $message->reply("Invalid input! Please enter a channel ID or <#mention> a channel");
 			return true;
 		}
-		if (substr($message_content_lower, 0, 15) == 'setup welcome '){
+		if (substr($message_content_lower, 0, 14) == 'setup welcome '){
 			$filter = "setup welcome ";
 			$value = str_replace($filter, "", $message_content_lower);
 			$value = str_replace("<#", "", $value);
@@ -628,7 +838,7 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 			}else $message->reply("Invalid input! Please enter a channel ID or <#mention> a channel");
 			return true;
 		}
-		if (substr($message_content_lower, 0, 18) == 'setup welcomelog '){
+		if (substr($message_content_lower, 0, 17) == 'setup welcomelog '){
 			$filter = "setup welcomelog ";
 			$value = str_replace($filter, "", $message_content_lower);
 			$value = str_replace("<#", "", $value);
@@ -640,7 +850,7 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 			}else $message->reply("Invalid input! Please enter a channel ID or <#mention> a channel");
 			return true;
 		}
-		if (substr($message_content_lower, 0, 11) == 'setup log '){
+		if (substr($message_content_lower, 0, 10) == 'setup log '){
 			$filter = "setup log ";
 			$value = str_replace($filter, "", $message_content_lower);
 			$value = str_replace("<#", "", $value);
@@ -652,7 +862,7 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 			}else $message->reply("Invalid input! Please enter a channel ID or <#mention> a channel");
 			return true;
 		}
-		if (substr($message_content_lower, 0, 22) == 'setup verify channel '){
+		if (substr($message_content_lower, 0, 21) == 'setup verify channel '){
 			$filter = "setup verify channel ";
 			$value = str_replace($filter, "", $message_content_lower);
 			$value = str_replace("<#", "", $value);
@@ -664,7 +874,7 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 			}else $message->reply("Invalid input! Please enter a channel ID or <#mention> a channel");
 			return true;
 		}
-		if (substr($message_content_lower, 0, 17) == 'setup verifylog '){
+		if (substr($message_content_lower, 0, 16) == 'setup verifylog '){
 			$filter = "setup verifylog ";
 			$value = str_replace($filter, "", $message_content_lower);
 			$value = str_replace("<#", "", $value);
@@ -676,7 +886,7 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 			}else $message->reply("Invalid input! Please enter a channel ID or <#mention> a channel");
 			return true;
 		}
-		if (substr($message_content_lower, 0, 13) == 'setup watch '){
+		if (substr($message_content_lower, 0, 12) == 'setup watch '){
 			$filter = "setup watch ";
 			$value = str_replace($filter, "", $message_content_lower);
 			$value = str_replace("<#", "", $value);
@@ -688,7 +898,7 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 			}else $message->reply("Invalid input! Please enter a channel ID or <#mention> a channel");
 			return true;
 		}
-		if (substr($message_content_lower, 0, 26) == 'setup rolepicker channel '){
+		if (substr($message_content_lower, 0, 25) == 'setup rolepicker channel '){
 			$filter = "setup rolepicker channel ";
 			$value = str_replace($filter, "", $message_content_lower);
 			$value = str_replace("<#", "", $value);
@@ -700,7 +910,7 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 			}else $message->reply("Invalid input! Please enter a channel ID or <#mention> a channel");
 			return true;
 		}
-		if (substr($message_content_lower, 0, 13) == 'setup games '){
+		if (substr($message_content_lower, 0, 12) == 'setup games '){
 			$filter = "setup games ";
 			$value = str_replace($filter, "", $message_content_lower);
 			$value = str_replace("<#", "", $value);
@@ -712,7 +922,7 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 			}else $message->reply("Invalid input! Please enter a channel ID or <#mention> a channel");
 			return true;
 		}
-		if (substr($message_content_lower, 0, 26) == 'setup suggestion pending '){
+		if (substr($message_content_lower, 0, 25) == 'setup suggestion pending '){
 			$filter = "setup suggestion pending ";
 			$value = str_replace($filter, "", $message_content_lower);
 			$value = str_replace("<#", "", $value);
@@ -724,7 +934,7 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 			}else $message->reply("Invalid input! Please enter a channel ID or <#mention> a channel");
 			return true;
 		}
-		if (substr($message_content_lower, 0, 27) == 'setup suggestion approved '){
+		if (substr($message_content_lower, 0, 26) == 'setup suggestion approved '){
 			$filter = "setup suggestion approved ";
 			$value = str_replace($filter, "", $message_content_lower);
 			$value = str_replace("<#", "", $value);
@@ -737,7 +947,7 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 			return true;
 		}	
 		//Users
-		if (substr($message_content_lower, 0, 18) == 'setup rolepicker '){
+		if (substr($message_content_lower, 0, 17) == 'setup rolepicker '){
 			$filter = "setup rolepicker ";
 			$value = str_replace($filter, "", $message_content_lower);
 			$value = str_replace("<@!", "", $value); $value = str_replace("<@", "", $value); $value = str_replace("<@", "", $value); 
@@ -750,7 +960,7 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 			return true;
 		}
 		//Messages
-		if (substr($message_content_lower, 0, 15) == 'setup species '){
+		if (substr($message_content_lower, 0, 14) == 'setup species '){
 			$filter = "setup species ";
 			$value = str_replace($filter, "", $message_content_lower);
 			$value = trim($value);
@@ -760,7 +970,7 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 			}else $message->reply("Invalid input! Please enter a message ID");
 			return true;
 		}
-		if (substr($message_content_lower, 0, 16) == 'setup species2 '){
+		if (substr($message_content_lower, 0, 15) == 'setup species2 '){
 			$filter = "setup species2 ";
 			$value = str_replace($filter, "", $message_content_lower);
 			$value = trim($value);
@@ -770,7 +980,7 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 			}else $message->reply("Invalid input! Please enter a message ID");
 			return true;
 		}
-		if (substr($message_content_lower, 0, 16) == 'setup species3 '){
+		if (substr($message_content_lower, 0, 15) == 'setup species3 '){
 			$filter = "setup species3 ";
 			$value = str_replace($filter, "", $message_content_lower);
 			$value = trim($value);
@@ -780,7 +990,7 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 			}else $message->reply("Invalid input! Please enter a message ID");
 			return true;
 		}
-		if (substr($message_content_lower, 0, 14) == 'setup gender '){
+		if (substr($message_content_lower, 0, 13) == 'setup gender '){
 			$filter = "setup gender ";
 			$value = str_replace($filter, "", $message_content_lower);
 			$value = trim($value);
@@ -790,7 +1000,7 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 			}else $message->reply("Invalid input! Please enter a message ID");
 			return true;
 		}
-		if (substr($message_content_lower, 0, 17) == 'setup sexuality '){
+		if (substr($message_content_lower, 0, 16) == 'setup sexuality '){
 			$filter = "setup sexuality ";
 			$value = str_replace($filter, "", $message_content_lower);
 			$value = trim($value);
@@ -800,7 +1010,7 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 			}else $message->reply("Invalid input! Please enter a message ID");
 			return true;
 		}
-		if (substr($message_content_lower, 0, 19) == 'setup customroles '){
+		if (substr($message_content_lower, 0, 18) == 'setup customroles '){
 			$filter = "setup customrole ";
 			$value = str_replace($filter, "", $message_content_lower);
 			$value = trim($value);
@@ -810,208 +1020,6 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 			}else $message->reply("Invalid input! Please enter a message ID");
 			return true;
 		}
-		//Toggles
-		if ($message_content_lower == 'react'){ //toggle reaction functions ;react
-			if(!CheckFile($guild_folder, "react_option.php")){
-				VarSave($guild_folder, "react_option.php", $react_option);
-				echo "[NEW REACT OPTION FILE]";
-			}
-			$react_var = VarLoad($guild_folder, "react_option.php");
-			$react_flip = !$react_var;
-			VarSave($guild_folder, "react_option.php", $react_flip);
-			if($react) $message->react("👍");
-			if ($react_flip === true)
-				$message->reply("Reaction functions enabled!");
-			else $message->reply("Reaction functions disabled!");
-			return true;
-		}
-		if ($message_content_lower == 'vanity'){ //toggle vanity functions ;vanity
-			if(!CheckFile($guild_folder, "vanity_option.php")){
-				VarSave($guild_folder, "vanity_option.php", $vanity_option);
-				echo "[NEW VANITY OPTION FILE]" . PHP_EOL;
-			}
-			$vanity_var = VarLoad($guild_folder, "vanity_option.php");
-			$vanity_flip = !$vanity_var;
-			VarSave($guild_folder, "vanity_option.php", $vanity_flip);
-			if($react) $message->react("👍");
-			if ($vanity_flip === true)
-				$message->reply("Vanity functions enabled!");
-			else $message->reply("Vanity functions disabled!");
-			return true;
-		}
-		if ($message_content_lower == 'nsfw'){ //toggle nsfw functions ;nsfw
-			if(!CheckFile($guild_folder, "nsfw_option.php")){
-				VarSave($guild_folder, "nsfw_option.php", $nsfw_option);
-				echo "[NEW NSFW OPTION FILE]" . PHP_EOL;
-			}
-			$nsfw_var = VarLoad($guild_folder, "nsfw_option.php");
-			$nsfw_flip = !$nsfw_var;
-			VarSave($guild_folder, "nsfw_option.php", $nsfw_flip);
-			if($react) $message->react("👍");
-			if ($nsfw_flip === true)
-				$message->reply("NSFW functions enabled!");
-			else $message->reply("NSFW functions disabled!");
-			return true;
-		}
-		if ($message_content_lower == 'games'){ //toggle games functions ;ganews
-			if(!CheckFile($guild_folder, "games_option.php")){
-				VarSave($guild_folder, "games_option.php", $games_option);
-				echo "[NEW GAMES OPTION FILE]" . PHP_EOL;
-			}
-			$games_var = VarLoad($guild_folder, "games_option.php");
-			$games_flip = !$games_var;
-			VarSave($guild_folder, "games_option.php", $games_flip);
-			if($react) $message->react("👍");
-			if ($games_flip === true)
-				$message->reply("Games functions enabled!");
-			else $message->reply("Games functions disabled!");
-			return true;
-		}
-		if ($message_content_lower == 'rolepicker'){ //toggle rolepicker ;rolepicker
-			if(!CheckFile($guild_folder, "rolepicker_option.php")){
-				VarSave($guild_folder, "rolepicker_option.php", $rolepicker_option);
-				echo "[NEW ROLEPICKER FILE]" . PHP_EOL;
-			}
-			$rolepicker_var = VarLoad($guild_folder, "rolepicker_option.php");
-			$rolepicker_flip = !$rolepicker_var;
-			VarSave($guild_folder, "rolepicker_option.php", $rolepicker_flip);
-			if($react) $message->react("👍");
-			if ($rolepicker_flip === true)
-				$message->reply("Rolepicker enabled!");
-			else $message->reply("Rolepicker disabled!");
-			return true;
-		}
-		if ($message_content_lower == 'species'){ //toggle species ;species
-			if(!CheckFile($guild_folder, "species_option.php")){
-				VarSave($guild_folder, "species_option.php", $species_option);
-				echo "[NEW SPECIES FILE]" . PHP_EOL;
-			}
-			$species_var = VarLoad($guild_folder, "species_option.php");
-			$species_flip = !$species_var;
-			VarSave($guild_folder, "species_option.php", $species_flip);
-			if($react) $message->react("👍");
-			if ($species_flip === true)
-				$message->reply("Species roles enabled!");
-			else $message->reply("Species roles	disabled!");
-			return true;
-		}
-		if ($message_content_lower == 'gender'){ //toggle gender ;gender
-			if(!CheckFile($guild_folder, "gender_option.php")){
-				VarSave($guild_folder, "gender_option.php", $gender_option);
-				echo "[NEW GENDER FILE]" . PHP_EOL;
-			}
-			$gender_var = VarLoad($guild_folder, "gender_option.php");
-			$gender_flip = !$gender_var;
-			VarSave($guild_folder, "gender_option.php", $gender_flip);
-			if($react) $message->react("👍");
-			if ($gender_flip === true)
-				$message->reply("Gender roles enabled!");
-			else $message->reply("Gender roles disabled!");
-			return true;
-		}
-		if ($message_content_lower == 'sexuality'){ //toggle sexuality ;sexuality
-			if(!CheckFile($guild_folder, "sexuality_option.php")){
-				VarSave($guild_folder, "sexuality_option.php", $sexuality_option);
-				echo "[NEW SEXUALITY FILE]" . PHP_EOL;
-			}
-			$sexuality_var = VarLoad($guild_folder, "sexuality_option.php");
-			$sexuality_flip = !$sexuality_var;
-			VarSave($guild_folder, "sexuality_option.php", $sexuality_option);
-			if($react) $message->react("👍");
-			if ($sexuality_flip === true)
-				$message->reply("Sexuality roles enabled!");
-			else $message->reply("Sexuality roles disabled!");
-			return true;
-		}
-		if ($message_content_lower == 'customroles'){ //toggle custom roles ;customroles
-			if(!CheckFile($guild_folder, "custom_option.php")){
-				VarSave($guild_folder, "custom_option.php", $custom_option);
-				echo "[NEW CUSTOM ROLE OPTION FILE]" . PHP_EOL;
-			}
-			$custom_var = VarLoad($guild_folder, "custom_option.php");
-			$custom_flip = !$custom_var;
-			VarSave($guild_folder, "custom_option.php", $custom_flip);
-			if($react) $message->react("👍");
-			if ($custom_flip === true)
-				$message->reply("Custom roles enabled!");
-			else $message->reply("Custom roles disabled!");
-			return true;
-		}
-		//Role Messages Setup
-		if ($message_content_lower == 'message species'){ //;message species
-			VarSave($guild_folder, "rolepicker_channel_id.php", strval($author_channel_id)); //Make this channel the rolepicker channel
-			$author_channel->send($species_message_text)->then(function($new_message) use ($guild_folder, $species, $message){
-				VarSave($guild_folder, "species_message_id.php", strval($new_message->id));
-				foreach($species as $var_name => $value){
-					$new_message->react($value);
-				}
-				$message->delete();
-				return true;
-			});
-			return true;
-		}
-		if ($message_content_lower == 'message species2'){ //;message species2
-			VarSave($guild_folder, "rolepicker_channel_id.php", strval($author_channel_id)); //Make this channel the rolepicker channel
-			$author_channel->send($species2_message_text)->then(function($new_message) use ($guild_folder, $species2, $message){;
-				VarSave($guild_folder, "species2_message_id.php", strval($new_message->id));
-				foreach($species2 as $var_name => $value){
-					$new_message->react($value);
-				}
-				$message->delete();
-				return true;
-			});
-			return true;
-		}
-		if ($message_content_lower == 'message species3'){ //;message species3
-			VarSave($guild_folder, "rolepicker_channel_id.php", strval($author_channel_id)); //Make this channel the rolepicker channel
-			$author_channel->send($species3_message_text)->then(function($new_message) use ($guild_folder, $species3, $message){;
-				VarSave($guild_folder, "species3_message_id.php", strval($new_message->id));
-				foreach($species3 as $var_name => $value){
-					$new_message->react($value);
-				}
-				$message->delete();
-				return true;
-			});
-			return true;
-		}
-		if ($message_content_lower == 'message gender'){ //;message gender
-			echo '[GENDER MESSAGE GEN]' . PHP_EOL;
-			VarSave($guild_folder, "rolepicker_channel_id.php", strval($author_channel_id)); //Make this channel the rolepicker channel
-			$author_channel->send($gender_message_text)->then(function($new_message) use ($guild_folder, $gender, $message){;
-				VarSave($guild_folder, "gender_message_id.php", strval($new_message->id));
-				foreach($gender as $var_name => $value){
-					$new_message->react($value);
-				}
-				$message->delete();
-				return true;
-			});
-			return true;
-		}
-		if ( ($message_content_lower == 'message sexuality') || ($message_content_lower == 'message sexualities') ) { //;message sexual
-			VarSave($guild_folder, "rolepicker_channel_id.php", strval($author_channel_id)); //Make this channel the rolepicker channel
-			$author_channel->send($sexuality_message_text)->then(function($new_message) use ($guild_folder, $sexualities, $message){;
-				VarSave($guild_folder, "sexuality_message_id.php", strval($new_message->id));
-				foreach($sexualities as $var_name => $value){
-					$new_message->react($value);
-				}
-				$message->delete();
-				return true;
-			});
-			return true;
-		}
-		if ($message_content_lower == 'message customroles'){ //;message customroles
-			VarSave($guild_folder, "rolepicker_channel_id.php", strval($author_channel_id)); //Make this channel the rolepicker channel
-			$author_channel->send($customroles_message_text)->then(function($new_message) use ($guild_folder, $customroles, $message){;
-				VarSave($guild_folder, "customroles_message_id.php", strval($new_message->id));
-				foreach($customroles as $var_name => $value){
-					$new_message->react($value);
-				}
-				$message->delete();
-				return true;
-			});
-			return true;
-		}
-
 	}
 
 
@@ -1172,7 +1180,7 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 
 		$documentation_sanitized = str_replace("\n","",$documentation_sanitized);
 		$doc_length = strlen($documentation_sanitized);
-		if ($doc_length < 1025){
+		if ($doc_length < 1024){
 
 			$embed = new \CharlotteDunois\Yasmin\Models\MessageEmbed();
 			$embed
@@ -1252,7 +1260,7 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 		if (!$rp0) $documentation = $documentation . "~~"; //Strikeout invalid options
 		
 		$doc_length = strlen($documentation);
-		if ($doc_length < 1025){
+		if ($doc_length < 1024){
 			$embed = new \CharlotteDunois\Yasmin\Models\MessageEmbed();
 			$embed
 				->setTitle("Settings for $author_guild_name")											// Set a title
@@ -1378,7 +1386,7 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 		});
 		return true;
 	}
-	if (substr($message_content_lower, 0, 7) == 'roles '){//;roles @
+	if (substr($message_content_lower, 0, 6) == 'roles '){//;roles @
 		echo "[GET MENTIONED ROLES]" . PHP_EOL;
 	//	Get an array of people mentioned
 		$mentions_arr 												= $message->mentions->users; 									//echo "mentions_arr: " . PHP_EOL; var_dump ($mentions_arr); //Shows the collection object
@@ -1522,7 +1530,7 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 			return true;
 		}
 	}
-	if (substr($message_content_lower, 0, 8) == 'avatar '){//;avatar @
+	if (substr($message_content_lower, 0, 7) == 'avatar '){//;avatar @
 		echo "GETTING AVATAR FOR MENTIONED" . PHP_EOL;
 		//$cooldown = CheckCooldown($author_folder, "avatar_time.php", $avatar_limit); //Check Cooldown Timer
 		$cooldown = CheckCooldownMem($author_id, "avatar", $avatar_limit);
@@ -1594,7 +1602,7 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 
 	//if ($suggestion_approved_channel_id)
 	if ($creator || $owner || $dev || $admin || $mod){
-		if ( (substr($message_content_lower, 0, 20) == 'suggestion approve ') || (substr($message_content_lower, 0, 17) == 'suggest approve ') ) { //;suggestion
+		if ( (substr($message_content_lower, 0, 19) == 'suggestion approve ') || (substr($message_content_lower, 0, 17) == 'suggest approve ') ) { //;suggestion
 			$filter = "suggestion approve ";
 			$value = str_replace($filter, "", $message_content_lower);
 			$filter = "suggest approve ";
@@ -1619,7 +1627,7 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 			}else return $message->reply("Invalid input! Please enter an integer number");
 			return true; //catch
 		}
-		if ( (substr($message_content_lower, 0, 17) == 'suggestion deny ') || (substr($message_content_lower, 0, 14) == 'suggest deny ') ) { //;suggestion
+		if ( (substr($message_content_lower, 0, 16) == 'suggestion deny ') || (substr($message_content_lower, 0, 13) == 'suggest deny ') ) { //;suggestion
 			$filter = "suggestion deny ";
 			$value = str_replace($filter, "", $message_content_lower);
 			$filter = "suggest deny ";
@@ -1641,7 +1649,7 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 	}
 
 	if ($suggestion_pending_channel)
-	if ( (substr($message_content_lower, 0, 12) == 'suggestion ') || (substr($message_content_lower, 0, 9) == 'suggest ') ){ //;suggestion
+	if ( (substr($message_content_lower, 0, 11) == 'suggestion ') || (substr($message_content_lower, 0, 8) == 'suggest ') ){ //;suggestion
 		$filter = "suggestion ";
 		$value = str_replace($filter, "", $message_content_lower);
 		$filter = "suggest ";
@@ -1705,7 +1713,7 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 	*/
 
 	if ($creator || $owner || $dev || $admin || $mod){
-		if (substr($message_content_lower, 0, 6) == 'kick '){ //;kick
+		if (substr($message_content_lower, 0, 5) == 'kick '){ //;kick
 			echo "[KICK]" . PHP_EOL;
 	//		Get an array of people mentioned
 			$mentions_arr 												= $message->mentions->users; 									//echo "mentions_arr: " . PHP_EOL; var_dump ($mentions_arr); //Shows the collection object
@@ -1809,7 +1817,7 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 			$author_channel->send("<@$author_id>, you need to mention someone!");
 			return true;
 		}
-		if (substr($message_content_lower, 0, 6) == 'mute '){ //;mute
+		if (substr($message_content_lower, 0, 5) == 'mute '){ //;mute
 			echo "[MUTE]" . PHP_EOL;
 	//			Get an array of people mentioned
 			$mentions_arr 												= $message->mentions->users;
@@ -1910,7 +1918,7 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 			$author_channel->send("<@$author_id>, you need to mention someone!");
 			return true;
 		}
-		if (substr($message_content_lower, 0, 8) == 'unmute '){ //;unmute
+		if (substr($message_content_lower, 0, 7) == 'unmute '){ //;unmute
 			echo "[UNMUTE]" . PHP_EOL;
 	//			Get an array of people mentioned
 			$mentions_arr 												= $message->mentions->users; 									//echo "mentions_arr: " . PHP_EOL; var_dump ($mentions_arr); //Shows the collection object
@@ -2012,7 +2020,7 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 		}
 	}
 	if ($creator || $owner || $dev || $admin)
-	if (substr($message_content_lower, 0, 5) == 'ban '){ //;ban
+	if (substr($message_content_lower, 0, 4) == 'ban '){ //;ban
 		echo "[BAN]" . PHP_EOL;
 	//			Get an array of people mentioned
 		$mentions_arr 												= $message->mentions->users; 									//echo "mentions_arr: " . PHP_EOL; var_dump ($mentions_arr); //Shows the collection object
@@ -2176,7 +2184,7 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 				return $message->reply("You must wait $formattime before using this command again.");
 			}
 		}
-		if ( (substr($message_content_lower, 0, 5) == 'hug ') || (substr($message_content_lower, 0, 9) == 'snuggle ') ){ //;hug ;snuggle
+		if ( (substr($message_content_lower, 0, 4) == 'hug ') || (substr($message_content_lower, 0, 8) == 'snuggle ') ){ //;hug ;snuggle
 			echo "[HUG/SNUGGLE]" . PHP_EOL;
 	//		Check Cooldown Timer
 			//$cooldown = CheckCooldown($author_folder, "vanity_time.php", $vanity_limit);
@@ -2250,7 +2258,7 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 			return true;
 			}
 		}
-		if ( (substr($message_content_lower, 0, 6) == 'kiss ') || (substr($message_content_lower, 0, 8)) == 'smooch '){ //;kiss ;smooch
+		if ( (substr($message_content_lower, 0, 5) == 'kiss ') || (substr($message_content_lower, 0, 7)) == 'smooch '){ //;kiss ;smooch
 			echo "[KISS]" . PHP_EOL;
 	//		Check Cooldown Timer
 			//$cooldown = CheckCooldown($author_folder, "vanity_time.php", $vanity_limit);
@@ -2325,7 +2333,7 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 				return true;
 			}
 		}
-		if (substr($message_content_lower, 0, 8) == 'nuzzle '){ //;nuzzle @
+		if (substr($message_content_lower, 0, 7) == 'nuzzle '){ //;nuzzle @
 			echo "[NUZZLE]" . PHP_EOL;
 	//		Check Cooldown Timer
 			//$cooldown = CheckCooldown($author_folder, "vanity_time.php", $vanity_limit);
@@ -2401,7 +2409,7 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 				return true;
 			}
 		}
-		if (substr($message_content_lower, 0, 6) == 'boop '){ //;boop @
+		if (substr($message_content_lower, 0, 5) == 'boop '){ //;boop @
 			echo "[BOOP]" . PHP_EOL;
 	//		Check Cooldown Timer
 			//$cooldown = CheckCooldown($author_folder, "vanity_time.php", $vanity_limit);
@@ -2474,7 +2482,7 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 				return true;
 			}
 		}
-		if (substr($message_content_lower, 0, 5) == 'bap '){ //;bap @
+		if (substr($message_content_lower, 0, 4) == 'bap '){ //;bap @
 			echo "[BAP]" . PHP_EOL;
 	//				Check Cooldown Timer
 			//$cooldown = CheckCooldown($author_folder, "vanity_time.php", $vanity_limit);
@@ -2548,7 +2556,7 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 				return true;
 			}
 		}
-		if (substr($message_content_lower, 0, 5) == 'pet '){ //;pet @
+		if (substr($message_content_lower, 0, 4) == 'pet '){ //;pet @
 			echo "[PET]" . PHP_EOL;
 	//				Check Cooldown Timer
 			//$cooldown = CheckCooldown($author_folder, "vanity_time.php", $vanity_limit);
@@ -2684,7 +2692,7 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 			}
 		}
 		
-		if (substr($message_content_lower, 0, 8) == 'vstats '){ //;vstats @
+		if (substr($message_content_lower, 0, 7) == 'vstats '){ //;vstats @
 			echo "[GET MENTIONED VANITY STATS]" . PHP_EOL;
 	//		Check Cooldown Timer
 			//$cooldown = CheckCooldown($author_folder, "vstats_limit.php", $vstats_limit);
@@ -2893,7 +2901,7 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 			//$loop->run();
 			echo "[LOOP RESTARTED]" . PHP_EOL;
 		}
-		if (substr($message_content_lower, 0, 7) == 'timer '){ //;timer
+		if (substr($message_content_lower, 0, 6) == 'timer '){ //;timer
 			echo "[TIMER]" . PHP_EOL;
 			$filter = "timer ";
 			$value = str_replace($filter, "", $message_content_lower);
@@ -2904,7 +2912,7 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 			}else return $message->reply("Invalid input! Please enter a valid number");
 			return true;
 		}
-		if (substr($message_content_lower, 0, 11) == 'resolveid '){ //;timer
+		if (substr($message_content_lower, 0, 10) == 'resolveid '){ //;timer
 			echo "[RESOLVEID]" . PHP_EOL;
 			$filter = "resolveid ";
 			$value = str_replace($filter, "", $message_content_lower);
@@ -3115,7 +3123,7 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 		$staff_channel_id = "562715700360380434";
 		$staff_bot_channel_id = "712685552155230278";
 		
-		if ($message_content_lower == 'status' || $message_content_lower == '!s status'){ //;status
+		if ($message_content_lower == 'status'){ //;status
 			echo "[STATUS] $author_check" . PHP_EOL;
 			$ch = curl_init(); //create curl resource
 			curl_setopt($ch, CURLOPT_URL, "http://10.0.0.18:81/civ13/serverstate.txt"); // set url
@@ -3123,7 +3131,7 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 			$message->reply(curl_exec($ch));
 		}
 		if ($author_channel_id != "468979034571931650"){ //Don't let people use these in #general
-			if ($message_content_lower == 'serverstatus' || $message_content_lower == '!s serverstatus'){ //;serverstatus
+			if ($message_content_lower == 'serverstatus'){ //;serverstatus
 				echo "[SERVER STATUS] $author_check" . PHP_EOL;
 				//VirtualBox state
 				$ch = curl_init(); //create curl resource
@@ -3294,7 +3302,7 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 				}
 				return true;
 			}
-			if ($message_content_lower == 'serverstate' || $message_content_lower == '!s serverstate'){ //;serverstatus
+			if ($message_content_lower == 'serverstate'){ //;serverstatus
 				//Sends a message containing data for each server we host as collected from serverinfo.json
 				//This method does not have to be called locally, so it can be moved to VZG Verifier
 				echo "[SERVER STATE] $author_check" . PHP_EOL;
@@ -3363,7 +3371,7 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 				}
 				return true;
 			}
-			if ($message_content_lower == 'players' || $message_content_lower == '!s players'){ //;players
+			if ($message_content_lower == 'players'){ //;players
 				echo "[PLAYERS] $author_check" . PHP_EOL;
 				include "../servers/getserverdata.php";
 				
@@ -3480,7 +3488,7 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 				}
 				return true;
 			}
-			if ($message_content_lower == 'admins' || $message_content_lower == '!s admins'){ //;admins
+			if ($message_content_lower == 'admins'){ //;admins
 				echo "[ADMINS] $author_check" . PHP_EOL;
 				include "../servers/getserverdata.php";
 				$x=0;
@@ -3514,7 +3522,7 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 			}
 		}
 		if ($creator || $owner || $dev || $tech || $assistant) {
-			if ($message_content_lower == 'resume' || $message_content_lower == '!s resume'){ //;resume
+			if ($message_content_lower == 'resume'){ //;resume
 				echo "[RESUME] $author_check" .  PHP_EOL;
 				//Trigger the php script remotely
 				$ch = curl_init(); //create curl resource
@@ -3524,7 +3532,7 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 				$message->reply(curl_exec($ch));
 				return true;
 			}
-			if ($message_content_lower == 'save 1' || $message_content_lower == '!s save 1'){ //;save 1
+			if ($message_content_lower == 'save 1'){ //;save 1
 				echo "[SAVE SLOT 1] $author_check" .  PHP_EOL;
 				$manual_saving = VarLoad(NULL, "manual_saving.php");
 				if ($manual_saving == true){
@@ -3563,7 +3571,7 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 				}
 				return true;
 			}
-			if ($message_content_lower == 'save 2' || $message_content_lower == '!s save 2'){ //;save 2
+			if ($message_content_lower == 'save 2'){ //;save 2
 				echo "[SAVE SLOT 2] $author_check" .  PHP_EOL;
 				$manual_saving = VarLoad(NULL, "manual_saving.php");
 				if ($manual_saving == true){
@@ -3601,7 +3609,7 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 				}
 				return true;
 			}
-			if ($message_content_lower == 'save 3' || $message_content_lower == '!s save 3'){ //;save 3
+			if ($message_content_lower == 'save 3'){ //;save 3
 				echo "[SAVE SLOT 3] $author_check" .  PHP_EOL;
 				$manual_saving = VarLoad(NULL, "manual_saving.php");
 				if ($manual_saving == true){
@@ -3640,7 +3648,7 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 				return true;
 			}
 			if ($creator || $owner || $dev){
-				if ($message_content_lower == 'delete 1' || $message_content_lower == '!s delete 1'){ //;save 3
+				if ($message_content_lower == 'delete 1'){ //;save 3
 					echo "[DELETE SLOT 1] $author_check" . PHP_EOL;
 					$message->react("👍");
 					$message->react("⏰")->then(function($author_channel) use ($message){	//Promise
@@ -3673,7 +3681,7 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 			}
 		}
 		if ($creator || $owner || $dev || $tech){
-			if ($message_content_lower == 'load 1' || $message_content_lower == '!s load 1'){ //;load 1
+			if ($message_content_lower == 'load 1'){ //;load 1
 				echo "[LOAD SLOT 1] $author_check" . PHP_EOL;
 				$message->react("👍");
 				$message->react("⏰")->then(function($author_channel) use ($message){	//Promise
@@ -3703,7 +3711,7 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 				});
 				return true;
 			}
-			if ($message_content_lower == 'load 2' || $message_content_lower == '!s load 2'){ //;load 2 
+			if ($message_content_lower == 'load 2'){ //;load 2 
 				echo "[LOAD SLOT 2] $author_check" . PHP_EOL;
 				$message->react("👍");
 				$message->react("⏰")->then(function($author_channel) use ($message){	//Promise
@@ -3733,7 +3741,7 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 				});
 				return true;
 			}
-			if ($message_content_lower == 'load 3' || $message_content_lower == '!s load 3'){ //;load 3
+			if ($message_content_lower == 'load 3'){ //;load 3
 				echo "[LOAD SLOT 3] $author_check" . PHP_EOL;
 				$message->react("👍");
 				$message->react("⏰")->then(function($author_channel) use ($message){	//Promise
@@ -3763,7 +3771,7 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 				});
 				return true;
 			}
-			if ($message_content_lower == 'load1h' || $message_content_lower == '!s load1h'){ //;load1h
+			if ($message_content_lower == 'load1h'){ //;load1h
 				echo "[LOAD 1H] $author_check" . PHP_EOL;
 				$message->react("👍");
 				$message->react("⏰")->then(function($author_channel) use ($message){	//Promise
@@ -3793,7 +3801,7 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 				});
 				return true;
 			}
-			if ($message_content_lower == 'load2h' || $message_content_lower == '!s load2h'){ //;load2h
+			if ($message_content_lower == 'load2h'){ //;load2h
 				echo "[LOAD 2H] $author_check" . PHP_EOL;
 				$message->react("👍");
 				$message->react("⏰")->then(function($author_channel) use ($message){	//Promise
@@ -3930,7 +3938,7 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 				else $author_channel->send("No debug info found!");
 				return true;
 			}
-			if ($message_content_lower == 'pause' || $message_content_lower == '!s pause'){ //;pause
+			if ($message_content_lower == 'pause'){ //;pause
 				//Trigger the php script remotely
 				$ch = curl_init(); //create curl resource
 				curl_setopt($ch, CURLOPT_URL, "http://10.0.0.18:81/civ13/pause.php"); // set url
@@ -3939,7 +3947,7 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 				$message->reply(curl_exec($ch));
 				return true;
 			}
-			if ($message_content_lower == 'loadnew' || $message_content_lower == '!s loadnew'){ //;loadnew
+			if ($message_content_lower == 'loadnew'){ //;loadnew
 				//Trigger the php script remotely
 				$ch = curl_init(); //create curl resource
 				curl_setopt($ch, CURLOPT_URL, "http://10.0.0.18:81/civ13/loadnew.php"); // set url
@@ -3949,7 +3957,7 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 				return true;
 			}
 			if ($creator || $dev)
-				if ($message_content_lower == 'VM_restart' || $message_content_lower == '!s VM_restart'){ //;VM_restart
+				if ($message_content_lower == 'VM_restart'){ //;VM_restart
 					//Trigger the php script remotely
 					$ch = curl_init(); //create curl resource
 					curl_setopt($ch, CURLOPT_URL, "http://10.0.0.18:81/civ13/VM_restart.php"); // set url
@@ -3986,7 +3994,7 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 	*/
 
 	if ($creator || $owner || $dev || $admin || $mod){ //Only allow these roles to use this
-		if ( (substr($message_content_lower, 0, 3) == 'v ') || (substr(($message_content), 0, 8) == 'verify ') ){ //Verify ;v ;verify
+		if ( (substr($message_content_lower, 0, 2) == 'v ') || (substr(($message_content), 0, 7) == 'verify ') ){ //Verify ;v ;verify
 			if ( ($role_verified_id != "") || ($role_verified_id != NULL) ){ //This command only works if the Verified Role is setup
 				echo "[VERIFY] $author_check" . PHP_EOL;
 			//	Get an array of people mentioned
@@ -4101,7 +4109,7 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 				return true;
 			}
 		}
-		if (substr($message_content_lower, 0, 6) == 'poll '){ //;poll
+		if (substr($message_content_lower, 0, 5) == 'poll '){ //;poll
 			echo "[POLL] $author_check" . PHP_EOL;
 			$filter = "poll ";
 			$poll = str_replace($filter, "", $message_content);
@@ -4145,7 +4153,7 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 				});
 			}else return $message->reply("Invalid input!");
 		}
-		if (substr($message_content_lower, 0, 7) == 'whois '){ //;whois
+		if (substr($message_content_lower, 0, 6) == 'whois '){ //;whois
 			echo "[WHOIS] $author_check" . PHP_EOL;			
 			$filter = "whois ";
 			$value = str_replace($filter, "", $message_content_lower);
@@ -4293,7 +4301,7 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 			}else $message->reply("Invalid input! Please enter an ID or @mention the user");
 			return true;
 		}
-		if (substr($message_content_lower, 0, 8) == 'lookup '){ //;lookup
+		if (substr($message_content_lower, 0, 7) == 'lookup '){ //;lookup
 			echo "[WHOIS] $author_check" . PHP_EOL;			
 			$filter = "lookup ";
 			$value = str_replace($filter, "", $message_content_lower);
@@ -4322,7 +4330,7 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 			});
 			return true;
 		};
-		if (substr($message_content_lower, 0, 7) == 'clear '){ //;clear #
+		if (substr($message_content_lower, 0, 6) == 'clear '){ //;clear #
 			echo "[CLEAR #] $author_check" . PHP_EOL;
 			$filter = "clear ";
 			$value = str_replace($filter, "", $message_content_lower);
@@ -4365,7 +4373,7 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 			});
 			return true;
 		};
-		if (substr($message_content_lower, 0, 7) == 'watch '){ //;watch @
+		if (substr($message_content_lower, 0, 6) == 'watch '){ //;watch @
 			echo "[WATCH] $author_check" . PHP_EOL;
 		//			Get an array of people mentioned
 			$mentions_arr 												= $message->mentions->users; 									//echo "mentions_arr: " . PHP_EOL; var_dump ($mentions_arr); //Shows the collection object
@@ -4415,7 +4423,7 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 			}
 		//						
 		}
-		if (substr($message_content_lower, 0, 9) == 'unwatch '){ //;unwatch @
+		if (substr($message_content_lower, 0, 8) == 'unwatch '){ //;unwatch @
 			echo "[UNWATCH] $author_check" . PHP_EOL;
 		//	Get an array of people mentioned
 			$mentions_arr 												= $message->mentions->users; 									//echo "mentions_arr: " . PHP_EOL; var_dump ($mentions_arr); //Shows the collection object
@@ -4455,7 +4463,7 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 			else $author_channel->send($mention_watch_name_queue_default . $mention_watch_name_queue_full . PHP_EOL);
 			return true;
 		}
-		if ( (substr($message_content_lower, 0, 8) == 'vwatch ') || (substr($message_content_lower, 0, 4) == 'vw ')){ //;vwatch @
+		if ( (substr($message_content_lower, 0, 7) == 'vwatch ') || (substr($message_content_lower, 0, 3) == 'vw ')){ //;vwatch @
 			echo "[VWATCH] $author_check" . PHP_EOL;
 	//		Get an array of people mentioned
 			$mentions_arr 												= $message->mentions->users; 									//echo "mentions_arr: " . PHP_EOL; var_dump ($mentions_arr); //Shows the collection object
@@ -4544,7 +4552,7 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 				return true;
 			}
 		}
-		if (substr($message_content_lower, 0, 6) == 'warn '){ //;warn @
+		if (substr($message_content_lower, 0, 5) == 'warn '){ //;warn @
 			echo "[WARN] $author_check" . PHP_EOL;
 			//$message->reply("Not yet implemented!");
 	//		Get an array of people mentioned
@@ -4587,7 +4595,7 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 				return true;
 			}
 		}
-		if (substr($message_content_lower, 0, 13) == 'infractions '){ //;infractions @
+		if (substr($message_content_lower, 0, 12) == 'infractions '){ //;infractions @
 			echo "[INFRACTIONS] $author_check" . PHP_EOL;
 	//		Get an array of people mentioned
 			$mentions_arr 													= $message->mentions->users; 									//echo "mentions_arr: " . PHP_EOL; var_dump ($mentions_arr); //Shows the collection object
@@ -4670,7 +4678,7 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 	}
 
 	if ($creator || $owner || $dev || $admin)
-	if (substr($message_content_lower, 0, 18) == 'removeinfraction '){ //;removeinfractions @mention #
+	if (substr($message_content_lower, 0, 17) == 'removeinfraction '){ //;removeinfractions @mention #
 		echo "[REMOVE INFRACTION] $author_check" . PHP_EOL;
 	//	Get an array of people mentioned
 		$mentions_arr 													= $message->mentions->users; 									//echo "mentions_arr: " . PHP_EOL; var_dump ($mentions_arr); //Shows the collection object
@@ -4740,4 +4748,3 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 			$x++;
 		}
 	}
-}
