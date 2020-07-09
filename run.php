@@ -207,7 +207,7 @@ try {
 		
 	}); //end main function ready
 
-	$discord->on('disconnect', function($erMsg, $code) use ($discord, $loop, $token, $vm){
+	$discord->on('disconnect', function($erMsg, $code) use ($discord, $loop, $token, $restcord, $vm){
 		//Restart the bot if it disconnects
 		//This is almost always going to be caused by error code 1006, meaning the bot did not get heartbeat from Discord
 		include "disconnect-include.php";
@@ -230,7 +230,8 @@ try {
 		"GLOBALS",
 		"loop",
 		"discord",
-		"restcord"
+		"restcord",
+		"MachiKoro_Games"
 	);
 	echo "Skipped: ";
 	foreach($GLOBALS as $key => $value){
