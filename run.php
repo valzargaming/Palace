@@ -14,6 +14,7 @@ include __DIR__ . '/vendor/autoload.php';
 define('MAIN_INCLUDED', 1); //Token and SQL credential files are protected, this must be defined to access
 ini_set('memory_limit', '-1'); //Unlimited memory usage
 
+start:
 //Global variables
 include 'config.php'; //Global config variables
 include 'species.php'; //Used by the species role picker function
@@ -69,7 +70,7 @@ try {
 	$discord->once('ready', function() use ($discord, $loop, $token, $restcord){	// Listen for events here
 		echo "[SETUP]" . PHP_EOL;
 		//$line_count = COUNT(FILE(basename($_SERVER['PHP_SELF']))); //No longer relevant due to includes
-		$version = "RC V1.4.0";
+		$version = "RC V1.4.1";
 		
 		$discord->user->setPresence( //Discord status
 			array(
@@ -252,8 +253,9 @@ try {
 	
 	echo "RESTARTING BOT" . PHP_EOL;
 	$discord->destroy();
-	$restart_cmd = 'cmd /c "'. __DIR__  . '\run.bat"'; //echo $restart_cmd . PHP_EOL;
-	system($restart_cmd);
-	die();
+	//$restart_cmd = 'cmd /c "'. __DIR__  . '\run.bat"'; //echo $restart_cmd . PHP_EOL;
+	//system($restart_cmd);
+	//die();
+	goto start;
 }
 ?> 
