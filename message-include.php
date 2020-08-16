@@ -230,7 +230,7 @@ echo "[WATCH] $author_id" . PHP_EOL;
 			}
 		}
 	}
-	if($null_array){ //Delete the null file
+	if($null_array === true){ //Delete the null file
 		VarDelete($author_folder, "watchers.php");
 		echo "[REMOVE WATCH] $author_id" . PHP_EOL;
 	}
@@ -432,6 +432,8 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 				//Channels
 				$documentation = $documentation . "**Channels:**\n";
 				$documentation = $documentation . "`general #channel` $general_channel\n";
+				if($welcome_public_channel_id) 		$welcome_public_channel			= $author_guild->channels->get($welcome_public_channel_id);
+				if($welcome_log_channel_id) 		$welcome_log_channel			= $author_guild->channels->get($welcome_log_channel_id);
 				$documentation = $documentation . "`welcome #channel` $welcome_public_channel\n";
 				$documentation = $documentation . "`welcomelog #channel` $welcome_log_channel\n";
 				$documentation = $documentation . "`log #channel` $modlog_channel\n";
@@ -2115,9 +2117,26 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 				$author_channel->send("<@$author_id>, you can't ban yourself!");
 				return true;
 			}
-		} //foreach method didn't return, so nobody was mentioned
-		if($react) $message->react("👎");
-		$author_channel->send("<@$author_id>, you need to mention someone!");
+		} //foreach method didn't return, so nobody in the guild was mentioned
+		//Try restcord
+		$filter = "ban ";
+		$value = str_replace($filter, "", $message_content_lower);
+		$value = str_replace("<@!", "", $value); $value = str_replace("<@", "", $value);
+		$value = str_replace(">", "", $value);//echo "value: " . $value . PHP_EOL;
+		if(is_numeric($value)){ //resolve with restcord
+			//$restcord->guild
+			$restcord_param = ['guild.id' => (int)$author_guild_id, 'user.id' => (int)$value];
+			try{
+				//$restcord_result = $restcord->guild->createGuildBan($restcord_param);
+			}catch (Exception $e){
+				$restcord_result = "Unable to locate user for ID $value";
+				echo $e . PHP_EOL;
+			}
+			//$message->reply($restcord_result);
+		}else{
+			if($react) $message->react("👎");
+			$author_channel->send("<@$author_id>, you need to mention someone!");
+		}
 		return true;
 	}
 
