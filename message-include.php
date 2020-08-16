@@ -1106,18 +1106,13 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 			$documentation = $documentation . "`kick @mention reason`\n";
 			//ban
 			$documentation = $documentation . "`ban @mention reason`\n";
-			//Strikeout invalid options
-			if ( ($role_muted_id === NULL) || ($role_muted_id == "") || ($role_muted_id == "0") ) $documentation = $documentation . "~~"; //Strikeout invalid options
-			//unmute
-			$documentation = $documentation . "`unmute @mention reason`\n";
-			//Strikeout invalid options
-			if ( ($role_muted_id === NULL) || ($role_muted_id == "") || ($role_muted_id == "0") ) $documentation = $documentation . "~~"; //Strikeout invalid options
-			
+			//Strikeout invalid options			
 			if ( ($suggestion_pending_channel === NULL) || ($suggestion_pending_channel == "") || ($suggestion_pending_channel == "0") ) $documentation = $documentation . "~~";
 			//suggest approve
 			$documentation = $documentation . "`suggest approve #`\n";
 			//suggest deny
 			$documentation = $documentation . "`suggest deny #`\n";
+			//Strikeout invalid options			
 			if ( ($suggestion_pending_channel === NULL) || ($suggestion_pending_channel == "") || ($suggestion_pending_channel == "0") ) $documentation = $documentation . "~~";
 		}
 		if($creator || $owner || $dev || $admin || $mod){
@@ -1126,6 +1121,8 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 			if ( ($role_muted_id === NULL) || ($role_muted_id == "") || ($role_muted_id == "0") ) $documentation = $documentation . "~~"; //Strikeout invalid options
 			//mute/m
 			$documentation = $documentation . "`mute @mention reason`\n";
+			//unmute
+			$documentation = $documentation . "`unmute @mention reason`\n";
 			//Strikeout invalid options
 			if ( ($role_muted_id === NULL) || ($role_muted_id == "") || ($role_muted_id == "0") ) $documentation = $documentation . "~~"; //Strikeout invalid options
 			//whois
@@ -1393,7 +1390,7 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 	//	Get an array of people mentioned
 		$mentions_arr 												= $message->mentions->users; 									//echo "mentions_arr: " . PHP_EOL; var_dump ($mentions_arr); //Shows the collection object
 		if (!strpos($message_content_lower, "<")){ //String doesn't contain a mention
-			$filter = "unmute ";
+			$filter = "roles ";
 			$value = str_replace($filter, "", $message_content_lower);
 			$value = str_replace("<@!", "", $value); $value = str_replace("<@", "", $value);
 			$value = str_replace(">", "", $value); //echo "value: " . $value . PHP_EOL;
@@ -1539,7 +1536,7 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 		if ( ($cooldown[0] == true) || ($bypass) ){
 			$mentions_arr = $message->mentions->users; 									//echo "mentions_arr: " . PHP_EOL; var_dump ($mentions_arr); //Shows the collection object
 			if (!strpos($message_content_lower, "<")){ //String doesn't contain a mention
-			$filter = "unmute ";
+			$filter = "avatar ";
 			$value = str_replace($filter, "", $message_content_lower);
 			$value = str_replace("<@!", "", $value); $value = str_replace("<@", "", $value);
 			$value = str_replace(">", "", $value);//echo "value: " . $value . PHP_EOL;
@@ -1720,7 +1717,7 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 	//		Get an array of people mentioned
 			$mentions_arr 												= $message->mentions->users; 									//echo "mentions_arr: " . PHP_EOL; var_dump ($mentions_arr); //Shows the collection object
 			if (!strpos($message_content_lower, "<")){ //String doesn't contain a mention
-				$filter = "unmute ";
+				$filter = "kick ";
 				$value = str_replace($filter, "", $message_content_lower);
 				$value = str_replace("<@!", "", $value); $value = str_replace("<@", "", $value);
 				$value = str_replace(">", "", $value);//echo "value: " . $value . PHP_EOL;
