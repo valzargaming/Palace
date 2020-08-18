@@ -214,10 +214,10 @@ try {
 		include "disconnect-include.php";
 	});
 
-	set_error_handler(function(int $number, string $message) {
+	set_error_handler(function(int $number, string $message, string $filename, int $fileline) {
 		if ($message != "Undefined variable: suggestion_pending_channel") //Expected to be null
 		if ($message != "Trying to access array offset on value of type null") //Expected to be null, part of ;validate
-			echo PHP_EOL . PHP_EOL . "Handler captured error $number: '$message'" . PHP_EOL . PHP_EOL;
+			echo PHP_EOL . PHP_EOL . "Handler captured error $number: '$message' in $filename on line $fileline" . PHP_EOL  . PHP_EOL;
 	});
 	
 	$discord->login($token)->done();
