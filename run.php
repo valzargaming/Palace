@@ -37,8 +37,8 @@ $restcord = new DiscordClient(['token' => "{$token}"]); // Token is required
 //var_dump($restcord->guild->getGuild(['guild.id' => 116927365652807686]));
 
 /*
-set_exception_handler(function (Throwable $e) {
-	// reconnect, log uncaught, etc etc
+set_exception_handler(function (Throwable $e) { //stops execution completely
+	//
 });
 */
 
@@ -223,7 +223,7 @@ try {
 	$discord->login($token)->done();
 	$loop->run();
 }catch (Throwable $e){ //Restart the bo
-	echo "Captured Throwable: " . $e->getMessage() . PHP_EOL;
+	echo "Captured Throwable: " . $e->getMessage() . " in file " . $e->getFile() . " on line " . $e->getLine(). PHP_EOL;
 
 	//Rescue global variables
 	$GLOBALS["RESCUE"] = true;
