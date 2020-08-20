@@ -22,9 +22,9 @@ switch($code){
 
 $discord->destroy();
 if($vm == true) switch($code){
-	case: '1000':
-	case: '4004':
-	case: '4003':
+	case '1000':
+	case '4004':
+	case '4003':
 		$loop->stop();
 		$loop = \React\EventLoop\Factory::create(); //Recreate loop if the cause of the disconnect was possibly related to a VM being paused
 }
