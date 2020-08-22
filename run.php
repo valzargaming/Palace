@@ -196,8 +196,8 @@ try {
 			echo "[ERROR] $error" . PHP_EOL;
 		});
 		*/
-		$discord->on("error", function(\Throwable $error) {
-			echo '[ERROR]' . $error->getMessage() . PHP_EOL;
+		$discord->on("error", function(\Throwable $e) {
+			echo '[ERROR]' . $error->getMessage() . " in file " . $error->getFile() . " on line " . $error->getLine() . PHP_EOL;
 		});
 		
 		/*
