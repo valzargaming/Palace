@@ -120,7 +120,7 @@ if ($is_dm === false){ //Guild message
 	$author_member 												= $author_guild->members->get($author_id); 				//GuildMember object
 	$author_member_roles 										= $author_member->roles; 								//Role object for the author);
 }else{ //Direct message
-	if ($author_id != $discord->user->id){
+	if ($author_id != $discord->user->id){ //Don't trigger on messages sent by this bot
 		GLOBAL $server_invite;
 		echo "[DM-EARLY BREAK]" . PHP_EOL;			
 		$dm_text = "Please use commands for this bot within a server unless otherwise prompted.";
@@ -244,11 +244,9 @@ Guild-specific variables
 *********************
 */
 
-$creator_name									= "Valithor";
-$creator_discriminator							= "5947";
-$creator_id										= "116927250145869826";
-$creator_check									= "$creator_name#$creator_discriminator";
-if($author_check != $creator_check) $creator	= false;
+
+include 'CHANGEME.php';
+if($author_id != $creator_id) 		$creator	= false;
 else 								$creator 	= true;
 
 
@@ -1771,7 +1769,7 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 						$x++;
 					}
 					if( (!$target_dev && !$target_owner && !$target_admin && !$target_mod && !$target_vzg) || ($creator || $owner || $dev)){ //Guild owner and bot creator can kick anyone
-						if ($mention_check == $creator_check) return true; //Don't kick the creator
+						if ($mention_id == $creator_id) return true; //Don't kick the creator
 						//Build the string to log
 						$filter = "kick <@!$mention_id>";
 						$warndate = date("m/d/Y");
@@ -1869,7 +1867,7 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 						$x++;
 					}
 					if( (!$target_dev && !$target_owner && !$target_admin && !$target_mod && !$target_vzg) || ($creator || $owner || $dev)){ //Guild owner and bot creator can mute anyone
-						if ($mention_check == $creator_check) return true; //Don't mute the creator
+						if ($mention_id == $creator_id) return true; //Don't mute the creator
 						//Save current roles in a file for the user
 						VarSave($guild_folder."/".$mention_id, "removed_roles.php", $removed_roles);
 						//Build the string to log
@@ -1969,7 +1967,7 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 						$x++;
 					}
 					if( (!$target_dev && !$target_owner && !$target_admin && !$target_mod && !$target_vzg) || ($creator || $owner || $dev)){
-						if ($mention_check == $creator_check) return true; //Don't mute the creator
+						if ($mention_id == $creator_id) return true; //Don't mute the creator
 						//Build the string to log
 						$filter = "unmute <@!$mention_id>";
 						$warndate = date("m/d/Y");
@@ -2074,7 +2072,7 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 					$x++;
 				}
 				if( (!$target_dev && !$target_owner && !$target_admin && !$target_vzg) || ($creator || $owner)){ //Guild owner and bot creator can ban anyone
-					if ($mention_check == $creator_check) return true; //Don't ban the creator
+					if ($mention_id == $creator_id) return true; //Don't ban the creator
 					//Build the string to log
 					$filter = "ban <@!$mention_id>";
 					$warndate = date("m/d/Y");
@@ -3145,8 +3143,7 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 				$staff_channel_id = "744022293533032541";
 				$staff_bot_channel_id = "744022293533032542";
 				break;
-		}
-		
+		}	
 		if ($message_content_lower == 'status'){ //;status
 			echo "[STATUS] $author_check" . PHP_EOL;
 			$ch = curl_init(); //create curl resource
@@ -3546,8 +3543,7 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 					return true;
 					break;
 			}
-		}
-		
+		}	
 		if ($creator || $owner || $dev || $tech || $assistant) {
 			switch($message_content_lower){
 				case 'resume': //;resume
