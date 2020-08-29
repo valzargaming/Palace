@@ -2720,7 +2720,7 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 		}	
 		//Don't let people use these in #general
 		switch($message_content_lower){
-			case 'status' //;status
+			case 'status': //;status
 				echo "[STATUS] $author_check" . PHP_EOL;
 				$ch = curl_init(); //create curl resource
 				curl_setopt($ch, CURLOPT_URL, "http://10.0.0.18:81/civ13/serverstate.txt"); // set url
