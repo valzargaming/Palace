@@ -3,6 +3,7 @@ $message_content = $message->content;
 if ( ($message_content == NULL) || ($message_content == "") ) return true;
 $message_id = $message->id;
 $message_content_lower = strtolower($message_content);
+
 /*
 *********************
 *********************
@@ -49,6 +50,7 @@ if ($is_dm === false){ //Guild message
 	$author_guild_id 											= $author_guild->id; 											//echo "discord_guild_id: " . $author_guild_id . PHP_EOL;
 	$author_guild_name											= $author_guild->name;
 	$guild_owner_id												= $author_guild->ownerID;
+	$guild_folder = "\\guilds\\$author_guild_id";
 	
 	//Leave the guild if the owner is blacklisted
 	GLOBAL $blacklisted_owners;
@@ -85,7 +87,7 @@ if ($is_dm === false){ //Guild message
 			echo "[ERROR] $error".PHP_EOL; //Echo any errors
 		});
 	}
-	$guild_folder = "\\guilds\\$author_guild_id";
+	
 	//Create a folder for the guild if it doesn't exist already
 	if(!CheckDir($guild_folder)){
 		if(!CheckFile($guild_folder, "guild_owner_id.php")){
@@ -141,6 +143,16 @@ if(!CheckFile($guild_folder, "command_symbol.php")){
 												//Author must prefix text with this to use commands
 }else $command_symbol = VarLoad($guild_folder, "command_symbol.php");			//Load saved option file (Not used yet, but might be later)
 
+//Early break
+if(substr($message_content_lower, 0, 1) == $command_symbol){
+	$message_content_lower = trim(substr($message_content_lower, 1));
+	$message_content = trim(substr($message_content, 1));
+}elseif (substr($message_content_lower, 0, 2) == '!s'){
+	$message_content_lower = trim(substr($message_content_lower, 2));
+	$message_content = trim(substr($message_content, 2));
+}else{ //Expected prefix is missing
+	return true;
+}
 
 //Chat options
 GLOBAL $react_option, $vanity_option, $nsfw_option, $games_option;
@@ -300,7 +312,7 @@ foreach ($author_member_roles as $role){
 	}
 	$x++;
 }
-if ($creator || $owner || $dev)	$bypass = true;
+if ($creator || $owner || $dev)	$bypass = true; //Ignore spam restrictions
 else					$bypass = false;
 
 if( ($rolepicker_id == "") || ($rolepicker_id == "0") || ($rolepicker_id === NULL) ){ //Message rolepicker menus
@@ -310,16 +322,6 @@ GLOBAL $species, $species2, $species3, $species_message_text, $species2_message_
 GLOBAL $gender, $gender_message_text;
 GLOBAL $sexualities, $sexuality_message_text;
 GLOBAL $customroles, $customroles_message_text;
-
-if(substr($message_content_lower, 0, 1) == $command_symbol){
-	$message_content_lower = trim(substr($message_content_lower, 1));
-	$message_content = trim(substr($message_content, 1));
-}elseif (substr($message_content_lower, 0, 2) == '!s'){
-	$message_content_lower = trim(substr($message_content_lower, 2));
-	$message_content = trim(substr($message_content, 2));
-}else{ //Expected prefix is missing
-	return true;
-}
 	/*
 	*********************
 	*********************
