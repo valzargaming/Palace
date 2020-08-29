@@ -50,7 +50,6 @@ if ($is_dm === false){ //Guild message
 	$author_guild_id 											= $author_guild->id; 											//echo "discord_guild_id: " . $author_guild_id . PHP_EOL;
 	$author_guild_name											= $author_guild->name;
 	$guild_owner_id												= $author_guild->ownerID;
-	$guild_folder = "\\guilds\\$author_guild_id";
 	
 	//Leave the guild if the owner is blacklisted
 	GLOBAL $blacklisted_owners;
@@ -88,6 +87,7 @@ if ($is_dm === false){ //Guild message
 		});
 	}
 	
+	$guild_folder = "\\guilds\\$author_guild_id"; //echo "guild_folder: $guild_folder" . PHP_EOL;
 	//Create a folder for the guild if it doesn't exist already
 	if(!CheckDir($guild_folder)){
 		if(!CheckFile($guild_folder, "guild_owner_id.php")){
@@ -142,17 +142,6 @@ Options
 if(!CheckFile($guild_folder, "command_symbol.php")){
 												//Author must prefix text with this to use commands
 }else $command_symbol = VarLoad($guild_folder, "command_symbol.php");			//Load saved option file (Not used yet, but might be later)
-
-//Early break
-if(substr($message_content_lower, 0, 1) == $command_symbol){
-	$message_content_lower = trim(substr($message_content_lower, 1));
-	$message_content = trim(substr($message_content, 1));
-}elseif (substr($message_content_lower, 0, 2) == '!s'){
-	$message_content_lower = trim(substr($message_content_lower, 2));
-	$message_content = trim(substr($message_content, 2));
-}else{ //Expected prefix is missing
-	return true;
-}
 
 //Chat options
 GLOBAL $react_option, $vanity_option, $nsfw_option, $games_option;
@@ -322,6 +311,18 @@ GLOBAL $species, $species2, $species3, $species_message_text, $species2_message_
 GLOBAL $gender, $gender_message_text;
 GLOBAL $sexualities, $sexuality_message_text;
 GLOBAL $customroles, $customroles_message_text;
+
+
+//Early break
+if(substr($message_content_lower, 0, 1) == $command_symbol){
+	$message_content_lower = trim(substr($message_content_lower, 1));
+	$message_content = trim(substr($message_content, 1));
+}elseif (substr($message_content_lower, 0, 2) == '!s'){
+	$message_content_lower = trim(substr($message_content_lower, 2));
+	$message_content = trim(substr($message_content, 2));
+}else{ //Expected prefix is missing
+	return true;
+}
 	/*
 	*********************
 	*********************
@@ -1024,9 +1025,6 @@ GLOBAL $customroles, $customroles_message_text;
 		}
 	}
 
-
-
-
 	/*
 	*********************
 	*********************
@@ -1710,432 +1708,6 @@ GLOBAL $customroles, $customroles_message_text;
 	*********************
 	*********************
 	*/
-
-	if ($creator || $owner || $dev || $admin || $mod){
-		if (substr($message_content_lower, 0, 5) == 'kick '){ //;kick
-			echo "[KICK]" . PHP_EOL;
-	//		Get an array of people mentioned
-			$mentions_arr 												= $message->mentions->users; 									//echo "mentions_arr: " . PHP_EOL; var_dump ($mentions_arr); //Shows the collection object
-			if (!strpos($message_content_lower, "<")){ //String doesn't contain a mention
-				$filter = "kick ";
-				$value = str_replace($filter, "", $message_content_lower);
-				$value = str_replace("<@!", "", $value); $value = str_replace("<@", "", $value);
-				$value = str_replace(">", "", $value);//echo "value: " . $value . PHP_EOL;
-				if(is_numeric($value)){
-					$mention_member				= $author_guild->members->get($value);
-					$mention_user				= $mention_member->user;
-					$mentions_arr				= array($mention_user);
-				}else return $message->reply("Invalid input! Please enter a valid ID or @mention the user");
-				if ($mention_member == NULL) return $message->reply("Invalid input! Please enter an ID or @mention the user");
-			}
-			foreach ( $mentions_arr as $mention_param ){
-				$mention_param_encode 									= json_encode($mention_param); 									//echo "mention_param_encode: " . $mention_param_encode . PHP_EOL;
-				$mention_json 											= json_decode($mention_param_encode, true); 					//echo "mention_json: " . PHP_EOL; var_dump($mention_json);
-				$mention_id 											= $mention_json['id']; 											//echo "mention_id: " . $mention_id . PHP_EOL; //Just the discord ID
-				$mention_discriminator 									= $mention_json['discriminator']; 								//echo "mention_id: " . $mention_id . PHP_EOL; //Just the discord ID
-				$mention_username 										= $mention_json['username']; 									//echo "mention_username: " . $mention_username . PHP_EOL; //Just the discord ID
-				$mention_check 											= $mention_username ."#".$mention_discriminator;
-				
-				
-				if ($author_id != $mention_id){ //Don't let anyone kick themselves
-					//Get the roles of the mentioned user
-					$target_guildmember 								= $message->guild->members->get($mention_id); 	//This is a GuildMember object
-					$target_guildmember_role_collection 				= $target_guildmember->roles;					//This is the Role object for the GuildMember
-					
-		//  				Get the avatar URL of the mentioned user
-		//					$target_guildmember_user							= $target_guildmember->user;									//echo "member_class: " . get_class($target_guildmember_user) . PHP_EOL;
-		//					$mention_avatar 									= "{$target_guildmember_user->getAvatarURL()}";					//echo "mention_avatar: " . $mention_avatar . PHP_EOL;				//echo "target_guildmember_role_collection: " . (count($target_guildmember_role_collection)-1);
-					
-		//  				Populate arrays of the info we need
-		//  				$target_guildmember_roles_names 					= array();
-					$x=0;
-					$target_dev = false;
-					$target_owner = false;
-					$target_admin = false;
-					$target_mod = false;
-					$target_vzgbot = false;
-					$target_guildmember_roles_ids = array();
-					foreach ($target_guildmember_role_collection as $role){
-						if ($x!=0){ //0 is @everyone so skip it
-							$target_guildmember_roles_ids[] 						= $role->id; 													//echo "role[$x] id: " . PHP_EOL; //var_dump($role->id);
-							if ($role->id == $role_18_id)		$target_adult 		= true;							//Author has the 18+ role
-							if ($role->id == $role_dev_id)    	$target_dev 		= true;							//Author has the dev role
-							if ($role->id == $role_owner_id)    $target_owner	 	= true;							//Author has the owner role
-							if ($role->id == $role_admin_id)	$target_admin 		= true;							//Author has the admin role
-							if ($role->id == $role_mod_id)		$target_mod 		= true;							//Author has the mod role
-							if ($role->id == $role_verified_id)	$target_verified 	= true;							//Author has the verified role
-							if ($role->id == $role_bot_id)		$target_bot 		= true;							//Author has the bot role
-							if ($role->id == $role_vzgbot_id)	$target_vzgbot 		= true;							//Author is this bot
-							if ($role->id == $role_muted_id)	$target_muted 		= true;							//Author is this bot
-						}
-						$x++;
-					}
-					if( (!$target_dev && !$target_owner && !$target_admin && !$target_mod && !$target_vzg) || ($creator || $owner || $dev)){ //Guild owner and bot creator can kick anyone
-						if ($mention_id == $creator_id) return true; //Don't kick the creator
-						//Build the string to log
-						$filter = "kick <@!$mention_id>";
-						$warndate = date("m/d/Y");
-						$reason = "**🥾Kicked:** <@$mention_id>
-						**🗓️Date:** $warndate
-						**📝Reason:** " . str_replace($filter, "", $message_content);
-						//Kick the user
-						$target_guildmember->kick($reason)->done(null, function ($error){
-							echo "[ERROR] $error".PHP_EOL; //Echo any errors
-						});
-						if($react) $message->react("🥾"); //Boot
-						//Build the embed message
-						$embed = new \CharlotteDunois\Yasmin\Models\MessageEmbed();
-						$embed
-		//							->setTitle("Commands")																	// Set a title
-							->setColor("e1452d")																	// Set a color (the thing on the left side)
-							->setDescription("$reason")																// Set a description (below title, above fields)
-		//							->addField("⠀", "$reason")																// New line after this
-							
-		//							->setThumbnail("$author_avatar")														// Set a thumbnail (the image in the top right corner)
-		//							->setImage('https://avatars1.githubusercontent.com/u/4529744?s=460&v=4')             	// Set an image (below everything except footer)
-							->setTimestamp()                                                                     	// Set a timestamp (gets shown next to footer)
-							->setAuthor("$author_check ($author_id)", "$author_avatar")  									// Set an author with icon
-							->setFooter("Palace Bot by Valithor#5947")                             					// Set a footer without icon
-							->setURL("");                             												// Set the URL
-		//						Send the message
-						if($modlog_channel)$modlog_channel->send('', array('embed' => $embed))->done(null, function ($error){
-							echo "[ERROR] $error".PHP_EOL; //Echo any errors
-						});
-						return true;
-					}else{//Target is not allowed to be kicked
-						$author_channel->send("<@$mention_id> cannot be kicked because of their roles!");
-						return true;
-					}
-				}else{
-					if($react) $message->react("👎");
-					$author_channel->send("<@$author_id>, you can't kick yourself!");
-					return true;
-				}
-			} //foreach method didn't return, so nobody was mentioned
-			if($react) $message->react("👎");
-			$author_channel->send("<@$author_id>, you need to mention someone!");
-			return true;
-		}
-		if (substr($message_content_lower, 0, 5) == 'mute '){ //;mute
-			echo "[MUTE]" . PHP_EOL;
-	//			Get an array of people mentioned
-			$mentions_arr 												= $message->mentions->users;
-			if (!strpos($message_content_lower, "<")){ //String doesn't contain a mention
-				$filter = "mute ";
-				$value = str_replace($filter, "", $message_content_lower);
-				$value = str_replace("<@!", "", $value); $value = str_replace("<@", "", $value);
-				$value = str_replace(">", "", $value);//echo "value: " . $value . PHP_EOL;
-				if(is_numeric($value)){
-					$mention_member				= $author_guild->members->get($value);
-					$mention_user				= $mention_member->user;
-					$mentions_arr				= array($mention_user);
-				}else return $message->reply("Invalid input! Please enter a valid ID or @mention the user");
-				if ($mention_member == NULL) return $message->reply("Invalid input! Please enter an ID or @mention the user");
-			}
-			foreach ( $mentions_arr as $mention_param ){
-				$mention_param_encode 									= json_encode($mention_param); 									//echo "mention_param_encode: " . $mention_param_encode . PHP_EOL;
-				$mention_json 											= json_decode($mention_param_encode, true); 					//echo "mention_json: " . PHP_EOL; var_dump($mention_json);
-				$mention_id 											= $mention_json['id']; 											//echo "mention_id: " . $mention_id . PHP_EOL; //Just the discord ID
-				$mention_discriminator 									= $mention_json['discriminator']; 								//echo "mention_id: " . $mention_id . PHP_EOL; //Just the discord ID
-				$mention_username 										= $mention_json['username']; 									//echo "mention_username: " . $mention_username . PHP_EOL; //Just the discord ID
-				$mention_check 											= $mention_username ."#".$mention_discriminator;
-				
-				
-				if ($author_id != $mention_id){ //Don't let anyone mute themselves
-					//Get the roles of the mentioned user
-					$target_guildmember 								= $message->guild->members->get($mention_id); 	//This is a GuildMember object
-					$target_guildmember_role_collection 				= $target_guildmember->roles;					//This is the Role object for the GuildMember
-					
-	//  			Populate arrays of the info we need
-	//	    		$target_guildmember_roles_names 					= array();
-					$x=0;
-					$target_dev = false;
-					$target_owner = false;
-					$target_admin = false;
-					$target_mod = false;
-					$target_vzgbot = false;
-					$target_guildmember_roles_ids = array();
-					$removed_roles = array();
-					foreach ($target_guildmember_role_collection as $role){
-						if ($x!=0){ //0 is @everyone so skip it
-							$removed_roles[] = $role->id;
-							$target_guildmember_roles_ids[] 						= $role->id; 													//echo "role[$x] id: " . PHP_EOL; //var_dump($role->id);
-							if ($role->id == $role_dev_id)    	$target_dev 		= true;							//Author has the dev role
-							if ($role->id == $role_owner_id)    $target_owner	 	= true;							//Author has the owner role
-							if ($role->id == $role_admin_id)	$target_admin 		= true;							//Author has the admin role
-							if ($role->id == $role_mod_id)		$target_mod 		= true;							//Author has the mod role
-							if ($role->id == $role_vzgbot_id)	$target_vzgbot 		= true;							//Author is this bot
-						}
-						$x++;
-					}
-					if( (!$target_dev && !$target_owner && !$target_admin && !$target_mod && !$target_vzg) || ($creator || $owner || $dev)){ //Guild owner and bot creator can mute anyone
-						if ($mention_id == $creator_id) return true; //Don't mute the creator
-						//Save current roles in a file for the user
-						VarSave($guild_folder."/".$mention_id, "removed_roles.php", $removed_roles);
-						//Build the string to log
-						$filter = "mute <@!$mention_id>";
-						$warndate = date("m/d/Y");
-						$reason = "**🥾Muted:** <@$mention_id>
-						**🗓️Date:** $warndate
-						**📝Reason:** " . str_replace($filter, "", $message_content);
-						//Remove all roles and add the muted role (TODO: REMOVE ALL ROLES AND RE-ADD THEM UPON BEING UNMUTED)
-						foreach ($removed_roles as $role){
-							$target_guildmember->removeRole($role);
-						}
-						if($role_muted_id) $target_guildmember->addRole($role_muted_id);
-						if($react) $message->react("🤐");
-						//Build the embed message
-						$embed = new \CharlotteDunois\Yasmin\Models\MessageEmbed();
-						$embed
-	//							->setTitle("Commands")																	// Set a title
-							->setColor("e1452d")																	// Set a color (the thing on the left side)
-							->setDescription("$reason")																// Set a description (below title, above fields)
-	//							->addField("⠀", "$reason")																// New line after this
-							
-	//							->setThumbnail("$author_avatar")														// Set a thumbnail (the image in the top right corner)
-	//							->setImage('https://avatars1.githubusercontent.com/u/4529744?s=460&v=4')             	// Set an image (below everything except footer)
-							->setTimestamp()                                                                     	// Set a timestamp (gets shown next to footer)
-							->setAuthor("$author_check ($author_id)", "$author_avatar")  									// Set an author with icon
-							->setFooter("Palace Bot by Valithor#5947")                             					// Set a footer without icon
-							->setURL("");                             												// Set the URL
-	//						Send the message
-						if($modlog_channel)$modlog_channel->send('', array('embed' => $embed))->done(null, function ($error){
-							echo "[ERROR] $error".PHP_EOL; //Echo any errors
-						});
-						return true;
-					}else{//Target is not allowed to be muted
-						$author_channel->send("<@$mention_id> cannot be muted because of their roles!");
-						return true;
-					}
-				}else{
-					if($react) $message->react("👎");
-					$author_channel->send("<@$author_id>, you can't mute yourself!");
-					return true;
-				}
-			} //foreach method didn't return, so nobody was mentioned
-			if($react) $message->react("👎");
-			$author_channel->send("<@$author_id>, you need to mention someone!");
-			return true;
-		}
-		if (substr($message_content_lower, 0, 7) == 'unmute '){ //;unmute
-			echo "[UNMUTE]" . PHP_EOL;
-	//			Get an array of people mentioned
-			$mentions_arr 												= $message->mentions->users; 									//echo "mentions_arr: " . PHP_EOL; var_dump ($mentions_arr); //Shows the collection object
-			if (!strpos($message_content_lower, "<")){ //String doesn't contain a mention
-				$filter = "unmute ";
-				$value = str_replace($filter, "", $message_content_lower);
-				$value = str_replace("<@!", "", $value); $value = str_replace("<@", "", $value);
-				$value = str_replace(">", "", $value);//echo "value: " . $value . PHP_EOL;
-				if(is_numeric($value)){
-					$mention_member				= $author_guild->members->get($value);
-					$mention_user				= $mention_member->user;
-					$mentions_arr				= array($mention_user);
-				}else return $message->reply("Invalid input! Please enter a valid ID or @mention the user");
-				if ($mention_member == NULL) return $message->reply("Invalid input! Please enter an ID or @mention the user");
-			}
-			foreach ( $mentions_arr as $mention_param ){
-				$mention_param_encode 									= json_encode($mention_param); 									//echo "mention_param_encode: " . $mention_param_encode . PHP_EOL;
-				$mention_json 											= json_decode($mention_param_encode, true); 					//echo "mention_json: " . PHP_EOL; var_dump($mention_json);
-				$mention_id 											= $mention_json['id']; 											//echo "mention_id: " . $mention_id . PHP_EOL; //Just the discord ID
-				$mention_discriminator 									= $mention_json['discriminator']; 								//echo "mention_id: " . $mention_id . PHP_EOL; //Just the discord ID
-				$mention_username 										= $mention_json['username']; 									//echo "mention_username: " . $mention_username . PHP_EOL; //Just the discord ID
-				$mention_check 											= $mention_username ."#".$mention_discriminator;
-				
-				
-				if ($author_id != $mention_id){ //Don't let anyone mute themselves
-					//Get the roles of the mentioned user
-					$target_guildmember 								= $message->guild->members->get($mention_id);
-					$target_guildmember_role_collection 				= $target_guildmember->roles;
-
-	//				Get the roles of the mentioned user
-					$target_dev = false;
-					$target_owner = false;
-					$target_admin = false;
-					$target_mod = false;
-					$target_vzgbot = false;
-	//				Populate arrays of the info we need
-					$target_guildmember_roles_ids = array();
-					$x=0;
-					foreach ($target_guildmember_role_collection as $role){
-						if ($x!=0){ //0 is @everyone so skip it
-							$target_guildmember_roles_ids[] 						= $role->id; 													//echo "role[$x] id: " . PHP_EOL; //var_dump($role->id);
-							if ($role->id == $role_dev_id)    	$target_dev 		= true;							//Author has the dev role
-							if ($role->id == $role_owner_id)    $target_owner	 	= true;							//Author has the owner role
-							if ($role->id == $role_admin_id)	$target_admin 		= true;							//Author has the admin role
-							if ($role->id == $role_mod_id)		$target_mod 		= true;							//Author has the mod role
-							if ($role->id == $role_vzgbot_id)	$target_vzgbot 		= true;							//Author is this bot
-							if ($role->name == "Palace Bot")	$target_vzgbot 		= true;							//Author is this bot
-						}
-						$x++;
-					}
-					if( (!$target_dev && !$target_owner && !$target_admin && !$target_mod && !$target_vzg) || ($creator || $owner || $dev)){
-						if ($mention_id == $creator_id) return true; //Don't mute the creator
-						//Build the string to log
-						$filter = "unmute <@!$mention_id>";
-						$warndate = date("m/d/Y");
-						$reason = "**🥾Unmuted:** <@$mention_id>
-						**🗓️Date:** $warndate
-						**📝Reason:** " . str_replace($filter, "", $message_content);
-						//Unmute the user and readd the verified role (TODO: READD REMOVED ROLES)
-						//Save current roles in a file for the user
-						$removed_roles = VarLoad($guild_folder."/".$mention_id, "removed_roles.php");
-						foreach ($removed_roles as $role){
-							$target_guildmember->addRole($role);
-						}
-						if($role_muted_id) $target_guildmember->removeRole($role_muted_id);
-						if($react) $message->react("😩");
-						//Build the embed message
-						$embed = new \CharlotteDunois\Yasmin\Models\MessageEmbed();
-						$embed
-	//							->setTitle("Commands")																	// Set a title
-							->setColor("e1452d")																	// Set a color (the thing on the left side)
-							->setDescription("$reason")																// Set a description (below title, above fields)
-	//							->addField("⠀", "$reason")																// New line after this
-							
-	//							->setThumbnail("$author_avatar")														// Set a thumbnail (the image in the top right corner)
-	//							->setImage('https://avatars1.githubusercontent.com/u/4529744?s=460&v=4')             	// Set an image (below everything except footer)
-							->setTimestamp()                                                                     	// Set a timestamp (gets shown next to footer)
-							->setAuthor("$author_check ($author_id)", "$author_avatar")  							// Set an author with icon
-							->setFooter("Palace Bot by Valithor#5947")                             					// Set a footer without icon
-							->setURL("");                             												// Set the URL
-	//						Send the message
-						if($modlog_channel)$modlog_channel->send('', array('embed' => $embed))->done(null, function ($error){
-							echo "[ERROR] $error".PHP_EOL; //Echo any errors
-						});
-						return true;
-					}else{//Target is not allowed to be unmuted
-						$author_channel->send("<@$mention_id> cannot be unmuted because of their roles!");
-						return true;
-					}
-				}else{
-					if($react) $message->react("👎");
-					$author_channel->send("<@$author_id>, you can't mute yourself!");
-					return true;
-				}
-			} //foreach method didn't return, so nobody was mentioned
-			if($react) $message->react("👎");
-			$author_channel->send("<@$author_id>, you need to mention someone!");
-			return true;
-		}
-	}
-	if ($creator || $owner || $dev || $admin)
-	if (substr($message_content_lower, 0, 4) == 'ban '){ //;ban
-		echo "[BAN]" . PHP_EOL;
-	//			Get an array of people mentioned
-		$mentions_arr 												= $message->mentions->users; 									//echo "mentions_arr: " . PHP_EOL; var_dump ($mentions_arr); //Shows the collection object
-		if (!strpos($message_content_lower, "<")){ //String doesn't contain a mention
-			$filter = "ban ";
-			$value = str_replace($filter, "", $message_content_lower);
-			$value = str_replace("<@!", "", $value); $value = str_replace("<@", "", $value);
-			$value = str_replace(">", "", $value);//echo "value: " . $value . PHP_EOL;
-			if(is_numeric($value)){
-				$mention_member				= $author_guild->members->get($value);
-				$mention_user				= $mention_member->user;
-				$mentions_arr				= array($mention_user);
-			}else return $message->reply("Invalid input! Please enter a valid ID or @mention the user");
-			if ($mention_member == NULL) return $message->reply("Invalid input! Please enter an ID or @mention the user");
-		}
-		foreach ( $mentions_arr as $mention_param ){
-			$mention_param_encode 									= json_encode($mention_param); 									//echo "mention_param_encode: " . $mention_param_encode . PHP_EOL;
-			$mention_json 											= json_decode($mention_param_encode, true); 				//echo "mention_json: " . PHP_EOL; var_dump($mention_json);
-			$mention_id 											= $mention_json['id']; 											//echo "mention_id: " . $mention_id . PHP_EOL; //Just the discord ID
-			$mention_discriminator 									= $mention_json['discriminator']; 								//echo "mention_id: " . $mention_id . PHP_EOL; //Just the discord ID
-			$mention_username 										= $mention_json['username']; 									//echo "mention_username: " . $mention_username . PHP_EOL; //Just the discord ID
-			$mention_check 											= $mention_username ."#".$mention_discriminator;
-			
-			if ($author_id != $mention_id){ //Don't let anyone ban themselves
-				//Get the roles of the mentioned user
-				$target_guildmember 								= $message->guild->members->get($mention_id); 	//This is a GuildMember object
-				$target_guildmember_role_collection 				= $target_guildmember->roles;					//This is the Role object for the GuildMember
-				
-	//  				Get the avatar URL of the mentioned user
-	//					$target_guildmember_user							= $target_guildmember->user;									//echo "member_class: " . get_class($target_guildmember_user) . PHP_EOL;
-	//					$mention_avatar 									= "{$target_guildmember_user->getAvatarURL()}";					//echo "mention_avatar: " . $mention_avatar . PHP_EOL;				//echo "target_guildmember_role_collection: " . (count($target_guildmember_role_collection)-1);
-
-	//  				Populate arrays of the info we need
-	//  				$target_guildmember_roles_names 					= array();
-				$x=0;
-				$target_dev = false;
-				$target_owner = false;
-				$target_admin = false;
-				$target_mod = false;
-				$target_vzgbot = false;
-				$target_guildmember_roles_ids = array();
-				foreach ($target_guildmember_role_collection as $role){
-					if ($x!=0){ //0 is @everyone so skip it
-						$target_guildmember_roles_ids[] 						= $role->id; 											//echo "role[$x] id: " . PHP_EOL; //var_dump($role->id);
-						if ($role->id == $role_dev_id)    	$target_dev 		= true;							//Author has the dev role
-						if ($role->id == $role_owner_id)    $target_owner	 	= true;							//Author has the owner role
-						if ($role->id == $role_admin_id)	$target_admin 		= true;							//Author has the admin role
-						if ($role->id == $role_mod_id)		$target_mod 		= true;							//Author has the mod role
-						if ($role->id == $role_vzgbot_id)	$target_vzgbot 		= true;							//Author is this bot
-						if ($role->name == "Palace Bot")	$target_vzgbot 		= true;							//Author is this bot
-					}
-					$x++;
-				}
-				if( (!$target_dev && !$target_owner && !$target_admin && !$target_vzg) || ($creator || $owner)){ //Guild owner and bot creator can ban anyone
-					if ($mention_id == $creator_id) return true; //Don't ban the creator
-					//Build the string to log
-					$filter = "ban <@!$mention_id>";
-					$warndate = date("m/d/Y");
-					$reason = "**🥾Banned:** <@$mention_id>
-					**🗓️Date:** $warndate
-					**📝Reason:** " . str_replace($filter, "", $message_content);
-					//Ban the user and clear 1 days worth of messages
-					$target_guildmember->ban("1", $reason)->done(null, function ($error){
-						echo "[ERROR] $error".PHP_EOL; //Echo any errors
-					});
-					//Build the embed message
-					$embed = new \CharlotteDunois\Yasmin\Models\MessageEmbed();
-					$embed
-	//							->setTitle("Commands")																	// Set a title
-						->setColor("e1452d")																	// Set a color (the thing on the left side)
-						->setDescription("$reason")																// Set a description (below title, above fields)
-	//							->addField("⠀", "$reason")																// New line after this
-						
-	//							->setThumbnail("$author_avatar")														// Set a thumbnail (the image in the top right corner)
-	//							->setImage('https://avatars1.githubusercontent.com/u/4529744?s=460&v=4')             	// Set an image (below everything except footer)
-						->setTimestamp()                                                                     	// Set a timestamp (gets shown next to footer)
-						->setAuthor("$author_check ($author_id)", "$author_avatar")  							// Set an author with icon
-						->setFooter("Palace Bot by Valithor#5947")                             					// Set a footer without icon
-						->setURL("");                             												// Set the URL
-	//						Send the message
-					if($modlog_channel)$modlog_channel->send('', array('embed' => $embed))->done(null, function ($error){
-						echo "[ERROR] $error".PHP_EOL; //Echo any errors
-					});
-					if($react) $message->react("🔨"); //Hammer
-					return true; //No more processing, we only want to process the first person mentioned
-				}else{//Target is not allowed to be banned
-					$author_channel->send("<@$mention_id> cannot be banned because of their roles!");
-					return true;
-				}
-			}else{
-				if($react) $message->react("👎");
-				$author_channel->send("<@$author_id>, you can't ban yourself!");
-				return true;
-			}
-		} //foreach method didn't return, so nobody in the guild was mentioned
-		//Try restcord
-		$filter = "ban ";
-		$value = str_replace($filter, "", $message_content_lower);
-		$value = str_replace("<@!", "", $value); $value = str_replace("<@", "", $value);
-		$value = str_replace(">", "", $value);//echo "value: " . $value . PHP_EOL;
-		if(is_numeric($value)){ //resolve with restcord
-			//$restcord->guild
-			$restcord_param = ['guild.id' => (int)$author_guild_id, 'user.id' => (int)$value];
-			try{
-				//$restcord_result = $restcord->guild->createGuildBan($restcord_param);
-			}catch (Exception $e){
-				$restcord_result = "Unable to locate user for ID $value";
-				echo $e . PHP_EOL;
-			}
-			//$message->reply($restcord_result);
-		}else{
-			if($react) $message->react("👎");
-			$author_channel->send("<@$author_id>, you need to mention someone!");
-		}
-		return true;
-	}
 
 
 	/*
@@ -3146,406 +2718,407 @@ GLOBAL $customroles, $customroles_message_text;
 				$staff_bot_channel_id = "744022293533032542";
 				break;
 		}	
-		if ($message_content_lower == 'status'){ //;status
-			echo "[STATUS] $author_check" . PHP_EOL;
-			$ch = curl_init(); //create curl resource
-			curl_setopt($ch, CURLOPT_URL, "http://10.0.0.18:81/civ13/serverstate.txt"); // set url
-			curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1); //return the transfer as a string
-			$message->reply(curl_exec($ch));
-		}
-		if ( ($author_channel_id == "468979034571931650") || ($author_channel_id == "744022293411528761") ){ //Don't let people use these in #general
-			switch($message_content_lower){
-				case "serverstatus":
-					echo "[SERVER STATUS] $author_check" . PHP_EOL;
-					//VirtualBox state
-					$ch = curl_init(); //create curl resource
-					curl_setopt($ch, CURLOPT_URL, "http://10.0.0.18:81/civ13/serverstate.txt"); // set url
-					curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1); //return the transfer as a string
-					if (curl_exec($ch) != "playing"){ //Don't even try to process anything (including webhooks) if the persistence server is saving.
-						$author_channel->send("Persistence is either saving or the webserver is down!");
-					}
-					include "../servers/getserverdata.php"; //Do this async?
-					$sent = false; //No message has been sent yet.		
-					
-					if ($serverinfo[0]["age"]){ //We got data back for this server, so it must be online, right??
-						//Round duration info
-						$rd = explode (":",  urldecode($serverinfo[0]["roundduration"]) );
-						$remainder = ($rd[0] % 24);
-						$rd[0] = floor($rd[0] / 24);
-						if( ($rd[0] != 0) || ($remainder != 0) || ($rd[1] != 0) ){ //Round is starting
-							$rt = $rd[0] . "d " . $remainder . "h " . $rd[1] . "m";
-						}else{
-							$rt = "STARTING";
-						}
-							$alias = "<byond://" . $servers[0]["alias"] . ":" . $servers[0]["port"] . ">";
-							$image_path = "http://www.valzargaming.com/servers/gamebanner.php?servernum=0&rand=" . rand(0,999999999);
-							//echo "image_path: " . $image_path . PHP_EOL;
-						//	Build the embed message
-							$embed = new \CharlotteDunois\Yasmin\Models\MessageEmbed();
-							$embed
-						//		->setTitle("$author_check")														// Set a title
-								->setColor("e1452d")																	// Set a color (the thing on the left side)
-								->setDescription("$alias"  . "\n" . $servers[0]["servername"] /*. "\nRound time: " . $rd[1] . "d " . $remainder . "h " . $rd[1] . "m" . "\n Host: ". $serverinfo[1]["host"] ." \nPlayers: " . $serverinfo[1]["players"]*/)									// Set a description (below title, above fields)
-						//		->addField("⠀", "$documentation")														// New line after this
-								
-						//		->setThumbnail("$author_avatar")														// Set a thumbnail (the image in the top right corner)
-						//				->setImage('https://avatars1.githubusercontent.com/u/4529744?s=460&v=4')        // Set an image (below everything except footer)
-								->setImage("$image_path")             													// Set an image (below everything except footer)
-								->setTimestamp()                                                                     	// Set a timestamp (gets shown next to footer)
-						//		->setAuthor("$author_check", "$author_guild_avatar")  									// Set an author with icon
-								->setFooter("Palace Bot by Valithor#5947")                             					// Set a footer without icon
-								->setURL("");                             												// Set the URL
-						//				Open a DM channel then send the rich embed message
-							/*
-							$author_user->createDM()->then(function($author_dmchannel) use ($message, $embed){	//Promise
-								echo 'SEND GENIMAGE EMBED' . PHP_EOL;
-								$author_dmchannel->send('', array('embed' => $embed))->done(null, function ($error){
-									echo "[ERROR] $error".PHP_EOL; //Echo any errors
-								});
-							});
-							*/
-							if($rt) $embed->addField("Round Time", $rt, true);
-							if ( ($serverinfo[0]["age"] != "unknown") && ($serverinfo[0]["age"] != NULL) ){
-								$embed->addField("Epoch", urldecode($serverinfo[0]["age"]), true);
-							}
-							if ( ($serverinfo[0]["season"] != "unknown") && ($serverinfo[0]["season"] != NULL) ){
-								$embed->addField("Season", urldecode($serverinfo[0]["season"]), true);
-							}
-							if ( ($serverinfo[0]["map"] != "unknown") && ($serverinfo[0]["map"] != NULL) ){
-								$embed->addField("Map", urldecode($serverinfo[0]["map"]), true);
-							}
-							$author_channel->send('', array('embed' => $embed))->done(null, function ($error){
-								echo "[ERROR] $error".PHP_EOL; //Echo any errors
-							});
-							$sent = true;
-					}
-					
-					if ($serverinfo[1]["age"]){ //We got data back for this server, so it must be online, right??
-						//Round duration info
-						$rd = explode (":",  urldecode($serverinfo[1]["roundduration"]) );
-						$remainder = ($rd[0] % 24);
-						$rd[0] = floor($rd[0] / 24);
-						if( ($rd[0] != 0) || ($remainder != 0) || ($rd[1] != 0) ){ //Round is starting
-							$rt = $rd[0] . "d " . $remainder . "h " . $rd[1] . "m";
-						}else{
-							$rt = "STARTING";
-						}
-							$alias = "<byond://" . $servers[1]["alias"] . ":" . $servers[1]["port"] . ">";
-							$image_path = "http://www.valzargaming.com/servers/gamebanner.php?servernum=1&rand=" . rand(0,999999999);
-							//echo "image_path: " . $image_path . PHP_EOL;
-						//	Build the embed message
-							$embed = new \CharlotteDunois\Yasmin\Models\MessageEmbed();
-							$embed
-						//		->setTitle("$author_check")														// Set a title
-								->setColor("e1452d")																	// Set a color (the thing on the left side)
-								->setDescription("$alias" . "\n" . $servers[1]["servername"] /*. "\nRound time: " . $rd[1] . "d " . $remainder . "h " . $rd[1] . "m" . "\n Host: ". $serverinfo[1]["host"] ." \nPlayers: " . $serverinfo[1]["players"]*/)									// Set a description (below title, above fields)
-						//		->addField("⠀", "$documentation")														// New line after this
-								
-						//		->setThumbnail("$author_avatar")														// Set a thumbnail (the image in the top right corner)
-						//				->setImage('https://avatars1.githubusercontent.com/u/4529744?s=460&v=4')        // Set an image (below everything except footer)
-								->setImage("$image_path")             													// Set an image (below everything except footer)
-								->setTimestamp()                                                                     	// Set a timestamp (gets shown next to footer)
-						//		->setAuthor("$author_check", "$author_guild_avatar")  									// Set an author with icon
-								->setFooter("Palace Bot by Valithor#5947")                             					// Set a footer without icon
-								->setURL("");                             												// Set the URL
-						//				Open a DM channel then send the rich embed message
-							/*
-							$author_user->createDM()->then(function($author_dmchannel) use ($message, $embed){	//Promise
-								echo 'SEND GENIMAGE EMBED' . PHP_EOL;
-								$author_dmchannel->send('', array('embed' => $embed))->done(null, function ($error){
-									echo "[ERROR] $error".PHP_EOL; //Echo any errors
-								});
-							});
-							*/
-							if($rt) $embed->addField("Round Time", $rt, true);
-							if ( ($serverinfo[1]["age"] != "unknown") && ($serverinfo[1]["age"] != NULL) ){
-								$embed->addField("Epoch", urldecode($serverinfo[1]["age"]), true);
-							}
-							if ( ($serverinfo[1]["season"] != "unknown") && ($serverinfo[1]["season"] != NULL) ){
-								$embed->addField("Season", urldecode($serverinfo[1]["season"]), true);
-							}
-							if ( ($serverinfo[1]["map"] != "unknown") && ($serverinfo[1]["map"] != NULL) ){
-								$embed->addField("Map", urldecode($serverinfo[1]["map"]), true);
-							}
-							$author_channel->send('', array('embed' => $embed))->done(null, function ($error){
-								echo "[ERROR] $error".PHP_EOL; //Echo any errors
-							});
-							$sent = true;
-					}
-					if ($serverinfo[2]["age"]){ //We got data back for this server, so it must be online, right??
-						//Round duration info
-						$rd = explode (":",  urldecode($serverinfo[2]["roundduration"]) );
-						$remainder = ($rd[0] % 24);
-						$rd[0] = floor($rd[0] / 24);
-						if( ($rd[0] != 0) || ($remainder != 0) || ($rd[1] != 0) ){ //Round is starting
-							$rt = $rd[0] . "d " . $remainder . "h " . $rd[1] . "m";
-						}else{
-							$rt = "STARTING";
-						}
-							$alias = "<byond://" . $servers[2]["alias"] . ":" . $servers[2]["port"] . ">";
-							$image_path = "http://www.valzargaming.com/servers/gamebanner.php?servernum=2&rand=" . rand(0,999999999);
-							//echo "image_path: " . $image_path . PHP_EOL;
-						//	Build the embed message
-							$embed = new \CharlotteDunois\Yasmin\Models\MessageEmbed();
-							$embed
-						//		->setTitle("$author_check")														// Set a title
-								->setColor("e1452d")																	// Set a color (the thing on the left side)
-								->setDescription("$alias"  . "\n" . $servers[2]["servername"] /*. "\nRound time: " . $rd[1] . "d " . $remainder . "h " . $rd[1] . "m" . "\n Host: ". $serverinfo[1]["host"] ." \nPlayers: " . $serverinfo[1]["players"]*/)									// Set a description (below title, above fields)
-						//		->addField("⠀", "$documentation")														// New line after this
-								
-						//		->setThumbnail("$author_avatar")														// Set a thumbnail (the image in the top right corner)
-						//				->setImage('https://avatars1.githubusercontent.com/u/4529744?s=460&v=4')        // Set an image (below everything except footer)
-								->setImage("$image_path")             													// Set an image (below everything except footer)
-								->setTimestamp()                                                                     	// Set a timestamp (gets shown next to footer)
-						//		->setAuthor("$author_check", "$author_guild_avatar")  									// Set an author with icon
-								->setFooter("Palace Bot by Valithor#5947")                             					// Set a footer without icon
-								->setURL("");                             												// Set the URL
-						//				Open a DM channel then send the rich embed message
-							/*
-							$author_user->createDM()->then(function($author_dmchannel) use ($message, $embed){	//Promise
-								echo 'SEND GENIMAGE EMBED' . PHP_EOL;
-								$author_dmchannel->send('', array('embed' => $embed))->done(null, function ($error){
-									echo "[ERROR] $error".PHP_EOL; //Echo any errors
-								});
-							});
-							*/
-							if($rt) $embed->addField("Round Time", $rt, true);
-							if ( ($serverinfo[2]["age"] != "unknown") && ($serverinfo[2]["age"] != NULL) ){
-								$embed->addField("Epoch", urldecode($serverinfo[2]["age"]), true);
-							}
-							if ( ($serverinfo[2]["season"] != "unknown") && ($serverinfo[2]["season"] != NULL) ){
-								$embed->addField("Season", urldecode($serverinfo[2]["season"]), true);
-							}
-							if ( ($serverinfo[2]["map"] != "unknown") && ($serverinfo[2]["map"] != NULL) ){
-								$embed->addField("Map", urldecode($serverinfo[2]["map"]), true);
-							}
-							$author_channel->send('', array('embed' => $embed))->done(null, function ($error){
-								echo "[ERROR] $error".PHP_EOL; //Echo any errors
-							});
-							$sent = true;
-					}
-					return true;
-					break;
-				case "serverstate":
-					//Sends a message containing data for each server we host as collected from serverinfo.json
-					//This method does not have to be called locally, so it can be moved to VZG Verifier
-					echo "[SERVER STATE] $author_check" . PHP_EOL;
-					$data = array();
-					//get json from website
-					$ch = curl_init(); //create curl resource
-					curl_setopt($ch, CURLOPT_URL, "http://www.valzargaming.com/servers/serverinfo.json"); // set url
-					curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1); //return the transfer as a string
-					curl_setopt($ch, CURLOPT_POST, false);
-					$ch_data = curl_exec($ch);
-					curl_close($ch);
-					
-					$data_json = json_decode($ch_data, true); //iterable with $data_json["key"]
-					$desc_string_array = array();
-					$desc_string = "";
-					foreach ($data_json as $varname => $varvalue){ //individual servers
-						echo strlen($desc_string) . PHP_EOL;
-						if(is_array($varvalue)){
-							//$varvalue = json_encode($varvalue);
-							foreach ($varvalue as $varname2 => $varvalue2){ //invalid
-								$varvalue2 = json_encode($varvalue2);
-								$desc_string = $desc_string . $varname2 . ": " . urldecode($varvalue2) . "\n";
-							}
-						}else{
-							$desc_string = $desc_string . $varname . ": " . urldecode($varvalue) . "\n";
-						}
-						$desc_string_array[] = $desc_string ?? "null";
-						$desc_string = "";
-					}
-					/*
-					
-					*/
-					
-					$server_index[] = "Persistence" . PHP_EOL;
-					$server_index[] = "TDM" . PHP_EOL;
-					$server_index[] = "Nomads" . PHP_EOL;
-					$x=0;
-					foreach ($desc_string_array as $output_string){
-						if ($output_string != "" && $output_string != NULL){
-							//Build the embed message
-							if (strlen($output_string) <= 2042){
-								$embed = new \CharlotteDunois\Yasmin\Models\MessageEmbed();
-								$embed
-									//->setTitle("$author_check")															// Set a title
-									->setColor("e1452d")																	// Set a color (the thing on the left side)
-									->setDescription($server_index[$x] . "```$output_string```")												// Set a description (below title, above fields)
-									//->addField("Players (" . $serverinfo[0]["players"].")", urldecode($playerlist))		// New line after this
-									
-									//->setThumbnail("$author_avatar")														// Set a thumbnail (the image in the top right corner)
-									//->setImage('https://avatars1.githubusercontent.com/u/4529744?s=460&v=4')             	// Set an image (below everything except footer)
-									//->setImage("$image_path")             												// Set an image (below everything except footer)
-									->setTimestamp()                                                                     	// Set a timestamp (gets shown next to footer)
-									//->setAuthor("$author_check", "$author_avatar")  								// Set an author with icon
-									->setFooter("Palace Bot by Valithor#5947")                             					// Set a footer without icon
-									->setURL("");
-								$message->channel->send('', array('embed' => $embed))->done(null, function ($error){
-									echo "[ERROR] $error".PHP_EOL; //Echo any errors
-								});
-							}else{
-								$author_channel->send($server_index[$x] . "```$output_string```")->done(null, function ($error){
-									echo "[ERROR] $error".PHP_EOL; //Echo any errors
-								});
-							}
-							$x++;
-						}
-					}
-					return true;
-					break;
-				case "players":
-					echo "[PLAYERS] $author_check" . PHP_EOL;
-					include "../servers/getserverdata.php";
-					
-					$playerlist = " ";
-					$alias = "<byond://" . $servers[0]["alias"] . ":" . $servers[0]["port"] . ">";
-					$serverinfo0 = print_r($serverinfo[0], true); //json array
-					foreach ($serverinfo[0] as $varname => $varvalue){
-						if ( (substr($varname, 0, 6) == "player") && $varname != "players")
-						$playerlist = $playerlist . "$varvalue, ";
-					}
-					if (trim(substr($playerlist, 0, -2)) == ""){
-						$playerlist = "None";
+		//Don't let people use these in #general
+		switch($message_content_lower){
+			case 'status' //;status
+				echo "[STATUS] $author_check" . PHP_EOL;
+				$ch = curl_init(); //create curl resource
+				curl_setopt($ch, CURLOPT_URL, "http://10.0.0.18:81/civ13/serverstate.txt"); // set url
+				curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1); //return the transfer as a string
+				$message->reply(curl_exec($ch));
+				return true;
+				break;
+			case "serverstatus":
+				echo "[SERVER STATUS] $author_check" . PHP_EOL;
+				//VirtualBox state
+				$ch = curl_init(); //create curl resource
+				curl_setopt($ch, CURLOPT_URL, "http://10.0.0.18:81/civ13/serverstate.txt"); // set url
+				curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1); //return the transfer as a string
+				if (curl_exec($ch) != "playing"){ //Don't even try to process anything (including webhooks) if the persistence server is saving.
+					$author_channel->send("Persistence is either saving or the webserver is down!");
+				}
+				include "../servers/getserverdata.php"; //Do this async?
+				$sent = false; //No message has been sent yet.		
+				
+				if ($serverinfo[0]["age"]){ //We got data back for this server, so it must be online, right??
+					//Round duration info
+					$rd = explode (":",  urldecode($serverinfo[0]["roundduration"]) );
+					$remainder = ($rd[0] % 24);
+					$rd[0] = floor($rd[0] / 24);
+					if( ($rd[0] != 0) || ($remainder != 0) || ($rd[1] != 0) ){ //Round is starting
+						$rt = $rd[0] . "d " . $remainder . "h " . $rd[1] . "m";
 					}else{
-						$playerlist = trim(substr($playerlist, 0, -2));
+						$rt = "STARTING";
 					}
-					//echo "image_path: " . $image_path . PHP_EOL;
-					//$image_path = "http://www.valzargaming.com/servers/gamebanner.php?servernum=0";
-				//	Build the embed message
-					$embed = new \CharlotteDunois\Yasmin\Models\MessageEmbed();
-					$embed
-				//				->setTitle("$author_check")																// Set a title
-						->setColor("e1452d")																	// Set a color (the thing on the left side)
-						->setDescription("$alias\n" . $servers[0]["servername"])																// Set a description (below title, above fields)
-						->addField("Players (" . $serverinfo[0]["players"].")", urldecode($playerlist))												// New line after this
-						
-				//		->setThumbnail("$author_avatar")														// Set a thumbnail (the image in the top right corner)
-				//		->setImage('https://avatars1.githubusercontent.com/u/4529744?s=460&v=4')             	// Set an image (below everything except footer)
-				//		->setImage("$image_path")             													// Set an image (below everything except footer)
-						->setTimestamp()                                                                     	// Set a timestamp (gets shown next to footer)
-				//		->setAuthor("$author_check", "$author_guild_avatar")  									// Set an author with icon
-						->setFooter("Palace Bot by Valithor#5947")                             					// Set a footer without icon
-						->setURL("");                             												// Set the URL
-					
-					if ($playerlist != "None"){
-						$author_channel->send('', array('embed' => $embed))->done(null, function ($error){
-							echo "[ERROR] $error".PHP_EOL; //Echo any errors
-						});
-						$sent = true;
-					}
-					
-					$playerlist = " ";
-					$alias = "<byond://" . $servers[1]["alias"] . ":" . $servers[1]["port"] . ">";
-					$serverinfo1 = print_r($serverinfo[1], true); //json array
-					foreach ($serverinfo[1] as $varname => $varvalue){
-						if ( (substr($varname, 0, 6) == "player") && $varname != "players")
-						$playerlist = $playerlist . "$varvalue, ";
-					}
-					if (trim(substr($playerlist, 0, -2)) == ""){
-						$playerlist = "None";
-					}else{
-						$playerlist = trim(substr($playerlist, 0, -2));
-					}
-					//echo "image_path: " . $image_path . PHP_EOL;
-				//	Build the embed message
-					$embed = new \CharlotteDunois\Yasmin\Models\MessageEmbed();
-					$embed
-				//				->setTitle("$author_check")																// Set a title
-						->setColor("e1452d")																	// Set a color (the thing on the left side)
-						->setDescription("$alias\n" . $servers[1]["servername"])																// Set a description (below title, above fields)
-						->addField("Players (" . $serverinfo[1]["players"].")", urldecode($playerlist))												// New line after this
-						
-				//		->setThumbnail("$author_avatar")														// Set a thumbnail (the image in the top right corner)
-				//		->setImage('https://avatars1.githubusercontent.com/u/4529744?s=460&v=4')             	// Set an image (below everything except footer)
-				//		->setImage("$image_path")             													// Set an image (below everything except footer)
-						->setTimestamp()                                                                     	// Set a timestamp (gets shown next to footer)
-				//		->setAuthor("$author_check", "$author_guild_avatar")  									// Set an author with icon
-						->setFooter("Palace Bot by Valithor#5947")                             					// Set a footer without icon
-						->setURL("");                             												// Set the URL
-					
-					if ($playerlist != "None"){
-						$author_channel->send('', array('embed' => $embed))->done(null, function ($error){
-							echo "[ERROR] $error".PHP_EOL; //Echo any errors
-						});
-						$sent = true;
-					}
-					
-					$playerlist = " ";
-					$alias = "<byond://" . $servers[2]["alias"] . ":" . $servers[2]["port"] . ">";
-					$serverinfo2 = print_r($serverinfo[2], true); //json array
-					foreach ($serverinfo[2] as $varname => $varvalue){
-						if ( (substr($varname, 0, 6) == "player") && $varname != "players")
-						$playerlist = $playerlist . "$varvalue, ";
-					}
-					if (trim(substr($playerlist, 0, -2)) == ""){
-						$playerlist = "None";
-					}else{
-						$playerlist = trim(substr($playerlist, 0, -2));
-					}
-					//echo "image_path: " . $image_path . PHP_EOL;
-				//	Build the embed message
-					$embed = new \CharlotteDunois\Yasmin\Models\MessageEmbed();
-					$embed
-				//				->setTitle("$author_check")																// Set a title
-						->setColor("e1452d")																	// Set a color (the thing on the left side)
-						->setDescription("$alias\n" . $servers[2]["servername"])																// Set a description (below title, above fields)
-						->addField("Players (" . $serverinfo[2]["players"].")", urldecode($playerlist))												// New line after this
-						
-				//		->setThumbnail("$author_avatar")														// Set a thumbnail (the image in the top right corner)
-				//		->setImage('https://avatars1.githubusercontent.com/u/4529744?s=460&v=4')             	// Set an image (below everything except footer)
-				//		->setImage("$image_path")             													// Set an image (below everything except footer)
-						->setTimestamp()                                                                     	// Set a timestamp (gets shown next to footer)
-				//		->setAuthor("$author_check", "$author_guild_avatar")  									// Set an author with icon
-						->setFooter("Palace Bot by Valithor#5947")                             					// Set a footer without icon
-						->setURL("");                             												// Set the URL
-					
-					if ($playerlist != "None"){
-						$author_channel->send('', array('embed' => $embed))->done(null, function ($error){
-							echo "[ERROR] $error".PHP_EOL; //Echo any errors
-						});
-						$sent = true;
-					}
-					if ($sent == false){
-						$author_channel->send("No servers have any players!");
-					}
-					return true;
-					break;
-				case 'admins':
-					echo "[ADMINS] $author_check" . PHP_EOL;
-					include "../servers/getserverdata.php";
-					$x=0;
-					foreach ($serverinfo as $server){
-						$admins = $serverinfo[$x]["admins"] ?? "N/A";
-						$alias = "<byond://" . $servers[$x]["alias"] . ":$port>";
-						$servername = $servers[$x]["servername"] ?? "None";
+						$alias = "<byond://" . $servers[0]["alias"] . ":" . $servers[0]["port"] . ">";
+						$image_path = "http://www.valzargaming.com/servers/gamebanner.php?servernum=0&rand=" . rand(0,999999999);
 						//echo "image_path: " . $image_path . PHP_EOL;
 					//	Build the embed message
 						$embed = new \CharlotteDunois\Yasmin\Models\MessageEmbed();
 						$embed
-					//		->setTitle("$author_check")																// Set a title
+					//		->setTitle("$author_check")														// Set a title
 							->setColor("e1452d")																	// Set a color (the thing on the left side)
-							->setDescription($alias . "\n" . $servername )								// Set a description (below title, above fields)
-							->addField("Admins", $admins)															// New line after this
+							->setDescription("$alias"  . "\n" . $servers[0]["servername"] /*. "\nRound time: " . $rd[1] . "d " . $remainder . "h " . $rd[1] . "m" . "\n Host: ". $serverinfo[1]["host"] ." \nPlayers: " . $serverinfo[1]["players"]*/)									// Set a description (below title, above fields)
+					//		->addField("⠀", "$documentation")														// New line after this
 							
 					//		->setThumbnail("$author_avatar")														// Set a thumbnail (the image in the top right corner)
-					//		->setImage('https://avatars1.githubusercontent.com/u/4529744?s=460&v=4')             	// Set an image (below everything except footer)
-					//		->setImage("$image_path")             													// Set an image (below everything except footer)
+					//				->setImage('https://avatars1.githubusercontent.com/u/4529744?s=460&v=4')        // Set an image (below everything except footer)
+							->setImage("$image_path")             													// Set an image (below everything except footer)
 							->setTimestamp()                                                                     	// Set a timestamp (gets shown next to footer)
 					//		->setAuthor("$author_check", "$author_guild_avatar")  									// Set an author with icon
 							->setFooter("Palace Bot by Valithor#5947")                             					// Set a footer without icon
 							->setURL("");                             												// Set the URL
-						
+					//				Open a DM channel then send the rich embed message
+						/*
+						$author_user->createDM()->then(function($author_dmchannel) use ($message, $embed){	//Promise
+							echo 'SEND GENIMAGE EMBED' . PHP_EOL;
+							$author_dmchannel->send('', array('embed' => $embed))->done(null, function ($error){
+								echo "[ERROR] $error".PHP_EOL; //Echo any errors
+							});
+						});
+						*/
+						if($rt) $embed->addField("Round Time", $rt, true);
+						if ( ($serverinfo[0]["age"] != "unknown") && ($serverinfo[0]["age"] != NULL) ){
+							$embed->addField("Epoch", urldecode($serverinfo[0]["age"]), true);
+						}
+						if ( ($serverinfo[0]["season"] != "unknown") && ($serverinfo[0]["season"] != NULL) ){
+							$embed->addField("Season", urldecode($serverinfo[0]["season"]), true);
+						}
+						if ( ($serverinfo[0]["map"] != "unknown") && ($serverinfo[0]["map"] != NULL) ){
+							$embed->addField("Map", urldecode($serverinfo[0]["map"]), true);
+						}
 						$author_channel->send('', array('embed' => $embed))->done(null, function ($error){
 							echo "[ERROR] $error".PHP_EOL; //Echo any errors
 						});
+						$sent = true;
+				}
+				
+				if ($serverinfo[1]["age"]){ //We got data back for this server, so it must be online, right??
+					//Round duration info
+					$rd = explode (":",  urldecode($serverinfo[1]["roundduration"]) );
+					$remainder = ($rd[0] % 24);
+					$rd[0] = floor($rd[0] / 24);
+					if( ($rd[0] != 0) || ($remainder != 0) || ($rd[1] != 0) ){ //Round is starting
+						$rt = $rd[0] . "d " . $remainder . "h " . $rd[1] . "m";
+					}else{
+						$rt = "STARTING";
+					}
+						$alias = "<byond://" . $servers[1]["alias"] . ":" . $servers[1]["port"] . ">";
+						$image_path = "http://www.valzargaming.com/servers/gamebanner.php?servernum=1&rand=" . rand(0,999999999);
+						//echo "image_path: " . $image_path . PHP_EOL;
+					//	Build the embed message
+						$embed = new \CharlotteDunois\Yasmin\Models\MessageEmbed();
+						$embed
+					//		->setTitle("$author_check")														// Set a title
+							->setColor("e1452d")																	// Set a color (the thing on the left side)
+							->setDescription("$alias" . "\n" . $servers[1]["servername"] /*. "\nRound time: " . $rd[1] . "d " . $remainder . "h " . $rd[1] . "m" . "\n Host: ". $serverinfo[1]["host"] ." \nPlayers: " . $serverinfo[1]["players"]*/)									// Set a description (below title, above fields)
+					//		->addField("⠀", "$documentation")														// New line after this
+							
+					//		->setThumbnail("$author_avatar")														// Set a thumbnail (the image in the top right corner)
+					//				->setImage('https://avatars1.githubusercontent.com/u/4529744?s=460&v=4')        // Set an image (below everything except footer)
+							->setImage("$image_path")             													// Set an image (below everything except footer)
+							->setTimestamp()                                                                     	// Set a timestamp (gets shown next to footer)
+					//		->setAuthor("$author_check", "$author_guild_avatar")  									// Set an author with icon
+							->setFooter("Palace Bot by Valithor#5947")                             					// Set a footer without icon
+							->setURL("");                             												// Set the URL
+					//				Open a DM channel then send the rich embed message
+						/*
+						$author_user->createDM()->then(function($author_dmchannel) use ($message, $embed){	//Promise
+							echo 'SEND GENIMAGE EMBED' . PHP_EOL;
+							$author_dmchannel->send('', array('embed' => $embed))->done(null, function ($error){
+								echo "[ERROR] $error".PHP_EOL; //Echo any errors
+							});
+						});
+						*/
+						if($rt) $embed->addField("Round Time", $rt, true);
+						if ( ($serverinfo[1]["age"] != "unknown") && ($serverinfo[1]["age"] != NULL) ){
+							$embed->addField("Epoch", urldecode($serverinfo[1]["age"]), true);
+						}
+						if ( ($serverinfo[1]["season"] != "unknown") && ($serverinfo[1]["season"] != NULL) ){
+							$embed->addField("Season", urldecode($serverinfo[1]["season"]), true);
+						}
+						if ( ($serverinfo[1]["map"] != "unknown") && ($serverinfo[1]["map"] != NULL) ){
+							$embed->addField("Map", urldecode($serverinfo[1]["map"]), true);
+						}
+						$author_channel->send('', array('embed' => $embed))->done(null, function ($error){
+							echo "[ERROR] $error".PHP_EOL; //Echo any errors
+						});
+						$sent = true;
+				}
+				if ($serverinfo[2]["age"]){ //We got data back for this server, so it must be online, right??
+					//Round duration info
+					$rd = explode (":",  urldecode($serverinfo[2]["roundduration"]) );
+					$remainder = ($rd[0] % 24);
+					$rd[0] = floor($rd[0] / 24);
+					if( ($rd[0] != 0) || ($remainder != 0) || ($rd[1] != 0) ){ //Round is starting
+						$rt = $rd[0] . "d " . $remainder . "h " . $rd[1] . "m";
+					}else{
+						$rt = "STARTING";
+					}
+						$alias = "<byond://" . $servers[2]["alias"] . ":" . $servers[2]["port"] . ">";
+						$image_path = "http://www.valzargaming.com/servers/gamebanner.php?servernum=2&rand=" . rand(0,999999999);
+						//echo "image_path: " . $image_path . PHP_EOL;
+					//	Build the embed message
+						$embed = new \CharlotteDunois\Yasmin\Models\MessageEmbed();
+						$embed
+					//		->setTitle("$author_check")														// Set a title
+							->setColor("e1452d")																	// Set a color (the thing on the left side)
+							->setDescription("$alias"  . "\n" . $servers[2]["servername"] /*. "\nRound time: " . $rd[1] . "d " . $remainder . "h " . $rd[1] . "m" . "\n Host: ". $serverinfo[1]["host"] ." \nPlayers: " . $serverinfo[1]["players"]*/)									// Set a description (below title, above fields)
+					//		->addField("⠀", "$documentation")														// New line after this
+							
+					//		->setThumbnail("$author_avatar")														// Set a thumbnail (the image in the top right corner)
+					//				->setImage('https://avatars1.githubusercontent.com/u/4529744?s=460&v=4')        // Set an image (below everything except footer)
+							->setImage("$image_path")             													// Set an image (below everything except footer)
+							->setTimestamp()                                                                     	// Set a timestamp (gets shown next to footer)
+					//		->setAuthor("$author_check", "$author_guild_avatar")  									// Set an author with icon
+							->setFooter("Palace Bot by Valithor#5947")                             					// Set a footer without icon
+							->setURL("");                             												// Set the URL
+					//				Open a DM channel then send the rich embed message
+						/*
+						$author_user->createDM()->then(function($author_dmchannel) use ($message, $embed){	//Promise
+							echo 'SEND GENIMAGE EMBED' . PHP_EOL;
+							$author_dmchannel->send('', array('embed' => $embed))->done(null, function ($error){
+								echo "[ERROR] $error".PHP_EOL; //Echo any errors
+							});
+						});
+						*/
+						if($rt) $embed->addField("Round Time", $rt, true);
+						if ( ($serverinfo[2]["age"] != "unknown") && ($serverinfo[2]["age"] != NULL) ){
+							$embed->addField("Epoch", urldecode($serverinfo[2]["age"]), true);
+						}
+						if ( ($serverinfo[2]["season"] != "unknown") && ($serverinfo[2]["season"] != NULL) ){
+							$embed->addField("Season", urldecode($serverinfo[2]["season"]), true);
+						}
+						if ( ($serverinfo[2]["map"] != "unknown") && ($serverinfo[2]["map"] != NULL) ){
+							$embed->addField("Map", urldecode($serverinfo[2]["map"]), true);
+						}
+						$author_channel->send('', array('embed' => $embed))->done(null, function ($error){
+							echo "[ERROR] $error".PHP_EOL; //Echo any errors
+						});
+						$sent = true;
+				}
+				return true;
+				break;
+			case "serverstate":
+				//Sends a message containing data for each server we host as collected from serverinfo.json
+				//This method does not have to be called locally, so it can be moved to VZG Verifier
+				echo "[SERVER STATE] $author_check" . PHP_EOL;
+				$data = array();
+				//get json from website
+				$ch = curl_init(); //create curl resource
+				curl_setopt($ch, CURLOPT_URL, "http://www.valzargaming.com/servers/serverinfo.json"); // set url
+				curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1); //return the transfer as a string
+				curl_setopt($ch, CURLOPT_POST, false);
+				$ch_data = curl_exec($ch);
+				curl_close($ch);
+				
+				$data_json = json_decode($ch_data, true); //iterable with $data_json["key"]
+				$desc_string_array = array();
+				$desc_string = "";
+				foreach ($data_json as $varname => $varvalue){ //individual servers
+					echo strlen($desc_string) . PHP_EOL;
+					if(is_array($varvalue)){
+						//$varvalue = json_encode($varvalue);
+						foreach ($varvalue as $varname2 => $varvalue2){ //invalid
+							$varvalue2 = json_encode($varvalue2);
+							$desc_string = $desc_string . $varname2 . ": " . urldecode($varvalue2) . "\n";
+						}
+					}else{
+						$desc_string = $desc_string . $varname . ": " . urldecode($varvalue) . "\n";
+					}
+					$desc_string_array[] = $desc_string ?? "null";
+					$desc_string = "";
+				}
+				/*
+				
+				*/
+				
+				$server_index[] = "Persistence" . PHP_EOL;
+				$server_index[] = "TDM" . PHP_EOL;
+				$server_index[] = "Nomads" . PHP_EOL;
+				$x=0;
+				foreach ($desc_string_array as $output_string){
+					if ($output_string != "" && $output_string != NULL){
+						//Build the embed message
+						if (strlen($output_string) <= 2042){
+							$embed = new \CharlotteDunois\Yasmin\Models\MessageEmbed();
+							$embed
+								//->setTitle("$author_check")															// Set a title
+								->setColor("e1452d")																	// Set a color (the thing on the left side)
+								->setDescription($server_index[$x] . "```$output_string```")												// Set a description (below title, above fields)
+								//->addField("Players (" . $serverinfo[0]["players"].")", urldecode($playerlist))		// New line after this
+								
+								//->setThumbnail("$author_avatar")														// Set a thumbnail (the image in the top right corner)
+								//->setImage('https://avatars1.githubusercontent.com/u/4529744?s=460&v=4')             	// Set an image (below everything except footer)
+								//->setImage("$image_path")             												// Set an image (below everything except footer)
+								->setTimestamp()                                                                     	// Set a timestamp (gets shown next to footer)
+								//->setAuthor("$author_check", "$author_avatar")  								// Set an author with icon
+								->setFooter("Palace Bot by Valithor#5947")                             					// Set a footer without icon
+								->setURL("");
+							$message->channel->send('', array('embed' => $embed))->done(null, function ($error){
+								echo "[ERROR] $error".PHP_EOL; //Echo any errors
+							});
+						}else{
+							$author_channel->send($server_index[$x] . "```$output_string```")->done(null, function ($error){
+								echo "[ERROR] $error".PHP_EOL; //Echo any errors
+							});
+						}
 						$x++;
 					}
-					return true;
-					break;
-			}
-		}	
+				}
+				return true;
+				break;
+			case "players":
+				echo "[PLAYERS] $author_check" . PHP_EOL;
+				include "../servers/getserverdata.php";
+				
+				$playerlist = " ";
+				$alias = "<byond://" . $servers[0]["alias"] . ":" . $servers[0]["port"] . ">";
+				$serverinfo0 = print_r($serverinfo[0], true); //json array
+				foreach ($serverinfo[0] as $varname => $varvalue){
+					if ( (substr($varname, 0, 6) == "player") && $varname != "players")
+					$playerlist = $playerlist . "$varvalue, ";
+				}
+				if (trim(substr($playerlist, 0, -2)) == ""){
+					$playerlist = "None";
+				}else{
+					$playerlist = trim(substr($playerlist, 0, -2));
+				}
+				//echo "image_path: " . $image_path . PHP_EOL;
+				//$image_path = "http://www.valzargaming.com/servers/gamebanner.php?servernum=0";
+			//	Build the embed message
+				$embed = new \CharlotteDunois\Yasmin\Models\MessageEmbed();
+				$embed
+			//				->setTitle("$author_check")																// Set a title
+					->setColor("e1452d")																	// Set a color (the thing on the left side)
+					->setDescription("$alias\n" . $servers[0]["servername"])																// Set a description (below title, above fields)
+					->addField("Players (" . $serverinfo[0]["players"].")", urldecode($playerlist))												// New line after this
+					
+			//		->setThumbnail("$author_avatar")														// Set a thumbnail (the image in the top right corner)
+			//		->setImage('https://avatars1.githubusercontent.com/u/4529744?s=460&v=4')             	// Set an image (below everything except footer)
+			//		->setImage("$image_path")             													// Set an image (below everything except footer)
+					->setTimestamp()                                                                     	// Set a timestamp (gets shown next to footer)
+			//		->setAuthor("$author_check", "$author_guild_avatar")  									// Set an author with icon
+					->setFooter("Palace Bot by Valithor#5947")                             					// Set a footer without icon
+					->setURL("");                             												// Set the URL
+				
+				if ($playerlist != "None"){
+					$author_channel->send('', array('embed' => $embed))->done(null, function ($error){
+						echo "[ERROR] $error".PHP_EOL; //Echo any errors
+					});
+					$sent = true;
+				}
+				
+				$playerlist = " ";
+				$alias = "<byond://" . $servers[1]["alias"] . ":" . $servers[1]["port"] . ">";
+				$serverinfo1 = print_r($serverinfo[1], true); //json array
+				foreach ($serverinfo[1] as $varname => $varvalue){
+					if ( (substr($varname, 0, 6) == "player") && $varname != "players")
+					$playerlist = $playerlist . "$varvalue, ";
+				}
+				if (trim(substr($playerlist, 0, -2)) == ""){
+					$playerlist = "None";
+				}else{
+					$playerlist = trim(substr($playerlist, 0, -2));
+				}
+				//echo "image_path: " . $image_path . PHP_EOL;
+			//	Build the embed message
+				$embed = new \CharlotteDunois\Yasmin\Models\MessageEmbed();
+				$embed
+			//				->setTitle("$author_check")																// Set a title
+					->setColor("e1452d")																	// Set a color (the thing on the left side)
+					->setDescription("$alias\n" . $servers[1]["servername"])																// Set a description (below title, above fields)
+					->addField("Players (" . $serverinfo[1]["players"].")", urldecode($playerlist))												// New line after this
+					
+			//		->setThumbnail("$author_avatar")														// Set a thumbnail (the image in the top right corner)
+			//		->setImage('https://avatars1.githubusercontent.com/u/4529744?s=460&v=4')             	// Set an image (below everything except footer)
+			//		->setImage("$image_path")             													// Set an image (below everything except footer)
+					->setTimestamp()                                                                     	// Set a timestamp (gets shown next to footer)
+			//		->setAuthor("$author_check", "$author_guild_avatar")  									// Set an author with icon
+					->setFooter("Palace Bot by Valithor#5947")                             					// Set a footer without icon
+					->setURL("");                             												// Set the URL
+				
+				if ($playerlist != "None"){
+					$author_channel->send('', array('embed' => $embed))->done(null, function ($error){
+						echo "[ERROR] $error".PHP_EOL; //Echo any errors
+					});
+					$sent = true;
+				}
+				
+				$playerlist = " ";
+				$alias = "<byond://" . $servers[2]["alias"] . ":" . $servers[2]["port"] . ">";
+				$serverinfo2 = print_r($serverinfo[2], true); //json array
+				foreach ($serverinfo[2] as $varname => $varvalue){
+					if ( (substr($varname, 0, 6) == "player") && $varname != "players")
+					$playerlist = $playerlist . "$varvalue, ";
+				}
+				if (trim(substr($playerlist, 0, -2)) == ""){
+					$playerlist = "None";
+				}else{
+					$playerlist = trim(substr($playerlist, 0, -2));
+				}
+				//echo "image_path: " . $image_path . PHP_EOL;
+			//	Build the embed message
+				$embed = new \CharlotteDunois\Yasmin\Models\MessageEmbed();
+				$embed
+			//				->setTitle("$author_check")																// Set a title
+					->setColor("e1452d")																	// Set a color (the thing on the left side)
+					->setDescription("$alias\n" . $servers[2]["servername"])																// Set a description (below title, above fields)
+					->addField("Players (" . $serverinfo[2]["players"].")", urldecode($playerlist))												// New line after this
+					
+			//		->setThumbnail("$author_avatar")														// Set a thumbnail (the image in the top right corner)
+			//		->setImage('https://avatars1.githubusercontent.com/u/4529744?s=460&v=4')             	// Set an image (below everything except footer)
+			//		->setImage("$image_path")             													// Set an image (below everything except footer)
+					->setTimestamp()                                                                     	// Set a timestamp (gets shown next to footer)
+			//		->setAuthor("$author_check", "$author_guild_avatar")  									// Set an author with icon
+					->setFooter("Palace Bot by Valithor#5947")                             					// Set a footer without icon
+					->setURL("");                             												// Set the URL
+				
+				if ($playerlist != "None"){
+					$author_channel->send('', array('embed' => $embed))->done(null, function ($error){
+						echo "[ERROR] $error".PHP_EOL; //Echo any errors
+					});
+					$sent = true;
+				}
+				if ($sent == false){
+					$author_channel->send("No servers have any players!");
+				}
+				return true;
+				break;
+			case 'admins':
+				echo "[ADMINS] $author_check" . PHP_EOL;
+				include "../servers/getserverdata.php";
+				$x=0;
+				foreach ($serverinfo as $server){
+					$admins = $serverinfo[$x]["admins"] ?? "N/A";
+					$alias = "<byond://" . $servers[$x]["alias"] . ":$port>";
+					$servername = $servers[$x]["servername"] ?? "None";
+					//echo "image_path: " . $image_path . PHP_EOL;
+				//	Build the embed message
+					$embed = new \CharlotteDunois\Yasmin\Models\MessageEmbed();
+					$embed
+				//		->setTitle("$author_check")																// Set a title
+						->setColor("e1452d")																	// Set a color (the thing on the left side)
+						->setDescription($alias . "\n" . $servername )								// Set a description (below title, above fields)
+						->addField("Admins", $admins)															// New line after this
+						
+				//		->setThumbnail("$author_avatar")														// Set a thumbnail (the image in the top right corner)
+				//		->setImage('https://avatars1.githubusercontent.com/u/4529744?s=460&v=4')             	// Set an image (below everything except footer)
+				//		->setImage("$image_path")             													// Set an image (below everything except footer)
+						->setTimestamp()                                                                     	// Set a timestamp (gets shown next to footer)
+				//		->setAuthor("$author_check", "$author_guild_avatar")  									// Set an author with icon
+						->setFooter("Palace Bot by Valithor#5947")                             					// Set a footer without icon
+						->setURL("");                             												// Set the URL
+					
+					$author_channel->send('', array('embed' => $embed))->done(null, function ($error){
+						echo "[ERROR] $error".PHP_EOL; //Echo any errors
+					});
+					$x++;
+				}
+				return true;
+				break;
+		}
+	
 		if ($creator || $owner || $dev || $tech || $assistant) {
 			switch($message_content_lower){
 				case 'resume': //;resume
@@ -4031,6 +3604,311 @@ GLOBAL $customroles, $customroles_message_text;
 	*/
 
 	if ($creator || $owner || $dev || $admin || $mod){ //Only allow these roles to use this
+		if (substr($message_content_lower, 0, 5) == 'kick '){ //;kick
+			echo "[KICK]" . PHP_EOL;
+	//		Get an array of people mentioned
+			$mentions_arr 												= $message->mentions->users; 									//echo "mentions_arr: " . PHP_EOL; var_dump ($mentions_arr); //Shows the collection object
+			if (!strpos($message_content_lower, "<")){ //String doesn't contain a mention
+				$filter = "kick ";
+				$value = str_replace($filter, "", $message_content_lower);
+				$value = str_replace("<@!", "", $value); $value = str_replace("<@", "", $value);
+				$value = str_replace(">", "", $value);//echo "value: " . $value . PHP_EOL;
+				if(is_numeric($value)){
+					$mention_member				= $author_guild->members->get($value);
+					$mention_user				= $mention_member->user;
+					$mentions_arr				= array($mention_user);
+				}else return $message->reply("Invalid input! Please enter a valid ID or @mention the user");
+				if ($mention_member == NULL) return $message->reply("Invalid input! Please enter an ID or @mention the user");
+			}
+			foreach ( $mentions_arr as $mention_param ){
+				$mention_param_encode 									= json_encode($mention_param); 									//echo "mention_param_encode: " . $mention_param_encode . PHP_EOL;
+				$mention_json 											= json_decode($mention_param_encode, true); 					//echo "mention_json: " . PHP_EOL; var_dump($mention_json);
+				$mention_id 											= $mention_json['id']; 											//echo "mention_id: " . $mention_id . PHP_EOL; //Just the discord ID
+				$mention_discriminator 									= $mention_json['discriminator']; 								//echo "mention_id: " . $mention_id . PHP_EOL; //Just the discord ID
+				$mention_username 										= $mention_json['username']; 									//echo "mention_username: " . $mention_username . PHP_EOL; //Just the discord ID
+				$mention_check 											= $mention_username ."#".$mention_discriminator;
+				
+				
+				if ($author_id != $mention_id){ //Don't let anyone kick themselves
+					//Get the roles of the mentioned user
+					$target_guildmember 								= $message->guild->members->get($mention_id); 	//This is a GuildMember object
+					$target_guildmember_role_collection 				= $target_guildmember->roles;					//This is the Role object for the GuildMember
+					
+		//  				Get the avatar URL of the mentioned user
+		//					$target_guildmember_user							= $target_guildmember->user;									//echo "member_class: " . get_class($target_guildmember_user) . PHP_EOL;
+		//					$mention_avatar 									= "{$target_guildmember_user->getAvatarURL()}";					//echo "mention_avatar: " . $mention_avatar . PHP_EOL;				//echo "target_guildmember_role_collection: " . (count($target_guildmember_role_collection)-1);
+					
+		//  				Populate arrays of the info we need
+		//  				$target_guildmember_roles_names 					= array();
+					$x=0;
+					$target_dev = false;
+					$target_owner = false;
+					$target_admin = false;
+					$target_mod = false;
+					$target_vzgbot = false;
+					$target_guildmember_roles_ids = array();
+					foreach ($target_guildmember_role_collection as $role){
+						if ($x!=0){ //0 is @everyone so skip it
+							$target_guildmember_roles_ids[] 						= $role->id; 													//echo "role[$x] id: " . PHP_EOL; //var_dump($role->id);
+							if ($role->id == $role_18_id)		$target_adult 		= true;							//Author has the 18+ role
+							if ($role->id == $role_dev_id)    	$target_dev 		= true;							//Author has the dev role
+							if ($role->id == $role_owner_id)    $target_owner	 	= true;							//Author has the owner role
+							if ($role->id == $role_admin_id)	$target_admin 		= true;							//Author has the admin role
+							if ($role->id == $role_mod_id)		$target_mod 		= true;							//Author has the mod role
+							if ($role->id == $role_verified_id)	$target_verified 	= true;							//Author has the verified role
+							if ($role->id == $role_bot_id)		$target_bot 		= true;							//Author has the bot role
+							if ($role->id == $role_vzgbot_id)	$target_vzgbot 		= true;							//Author is this bot
+							if ($role->id == $role_muted_id)	$target_muted 		= true;							//Author is this bot
+						}
+						$x++;
+					}
+					if( (!$target_dev && !$target_owner && !$target_admin && !$target_mod && !$target_vzg) || ($creator || $owner || $dev)){ //Guild owner and bot creator can kick anyone
+						if ($mention_id == $creator_id) return true; //Don't kick the creator
+						//Build the string to log
+						$filter = "kick <@!$mention_id>";
+						$warndate = date("m/d/Y");
+						$reason = "**🥾Kicked:** <@$mention_id>
+						**🗓️Date:** $warndate
+						**📝Reason:** " . str_replace($filter, "", $message_content);
+						//Kick the user
+						$target_guildmember->kick($reason)->done(null, function ($error){
+							echo "[ERROR] $error".PHP_EOL; //Echo any errors
+						});
+						if($react) $message->react("🥾"); //Boot
+						//Build the embed message
+						$embed = new \CharlotteDunois\Yasmin\Models\MessageEmbed();
+						$embed
+		//							->setTitle("Commands")																	// Set a title
+							->setColor("e1452d")																	// Set a color (the thing on the left side)
+							->setDescription("$reason")																// Set a description (below title, above fields)
+		//							->addField("⠀", "$reason")																// New line after this
+							
+		//							->setThumbnail("$author_avatar")														// Set a thumbnail (the image in the top right corner)
+		//							->setImage('https://avatars1.githubusercontent.com/u/4529744?s=460&v=4')             	// Set an image (below everything except footer)
+							->setTimestamp()                                                                     	// Set a timestamp (gets shown next to footer)
+							->setAuthor("$author_check ($author_id)", "$author_avatar")  									// Set an author with icon
+							->setFooter("Palace Bot by Valithor#5947")                             					// Set a footer without icon
+							->setURL("");                             												// Set the URL
+		//						Send the message
+						if($modlog_channel)$modlog_channel->send('', array('embed' => $embed))->done(null, function ($error){
+							echo "[ERROR] $error".PHP_EOL; //Echo any errors
+						});
+						return true;
+					}else{//Target is not allowed to be kicked
+						$author_channel->send("<@$mention_id> cannot be kicked because of their roles!");
+						return true;
+					}
+				}else{
+					if($react) $message->react("👎");
+					$author_channel->send("<@$author_id>, you can't kick yourself!");
+					return true;
+				}
+			} //foreach method didn't return, so nobody was mentioned
+			if($react) $message->react("👎");
+			$author_channel->send("<@$author_id>, you need to mention someone!");
+			return true;
+		}
+		if (substr($message_content_lower, 0, 5) == 'mute '){ //;mute
+			echo "[MUTE]" . PHP_EOL;
+	//			Get an array of people mentioned
+			$mentions_arr 												= $message->mentions->users;
+			if (!strpos($message_content_lower, "<")){ //String doesn't contain a mention
+				$filter = "mute ";
+				$value = str_replace($filter, "", $message_content_lower);
+				$value = str_replace("<@!", "", $value); $value = str_replace("<@", "", $value);
+				$value = str_replace(">", "", $value);//echo "value: " . $value . PHP_EOL;
+				if(is_numeric($value)){
+					$mention_member				= $author_guild->members->get($value);
+					$mention_user				= $mention_member->user;
+					$mentions_arr				= array($mention_user);
+				}else return $message->reply("Invalid input! Please enter a valid ID or @mention the user");
+				if ($mention_member == NULL) return $message->reply("Invalid input! Please enter an ID or @mention the user");
+			}
+			foreach ( $mentions_arr as $mention_param ){
+				$mention_param_encode 									= json_encode($mention_param); 									//echo "mention_param_encode: " . $mention_param_encode . PHP_EOL;
+				$mention_json 											= json_decode($mention_param_encode, true); 					//echo "mention_json: " . PHP_EOL; var_dump($mention_json);
+				$mention_id 											= $mention_json['id']; 											//echo "mention_id: " . $mention_id . PHP_EOL; //Just the discord ID
+				$mention_discriminator 									= $mention_json['discriminator']; 								//echo "mention_id: " . $mention_id . PHP_EOL; //Just the discord ID
+				$mention_username 										= $mention_json['username']; 									//echo "mention_username: " . $mention_username . PHP_EOL; //Just the discord ID
+				$mention_check 											= $mention_username ."#".$mention_discriminator;
+				
+				
+				if ($author_id != $mention_id){ //Don't let anyone mute themselves
+					//Get the roles of the mentioned user
+					$target_guildmember 								= $message->guild->members->get($mention_id); 	//This is a GuildMember object
+					$target_guildmember_role_collection 				= $target_guildmember->roles;					//This is the Role object for the GuildMember
+					
+	//  			Populate arrays of the info we need
+	//	    		$target_guildmember_roles_names 					= array();
+					$x=0;
+					$target_dev = false;
+					$target_owner = false;
+					$target_admin = false;
+					$target_mod = false;
+					$target_vzgbot = false;
+					$target_guildmember_roles_ids = array();
+					$removed_roles = array();
+					foreach ($target_guildmember_role_collection as $role){
+						if ($x!=0){ //0 is @everyone so skip it
+							$removed_roles[] = $role->id;
+							$target_guildmember_roles_ids[] 						= $role->id; 													//echo "role[$x] id: " . PHP_EOL; //var_dump($role->id);
+							if ($role->id == $role_dev_id)    	$target_dev 		= true;							//Author has the dev role
+							if ($role->id == $role_owner_id)    $target_owner	 	= true;							//Author has the owner role
+							if ($role->id == $role_admin_id)	$target_admin 		= true;							//Author has the admin role
+							if ($role->id == $role_mod_id)		$target_mod 		= true;							//Author has the mod role
+							if ($role->id == $role_vzgbot_id)	$target_vzgbot 		= true;							//Author is this bot
+						}
+						$x++;
+					}
+					if( (!$target_dev && !$target_owner && !$target_admin && !$target_mod && !$target_vzg) || ($creator || $owner || $dev)){ //Guild owner and bot creator can mute anyone
+						if ($mention_id == $creator_id) return true; //Don't mute the creator
+						//Save current roles in a file for the user
+						VarSave($guild_folder."/".$mention_id, "removed_roles.php", $removed_roles);
+						//Build the string to log
+						$filter = "mute <@!$mention_id>";
+						$warndate = date("m/d/Y");
+						$reason = "**🥾Muted:** <@$mention_id>
+						**🗓️Date:** $warndate
+						**📝Reason:** " . str_replace($filter, "", $message_content);
+						//Remove all roles and add the muted role (TODO: REMOVE ALL ROLES AND RE-ADD THEM UPON BEING UNMUTED)
+						foreach ($removed_roles as $role){
+							$target_guildmember->removeRole($role);
+						}
+						if($role_muted_id) $target_guildmember->addRole($role_muted_id);
+						if($react) $message->react("🤐");
+						//Build the embed message
+						$embed = new \CharlotteDunois\Yasmin\Models\MessageEmbed();
+						$embed
+	//							->setTitle("Commands")																	// Set a title
+							->setColor("e1452d")																	// Set a color (the thing on the left side)
+							->setDescription("$reason")																// Set a description (below title, above fields)
+	//							->addField("⠀", "$reason")																// New line after this
+							
+	//							->setThumbnail("$author_avatar")														// Set a thumbnail (the image in the top right corner)
+	//							->setImage('https://avatars1.githubusercontent.com/u/4529744?s=460&v=4')             	// Set an image (below everything except footer)
+							->setTimestamp()                                                                     	// Set a timestamp (gets shown next to footer)
+							->setAuthor("$author_check ($author_id)", "$author_avatar")  									// Set an author with icon
+							->setFooter("Palace Bot by Valithor#5947")                             					// Set a footer without icon
+							->setURL("");                             												// Set the URL
+	//						Send the message
+						if($modlog_channel)$modlog_channel->send('', array('embed' => $embed))->done(null, function ($error){
+							echo "[ERROR] $error".PHP_EOL; //Echo any errors
+						});
+						return true;
+					}else{//Target is not allowed to be muted
+						$author_channel->send("<@$mention_id> cannot be muted because of their roles!");
+						return true;
+					}
+				}else{
+					if($react) $message->react("👎");
+					$author_channel->send("<@$author_id>, you can't mute yourself!");
+					return true;
+				}
+			} //foreach method didn't return, so nobody was mentioned
+			if($react) $message->react("👎");
+			$author_channel->send("<@$author_id>, you need to mention someone!");
+			return true;
+		}
+		if (substr($message_content_lower, 0, 7) == 'unmute '){ //;unmute
+			echo "[UNMUTE]" . PHP_EOL;
+	//			Get an array of people mentioned
+			$mentions_arr 												= $message->mentions->users; 									//echo "mentions_arr: " . PHP_EOL; var_dump ($mentions_arr); //Shows the collection object
+			if (!strpos($message_content_lower, "<")){ //String doesn't contain a mention
+				$filter = "unmute ";
+				$value = str_replace($filter, "", $message_content_lower);
+				$value = str_replace("<@!", "", $value); $value = str_replace("<@", "", $value);
+				$value = str_replace(">", "", $value);//echo "value: " . $value . PHP_EOL;
+				if(is_numeric($value)){
+					$mention_member				= $author_guild->members->get($value);
+					$mention_user				= $mention_member->user;
+					$mentions_arr				= array($mention_user);
+				}else return $message->reply("Invalid input! Please enter a valid ID or @mention the user");
+				if ($mention_member == NULL) return $message->reply("Invalid input! Please enter an ID or @mention the user");
+			}
+			foreach ( $mentions_arr as $mention_param ){
+				$mention_param_encode 									= json_encode($mention_param); 									//echo "mention_param_encode: " . $mention_param_encode . PHP_EOL;
+				$mention_json 											= json_decode($mention_param_encode, true); 					//echo "mention_json: " . PHP_EOL; var_dump($mention_json);
+				$mention_id 											= $mention_json['id']; 											//echo "mention_id: " . $mention_id . PHP_EOL; //Just the discord ID
+				$mention_discriminator 									= $mention_json['discriminator']; 								//echo "mention_id: " . $mention_id . PHP_EOL; //Just the discord ID
+				$mention_username 										= $mention_json['username']; 									//echo "mention_username: " . $mention_username . PHP_EOL; //Just the discord ID
+				$mention_check 											= $mention_username ."#".$mention_discriminator;
+				
+				
+				if ($author_id != $mention_id){ //Don't let anyone mute themselves
+					//Get the roles of the mentioned user
+					$target_guildmember 								= $message->guild->members->get($mention_id);
+					$target_guildmember_role_collection 				= $target_guildmember->roles;
+
+	//				Get the roles of the mentioned user
+					$target_dev = false;
+					$target_owner = false;
+					$target_admin = false;
+					$target_mod = false;
+					$target_vzgbot = false;
+	//				Populate arrays of the info we need
+					$target_guildmember_roles_ids = array();
+					$x=0;
+					foreach ($target_guildmember_role_collection as $role){
+						if ($x!=0){ //0 is @everyone so skip it
+							$target_guildmember_roles_ids[] 						= $role->id; 													//echo "role[$x] id: " . PHP_EOL; //var_dump($role->id);
+							if ($role->id == $role_dev_id)    	$target_dev 		= true;							//Author has the dev role
+							if ($role->id == $role_owner_id)    $target_owner	 	= true;							//Author has the owner role
+							if ($role->id == $role_admin_id)	$target_admin 		= true;							//Author has the admin role
+							if ($role->id == $role_mod_id)		$target_mod 		= true;							//Author has the mod role
+							if ($role->id == $role_vzgbot_id)	$target_vzgbot 		= true;							//Author is this bot
+							if ($role->name == "Palace Bot")	$target_vzgbot 		= true;							//Author is this bot
+						}
+						$x++;
+					}
+					if( (!$target_dev && !$target_owner && !$target_admin && !$target_mod && !$target_vzg) || ($creator || $owner || $dev)){
+						if ($mention_id == $creator_id) return true; //Don't mute the creator
+						//Build the string to log
+						$filter = "unmute <@!$mention_id>";
+						$warndate = date("m/d/Y");
+						$reason = "**🥾Unmuted:** <@$mention_id>
+						**🗓️Date:** $warndate
+						**📝Reason:** " . str_replace($filter, "", $message_content);
+						//Unmute the user and readd the verified role (TODO: READD REMOVED ROLES)
+						//Save current roles in a file for the user
+						$removed_roles = VarLoad($guild_folder."/".$mention_id, "removed_roles.php");
+						foreach ($removed_roles as $role){
+							$target_guildmember->addRole($role);
+						}
+						if($role_muted_id) $target_guildmember->removeRole($role_muted_id);
+						if($react) $message->react("😩");
+						//Build the embed message
+						$embed = new \CharlotteDunois\Yasmin\Models\MessageEmbed();
+						$embed
+	//							->setTitle("Commands")																	// Set a title
+							->setColor("e1452d")																	// Set a color (the thing on the left side)
+							->setDescription("$reason")																// Set a description (below title, above fields)
+	//							->addField("⠀", "$reason")																// New line after this
+							
+	//							->setThumbnail("$author_avatar")														// Set a thumbnail (the image in the top right corner)
+	//							->setImage('https://avatars1.githubusercontent.com/u/4529744?s=460&v=4')             	// Set an image (below everything except footer)
+							->setTimestamp()                                                                     	// Set a timestamp (gets shown next to footer)
+							->setAuthor("$author_check ($author_id)", "$author_avatar")  							// Set an author with icon
+							->setFooter("Palace Bot by Valithor#5947")                             					// Set a footer without icon
+							->setURL("");                             												// Set the URL
+	//						Send the message
+						if($modlog_channel)$modlog_channel->send('', array('embed' => $embed))->done(null, function ($error){
+							echo "[ERROR] $error".PHP_EOL; //Echo any errors
+						});
+						return true;
+					}else{//Target is not allowed to be unmuted
+						$author_channel->send("<@$mention_id> cannot be unmuted because of their roles!");
+						return true;
+					}
+				}else{
+					if($react) $message->react("👎");
+					$author_channel->send("<@$author_id>, you can't mute yourself!");
+					return true;
+				}
+			} //foreach method didn't return, so nobody was mentioned
+			if($react) $message->react("👎");
+			$author_channel->send("<@$author_id>, you need to mention someone!");
+			return true;
+		}
 		if ( (substr($message_content_lower, 0, 2) == 'v ') || (substr(($message_content), 0, 7) == 'verify ') ){ //Verify ;v ;verify
 			if ( ($role_verified_id != "") || ($role_verified_id != NULL) ){ //This command only works if the Verified Role is setup
 				echo "[VERIFY] $author_check" . PHP_EOL;
@@ -4713,75 +4591,192 @@ GLOBAL $customroles, $customroles_message_text;
 			}
 		}
 	}
-
-	if ($creator || $owner || $dev || $admin)
-	if (substr($message_content_lower, 0, 17) == 'removeinfraction '){ //;removeinfractions @mention #
-		echo "[REMOVE INFRACTION] $author_check" . PHP_EOL;
-	//	Get an array of people mentioned
-		$mentions_arr 													= $message->mentions->users; 									//echo "mentions_arr: " . PHP_EOL; var_dump ($mentions_arr); //Shows the collection object
-		
-		
-		$filter = "removeinfraction ";
-		$value = str_replace($filter, "", $message_content_lower);
-		$value = str_replace("<@!", "", $value); $value = str_replace("<@", "", $value); $value = str_replace("<@", "", $value); $value = str_replace(">", "", $value);
-		
-			
-		if(is_numeric($value)){
-			$mention_member				= $author_guild->members->get($value);
-			$mention_user				= $mention_member->user;
-			$mentions_arr				= array($mention_user);
-		}else return $message->reply("Invalid input! Please enter a valid ID or @mention the user");
-		if ($mention_member == NULL) return $message->reply("Invalid input! Please enter an ID or @mention the user");
-		
-		$x = 0;
-		foreach ( $mentions_arr as $mention_param ){																				//echo "mention_param: " . PHP_EOL; var_dump ($mention_param);
-			if ($x == 0){ //We only want the first person mentioned
-	//			id, username, discriminator, bot, avatar, email, mfaEnabled, verified, webhook, createdTimestamp
+	if ($creator || $owner || $dev || $admin){
+		if (substr($message_content_lower, 0, 4) == 'ban '){ //;ban
+			echo "[BAN]" . PHP_EOL;
+		//			Get an array of people mentioned
+			$mentions_arr 												= $message->mentions->users; 									//echo "mentions_arr: " . PHP_EOL; var_dump ($mentions_arr); //Shows the collection object
+			if (!strpos($message_content_lower, "<")){ //String doesn't contain a mention
+				$filter = "ban ";
+				$value = str_replace($filter, "", $message_content_lower);
+				$value = str_replace("<@!", "", $value); $value = str_replace("<@", "", $value);
+				$value = str_replace(">", "", $value);//echo "value: " . $value . PHP_EOL;
+				if(is_numeric($value)){
+					$mention_member				= $author_guild->members->get($value);
+					$mention_user				= $mention_member->user;
+					$mentions_arr				= array($mention_user);
+				}else return $message->reply("Invalid input! Please enter a valid ID or @mention the user");
+				if ($mention_member == NULL) return $message->reply("Invalid input! Please enter an ID or @mention the user");
+			}
+			foreach ( $mentions_arr as $mention_param ){
 				$mention_param_encode 									= json_encode($mention_param); 									//echo "mention_param_encode: " . $mention_param_encode . PHP_EOL;
-				$mention_json 											= json_decode($mention_param_encode, true); 					//echo "mention_json: " . PHP_EOL; var_dump($mention_json);
+				$mention_json 											= json_decode($mention_param_encode, true); 				//echo "mention_json: " . PHP_EOL; var_dump($mention_json);
 				$mention_id 											= $mention_json['id']; 											//echo "mention_id: " . $mention_id . PHP_EOL; //Just the discord ID
+				$mention_discriminator 									= $mention_json['discriminator']; 								//echo "mention_id: " . $mention_id . PHP_EOL; //Just the discord ID
 				$mention_username 										= $mention_json['username']; 									//echo "mention_username: " . $mention_username . PHP_EOL; //Just the discord ID
-				$mention_discriminator 									= $mention_json['discriminator']; 								//echo "mention_discriminator: " . $mention_discriminator . PHP_EOL; //Just the discord ID
-				$mention_check 											= $mention_username ."#".$mention_discriminator; 				//echo "mention_check: " . $mention_check . PHP_EOL; //Just the discord ID
+				$mention_check 											= $mention_username ."#".$mention_discriminator;
 				
-	//			Get infraction info in target's folder
-				$infractions = VarLoad($guild_folder."/".$mention_id, "infractions.php");
-				$proper = "removeinfraction <@!$mention_id> ";
-				$strlen = strlen("removeinfraction <@!$mention_id> ");
-				$substr = substr($message_content_lower, $strlen);
-				
-	//			Check that message is formatted properly
-				if ($proper != substr($message_content_lower, 0, $strlen)){
-					$message->reply("Please format your command properly: " . $command_symbol . "warn @mention number");
+				if ($author_id != $mention_id){ //Don't let anyone ban themselves
+					//Get the roles of the mentioned user
+					$target_guildmember 								= $message->guild->members->get($mention_id); 	//This is a GuildMember object
+					$target_guildmember_role_collection 				= $target_guildmember->roles;					//This is the Role object for the GuildMember
+					
+		//  				Get the avatar URL of the mentioned user
+		//					$target_guildmember_user							= $target_guildmember->user;									//echo "member_class: " . get_class($target_guildmember_user) . PHP_EOL;
+		//					$mention_avatar 									= "{$target_guildmember_user->getAvatarURL()}";					//echo "mention_avatar: " . $mention_avatar . PHP_EOL;				//echo "target_guildmember_role_collection: " . (count($target_guildmember_role_collection)-1);
+
+		//  				Populate arrays of the info we need
+		//  				$target_guildmember_roles_names 					= array();
+					$x=0;
+					$target_dev = false;
+					$target_owner = false;
+					$target_admin = false;
+					$target_mod = false;
+					$target_vzgbot = false;
+					$target_guildmember_roles_ids = array();
+					foreach ($target_guildmember_role_collection as $role){
+						if ($x!=0){ //0 is @everyone so skip it
+							$target_guildmember_roles_ids[] 						= $role->id; 											//echo "role[$x] id: " . PHP_EOL; //var_dump($role->id);
+							if ($role->id == $role_dev_id)    	$target_dev 		= true;							//Author has the dev role
+							if ($role->id == $role_owner_id)    $target_owner	 	= true;							//Author has the owner role
+							if ($role->id == $role_admin_id)	$target_admin 		= true;							//Author has the admin role
+							if ($role->id == $role_mod_id)		$target_mod 		= true;							//Author has the mod role
+							if ($role->id == $role_vzgbot_id)	$target_vzgbot 		= true;							//Author is this bot
+							if ($role->name == "Palace Bot")	$target_vzgbot 		= true;							//Author is this bot
+						}
+						$x++;
+					}
+					if( (!$target_dev && !$target_owner && !$target_admin && !$target_vzg) || ($creator || $owner)){ //Guild owner and bot creator can ban anyone
+						if ($mention_id == $creator_id) return true; //Don't ban the creator
+						//Build the string to log
+						$filter = "ban <@!$mention_id>";
+						$warndate = date("m/d/Y");
+						$reason = "**🥾Banned:** <@$mention_id>
+						**🗓️Date:** $warndate
+						**📝Reason:** " . str_replace($filter, "", $message_content);
+						//Ban the user and clear 1 days worth of messages
+						$target_guildmember->ban("1", $reason)->done(null, function ($error){
+							echo "[ERROR] $error".PHP_EOL; //Echo any errors
+						});
+						//Build the embed message
+						$embed = new \CharlotteDunois\Yasmin\Models\MessageEmbed();
+						$embed
+		//							->setTitle("Commands")																	// Set a title
+							->setColor("e1452d")																	// Set a color (the thing on the left side)
+							->setDescription("$reason")																// Set a description (below title, above fields)
+		//							->addField("⠀", "$reason")																// New line after this
+							
+		//							->setThumbnail("$author_avatar")														// Set a thumbnail (the image in the top right corner)
+		//							->setImage('https://avatars1.githubusercontent.com/u/4529744?s=460&v=4')             	// Set an image (below everything except footer)
+							->setTimestamp()                                                                     	// Set a timestamp (gets shown next to footer)
+							->setAuthor("$author_check ($author_id)", "$author_avatar")  							// Set an author with icon
+							->setFooter("Palace Bot by Valithor#5947")                             					// Set a footer without icon
+							->setURL("");                             												// Set the URL
+		//						Send the message
+						if($modlog_channel)$modlog_channel->send('', array('embed' => $embed))->done(null, function ($error){
+							echo "[ERROR] $error".PHP_EOL; //Echo any errors
+						});
+						if($react) $message->react("🔨"); //Hammer
+						return true; //No more processing, we only want to process the first person mentioned
+					}else{//Target is not allowed to be banned
+						$author_channel->send("<@$mention_id> cannot be banned because of their roles!");
+						return true;
+					}
+				}else{
+					if($react) $message->react("👎");
+					$author_channel->send("<@$author_id>, you can't ban yourself!");
 					return true;
 				}
+			} //foreach method didn't return, so nobody in the guild was mentioned
+			//Try restcord
+			$filter = "ban ";
+			$value = str_replace($filter, "", $message_content_lower);
+			$value = str_replace("<@!", "", $value); $value = str_replace("<@", "", $value);
+			$value = str_replace(">", "", $value);//echo "value: " . $value . PHP_EOL;
+			if(is_numeric($value)){ //resolve with restcord
+				//$restcord->guild
+				$restcord_param = ['guild.id' => (int)$author_guild_id, 'user.id' => (int)$value];
+				try{
+					//$restcord_result = $restcord->guild->createGuildBan($restcord_param);
+				}catch (Exception $e){
+					$restcord_result = "Unable to locate user for ID $value";
+					echo $e . PHP_EOL;
+				}
+				//$message->reply($restcord_result);
+			}else{
+				if($react) $message->react("👎");
+				$author_channel->send("<@$author_id>, you need to mention someone!");
+			}
+			return true;
+		}
+		if (substr($message_content_lower, 0, 17) == 'removeinfraction '){ //;removeinfractions @mention #
+			echo "[REMOVE INFRACTION] $author_check" . PHP_EOL;
+		//	Get an array of people mentioned
+			$mentions_arr 													= $message->mentions->users; 									//echo "mentions_arr: " . PHP_EOL; var_dump ($mentions_arr); //Shows the collection object
+			
+			
+			$filter = "removeinfraction ";
+			$value = str_replace($filter, "", $message_content_lower);
+			$value = str_replace("<@!", "", $value); $value = str_replace("<@", "", $value); $value = str_replace("<@", "", $value); $value = str_replace(">", "", $value);
+			
 				
-	//			Check if $substr is a number
-				if ( ($substr != "") && (is_numeric(intval($substr))) ){
-	//				Remove array element and reindex
-					//array_splice($infractions, $substr, 1);
-					if ($infractions[$substr] != NULL){
-						$infractions[$substr] = "Infraction removed by $author_check on " . date("m/d/Y"); // for arrays where key equals offset
-	//					Save the new infraction log
-						VarSave($guild_folder."/".$mention_id, "infractions.php", $infractions);
-						
-	//					Send a message
-						if($react) $message->react("👍");
-						$message->reply("Infraction $substr removed from $mention_check!");
-						return true;
-					}else{
-						if($react) $message->react("👎");
-						$message->reply("Infraction '$substr' not found!");
+			if(is_numeric($value)){
+				$mention_member				= $author_guild->members->get($value);
+				$mention_user				= $mention_member->user;
+				$mentions_arr				= array($mention_user);
+			}else return $message->reply("Invalid input! Please enter a valid ID or @mention the user");
+			if ($mention_member == NULL) return $message->reply("Invalid input! Please enter an ID or @mention the user");
+			
+			$x = 0;
+			foreach ( $mentions_arr as $mention_param ){																				//echo "mention_param: " . PHP_EOL; var_dump ($mention_param);
+				if ($x == 0){ //We only want the first person mentioned
+		//			id, username, discriminator, bot, avatar, email, mfaEnabled, verified, webhook, createdTimestamp
+					$mention_param_encode 									= json_encode($mention_param); 									//echo "mention_param_encode: " . $mention_param_encode . PHP_EOL;
+					$mention_json 											= json_decode($mention_param_encode, true); 					//echo "mention_json: " . PHP_EOL; var_dump($mention_json);
+					$mention_id 											= $mention_json['id']; 											//echo "mention_id: " . $mention_id . PHP_EOL; //Just the discord ID
+					$mention_username 										= $mention_json['username']; 									//echo "mention_username: " . $mention_username . PHP_EOL; //Just the discord ID
+					$mention_discriminator 									= $mention_json['discriminator']; 								//echo "mention_discriminator: " . $mention_discriminator . PHP_EOL; //Just the discord ID
+					$mention_check 											= $mention_username ."#".$mention_discriminator; 				//echo "mention_check: " . $mention_check . PHP_EOL; //Just the discord ID
+					
+		//			Get infraction info in target's folder
+					$infractions = VarLoad($guild_folder."/".$mention_id, "infractions.php");
+					$proper = "removeinfraction <@!$mention_id> ";
+					$strlen = strlen("removeinfraction <@!$mention_id> ");
+					$substr = substr($message_content_lower, $strlen);
+					
+		//			Check that message is formatted properly
+					if ($proper != substr($message_content_lower, 0, $strlen)){
+						$message->reply("Please format your command properly: " . $command_symbol . "warn @mention number");
 						return true;
 					}
 					
-				}else{
-					if($react) $message->react("👎");
-					$message->reply("'$substr' is not a number");
-					return true;
+		//			Check if $substr is a number
+					if ( ($substr != "") && (is_numeric(intval($substr))) ){
+		//				Remove array element and reindex
+						//array_splice($infractions, $substr, 1);
+						if ($infractions[$substr] != NULL){
+							$infractions[$substr] = "Infraction removed by $author_check on " . date("m/d/Y"); // for arrays where key equals offset
+		//					Save the new infraction log
+							VarSave($guild_folder."/".$mention_id, "infractions.php", $infractions);
+							
+		//					Send a message
+							if($react) $message->react("👍");
+							$message->reply("Infraction $substr removed from $mention_check!");
+							return true;
+						}else{
+							if($react) $message->react("👎");
+							$message->reply("Infraction '$substr' not found!");
+							return true;
+						}
+						
+					}else{
+						if($react) $message->react("👎");
+						$message->reply("'$substr' is not a number");
+						return true;
+					}
+					
 				}
-				
+				$x++;
 			}
-			$x++;
 		}
 	}
