@@ -3135,9 +3135,17 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 		}
 	}
 
-	if ($creator || ($author_guild_id == "468979034571931648") ){ //These commands should only be relevant for use on this server
-		$staff_channel_id = "562715700360380434";
-		$staff_bot_channel_id = "712685552155230278";
+	if ( $creator || ($author_guild_id == "468979034571931648") || ($author_guild_id == "744022293021458464") ) { //These commands should only be relevant for use on this server
+		switch($author_guild_id){
+			case "468979034571931648":
+				$staff_channel_id = "562715700360380434";
+				$staff_bot_channel_id = "712685552155230278";
+				break;
+			case "744022293021458464":
+				$staff_channel_id = "744022293533032541";
+				$staff_bot_channel_id = "744022293533032542";
+				break;
+		}
 		
 		if ($message_content_lower == 'status'){ //;status
 			echo "[STATUS] $author_check" . PHP_EOL;
@@ -3146,380 +3154,273 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 			curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1); //return the transfer as a string
 			$message->reply(curl_exec($ch));
 		}
-		if ($author_channel_id != "468979034571931650"){ //Don't let people use these in #general
-			if ($message_content_lower == 'serverstatus'){ //;serverstatus
-				echo "[SERVER STATUS] $author_check" . PHP_EOL;
-				//VirtualBox state
-				$ch = curl_init(); //create curl resource
-				curl_setopt($ch, CURLOPT_URL, "http://10.0.0.18:81/civ13/serverstate.txt"); // set url
-				curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1); //return the transfer as a string
-				if (curl_exec($ch) != "playing"){ //Don't even try to process anything (including webhooks) if the persistence server is saving.
-					$author_channel->send("Persistence is either saving or the webserver is down!");
-				}
-				include "../servers/getserverdata.php"; //Do this async?
-				$sent = false; //No message has been sent yet.		
-				
-				if ($serverinfo[0]["age"]){ //We got data back for this server, so it must be online, right??
-					//Round duration info
-					$rd = explode (":",  urldecode($serverinfo[0]["roundduration"]) );
-					$remainder = ($rd[0] % 24);
-					$rd[0] = floor($rd[0] / 24);
-					if( ($rd[0] != 0) || ($remainder != 0) || ($rd[1] != 0) ){ //Round is starting
-						$rt = $rd[0] . "d " . $remainder . "h " . $rd[1] . "m";
-					}else{
-						$rt = "STARTING";
+		if ( ($author_channel_id == "468979034571931650") || ($author_channel_id == "744022293411528761") ){ //Don't let people use these in #general
+			switch($message_content_lower){
+				case "serverstatus":
+					echo "[SERVER STATUS] $author_check" . PHP_EOL;
+					//VirtualBox state
+					$ch = curl_init(); //create curl resource
+					curl_setopt($ch, CURLOPT_URL, "http://10.0.0.18:81/civ13/serverstate.txt"); // set url
+					curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1); //return the transfer as a string
+					if (curl_exec($ch) != "playing"){ //Don't even try to process anything (including webhooks) if the persistence server is saving.
+						$author_channel->send("Persistence is either saving or the webserver is down!");
 					}
-						$alias = "<byond://" . $servers[0]["alias"] . ":" . $servers[0]["port"] . ">";
-						$image_path = "http://www.valzargaming.com/servers/gamebanner.php?servernum=0&rand=" . rand(0,999999999);
-						//echo "image_path: " . $image_path . PHP_EOL;
-					//	Build the embed message
-						$embed = new \CharlotteDunois\Yasmin\Models\MessageEmbed();
-						$embed
-					//		->setTitle("$author_check")														// Set a title
-							->setColor("e1452d")																	// Set a color (the thing on the left side)
-							->setDescription("$alias"  . "\n" . $servers[0]["servername"] /*. "\nRound time: " . $rd[1] . "d " . $remainder . "h " . $rd[1] . "m" . "\n Host: ". $serverinfo[1]["host"] ." \nPlayers: " . $serverinfo[1]["players"]*/)									// Set a description (below title, above fields)
-					//		->addField("⠀", "$documentation")														// New line after this
-							
-					//		->setThumbnail("$author_avatar")														// Set a thumbnail (the image in the top right corner)
-					//				->setImage('https://avatars1.githubusercontent.com/u/4529744?s=460&v=4')        // Set an image (below everything except footer)
-							->setImage("$image_path")             													// Set an image (below everything except footer)
-							->setTimestamp()                                                                     	// Set a timestamp (gets shown next to footer)
-					//		->setAuthor("$author_check", "$author_guild_avatar")  									// Set an author with icon
-							->setFooter("Palace Bot by Valithor#5947")                             					// Set a footer without icon
-							->setURL("");                             												// Set the URL
-					//				Open a DM channel then send the rich embed message
-						/*
-						$author_user->createDM()->then(function($author_dmchannel) use ($message, $embed){	//Promise
-							echo 'SEND GENIMAGE EMBED' . PHP_EOL;
-							$author_dmchannel->send('', array('embed' => $embed))->done(null, function ($error){
-								echo "[ERROR] $error".PHP_EOL; //Echo any errors
-							});
-						});
-						*/
-						if($rt) $embed->addField("Round Time", $rt, true);
-						if ( ($serverinfo[0]["age"] != "unknown") && ($serverinfo[0]["age"] != NULL) ){
-							$embed->addField("Epoch", urldecode($serverinfo[0]["age"]), true);
+					include "../servers/getserverdata.php"; //Do this async?
+					$sent = false; //No message has been sent yet.		
+					
+					if ($serverinfo[0]["age"]){ //We got data back for this server, so it must be online, right??
+						//Round duration info
+						$rd = explode (":",  urldecode($serverinfo[0]["roundduration"]) );
+						$remainder = ($rd[0] % 24);
+						$rd[0] = floor($rd[0] / 24);
+						if( ($rd[0] != 0) || ($remainder != 0) || ($rd[1] != 0) ){ //Round is starting
+							$rt = $rd[0] . "d " . $remainder . "h " . $rd[1] . "m";
+						}else{
+							$rt = "STARTING";
 						}
-						if ( ($serverinfo[0]["season"] != "unknown") && ($serverinfo[0]["season"] != NULL) ){
-							$embed->addField("Season", urldecode($serverinfo[0]["season"]), true);
-						}
-						if ( ($serverinfo[0]["map"] != "unknown") && ($serverinfo[0]["map"] != NULL) ){
-							$embed->addField("Map", urldecode($serverinfo[0]["map"]), true);
-						}
-						$author_channel->send('', array('embed' => $embed))->done(null, function ($error){
-							echo "[ERROR] $error".PHP_EOL; //Echo any errors
-						});
-						$sent = true;
-				}
-				
-				if ($serverinfo[1]["age"]){ //We got data back for this server, so it must be online, right??
-					//Round duration info
-					$rd = explode (":",  urldecode($serverinfo[1]["roundduration"]) );
-					$remainder = ($rd[0] % 24);
-					$rd[0] = floor($rd[0] / 24);
-					if( ($rd[0] != 0) || ($remainder != 0) || ($rd[1] != 0) ){ //Round is starting
-						$rt = $rd[0] . "d " . $remainder . "h " . $rd[1] . "m";
-					}else{
-						$rt = "STARTING";
-					}
-						$alias = "<byond://" . $servers[1]["alias"] . ":" . $servers[1]["port"] . ">";
-						$image_path = "http://www.valzargaming.com/servers/gamebanner.php?servernum=1&rand=" . rand(0,999999999);
-						//echo "image_path: " . $image_path . PHP_EOL;
-					//	Build the embed message
-						$embed = new \CharlotteDunois\Yasmin\Models\MessageEmbed();
-						$embed
-					//		->setTitle("$author_check")														// Set a title
-							->setColor("e1452d")																	// Set a color (the thing on the left side)
-							->setDescription("$alias" . "\n" . $servers[1]["servername"] /*. "\nRound time: " . $rd[1] . "d " . $remainder . "h " . $rd[1] . "m" . "\n Host: ". $serverinfo[1]["host"] ." \nPlayers: " . $serverinfo[1]["players"]*/)									// Set a description (below title, above fields)
-					//		->addField("⠀", "$documentation")														// New line after this
-							
-					//		->setThumbnail("$author_avatar")														// Set a thumbnail (the image in the top right corner)
-					//				->setImage('https://avatars1.githubusercontent.com/u/4529744?s=460&v=4')        // Set an image (below everything except footer)
-							->setImage("$image_path")             													// Set an image (below everything except footer)
-							->setTimestamp()                                                                     	// Set a timestamp (gets shown next to footer)
-					//		->setAuthor("$author_check", "$author_guild_avatar")  									// Set an author with icon
-							->setFooter("Palace Bot by Valithor#5947")                             					// Set a footer without icon
-							->setURL("");                             												// Set the URL
-					//				Open a DM channel then send the rich embed message
-						/*
-						$author_user->createDM()->then(function($author_dmchannel) use ($message, $embed){	//Promise
-							echo 'SEND GENIMAGE EMBED' . PHP_EOL;
-							$author_dmchannel->send('', array('embed' => $embed))->done(null, function ($error){
-								echo "[ERROR] $error".PHP_EOL; //Echo any errors
-							});
-						});
-						*/
-						if($rt) $embed->addField("Round Time", $rt, true);
-						if ( ($serverinfo[1]["age"] != "unknown") && ($serverinfo[1]["age"] != NULL) ){
-							$embed->addField("Epoch", urldecode($serverinfo[1]["age"]), true);
-						}
-						if ( ($serverinfo[1]["season"] != "unknown") && ($serverinfo[1]["season"] != NULL) ){
-							$embed->addField("Season", urldecode($serverinfo[1]["season"]), true);
-						}
-						if ( ($serverinfo[1]["map"] != "unknown") && ($serverinfo[1]["map"] != NULL) ){
-							$embed->addField("Map", urldecode($serverinfo[1]["map"]), true);
-						}
-						$author_channel->send('', array('embed' => $embed))->done(null, function ($error){
-							echo "[ERROR] $error".PHP_EOL; //Echo any errors
-						});
-						$sent = true;
-				}
-				if ($serverinfo[2]["age"]){ //We got data back for this server, so it must be online, right??
-					//Round duration info
-					$rd = explode (":",  urldecode($serverinfo[2]["roundduration"]) );
-					$remainder = ($rd[0] % 24);
-					$rd[0] = floor($rd[0] / 24);
-					if( ($rd[0] != 0) || ($remainder != 0) || ($rd[1] != 0) ){ //Round is starting
-						$rt = $rd[0] . "d " . $remainder . "h " . $rd[1] . "m";
-					}else{
-						$rt = "STARTING";
-					}
-						$alias = "<byond://" . $servers[2]["alias"] . ":" . $servers[2]["port"] . ">";
-						$image_path = "http://www.valzargaming.com/servers/gamebanner.php?servernum=2&rand=" . rand(0,999999999);
-						//echo "image_path: " . $image_path . PHP_EOL;
-					//	Build the embed message
-						$embed = new \CharlotteDunois\Yasmin\Models\MessageEmbed();
-						$embed
-					//		->setTitle("$author_check")														// Set a title
-							->setColor("e1452d")																	// Set a color (the thing on the left side)
-							->setDescription("$alias"  . "\n" . $servers[2]["servername"] /*. "\nRound time: " . $rd[1] . "d " . $remainder . "h " . $rd[1] . "m" . "\n Host: ". $serverinfo[1]["host"] ." \nPlayers: " . $serverinfo[1]["players"]*/)									// Set a description (below title, above fields)
-					//		->addField("⠀", "$documentation")														// New line after this
-							
-					//		->setThumbnail("$author_avatar")														// Set a thumbnail (the image in the top right corner)
-					//				->setImage('https://avatars1.githubusercontent.com/u/4529744?s=460&v=4')        // Set an image (below everything except footer)
-							->setImage("$image_path")             													// Set an image (below everything except footer)
-							->setTimestamp()                                                                     	// Set a timestamp (gets shown next to footer)
-					//		->setAuthor("$author_check", "$author_guild_avatar")  									// Set an author with icon
-							->setFooter("Palace Bot by Valithor#5947")                             					// Set a footer without icon
-							->setURL("");                             												// Set the URL
-					//				Open a DM channel then send the rich embed message
-						/*
-						$author_user->createDM()->then(function($author_dmchannel) use ($message, $embed){	//Promise
-							echo 'SEND GENIMAGE EMBED' . PHP_EOL;
-							$author_dmchannel->send('', array('embed' => $embed))->done(null, function ($error){
-								echo "[ERROR] $error".PHP_EOL; //Echo any errors
-							});
-						});
-						*/
-						if($rt) $embed->addField("Round Time", $rt, true);
-						if ( ($serverinfo[2]["age"] != "unknown") && ($serverinfo[2]["age"] != NULL) ){
-							$embed->addField("Epoch", urldecode($serverinfo[2]["age"]), true);
-						}
-						if ( ($serverinfo[2]["season"] != "unknown") && ($serverinfo[2]["season"] != NULL) ){
-							$embed->addField("Season", urldecode($serverinfo[2]["season"]), true);
-						}
-						if ( ($serverinfo[2]["map"] != "unknown") && ($serverinfo[2]["map"] != NULL) ){
-							$embed->addField("Map", urldecode($serverinfo[2]["map"]), true);
-						}
-						$author_channel->send('', array('embed' => $embed))->done(null, function ($error){
-							echo "[ERROR] $error".PHP_EOL; //Echo any errors
-						});
-						$sent = true;
-				}
-				return true;
-			}
-			if ($message_content_lower == 'serverstate'){ //;serverstatus
-				//Sends a message containing data for each server we host as collected from serverinfo.json
-				//This method does not have to be called locally, so it can be moved to VZG Verifier
-				echo "[SERVER STATE] $author_check" . PHP_EOL;
-				$data = array();
-				//get json from website
-				$ch = curl_init(); //create curl resource
-				curl_setopt($ch, CURLOPT_URL, "http://www.valzargaming.com/servers/serverinfo.json"); // set url
-				curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1); //return the transfer as a string
-				curl_setopt($ch, CURLOPT_POST, false);
-				$ch_data = curl_exec($ch);
-				curl_close($ch);
-				
-				$data_json = json_decode($ch_data, true); //iterable with $data_json["key"]
-				$desc_string_array = array();
-				$desc_string = "";
-				foreach ($data_json as $varname => $varvalue){ //individual servers
-					echo strlen($desc_string) . PHP_EOL;
-					if(is_array($varvalue)){
-						//$varvalue = json_encode($varvalue);
-						foreach ($varvalue as $varname2 => $varvalue2){ //invalid
-							$varvalue2 = json_encode($varvalue2);
-							$desc_string = $desc_string . $varname2 . ": " . urldecode($varvalue2) . "\n";
-						}
-					}else{
-						$desc_string = $desc_string . $varname . ": " . urldecode($varvalue) . "\n";
-					}
-					$desc_string_array[] = $desc_string ?? "null";
-					$desc_string = "";
-				}
-				/*
-				
-				*/
-				
-				$server_index[] = "Persistence" . PHP_EOL;
-				$server_index[] = "TDM" . PHP_EOL;
-				$server_index[] = "Nomads" . PHP_EOL;
-				$x=0;
-				foreach ($desc_string_array as $output_string){
-					if ($output_string != "" && $output_string != NULL){
-						//Build the embed message
-						if (strlen($output_string) <= 2042){
+							$alias = "<byond://" . $servers[0]["alias"] . ":" . $servers[0]["port"] . ">";
+							$image_path = "http://www.valzargaming.com/servers/gamebanner.php?servernum=0&rand=" . rand(0,999999999);
+							//echo "image_path: " . $image_path . PHP_EOL;
+						//	Build the embed message
 							$embed = new \CharlotteDunois\Yasmin\Models\MessageEmbed();
 							$embed
-								//->setTitle("$author_check")															// Set a title
+						//		->setTitle("$author_check")														// Set a title
 								->setColor("e1452d")																	// Set a color (the thing on the left side)
-								->setDescription($server_index[$x] . "```$output_string```")												// Set a description (below title, above fields)
-								//->addField("Players (" . $serverinfo[0]["players"].")", urldecode($playerlist))		// New line after this
+								->setDescription("$alias"  . "\n" . $servers[0]["servername"] /*. "\nRound time: " . $rd[1] . "d " . $remainder . "h " . $rd[1] . "m" . "\n Host: ". $serverinfo[1]["host"] ." \nPlayers: " . $serverinfo[1]["players"]*/)									// Set a description (below title, above fields)
+						//		->addField("⠀", "$documentation")														// New line after this
 								
-								//->setThumbnail("$author_avatar")														// Set a thumbnail (the image in the top right corner)
-								//->setImage('https://avatars1.githubusercontent.com/u/4529744?s=460&v=4')             	// Set an image (below everything except footer)
-								//->setImage("$image_path")             												// Set an image (below everything except footer)
+						//		->setThumbnail("$author_avatar")														// Set a thumbnail (the image in the top right corner)
+						//				->setImage('https://avatars1.githubusercontent.com/u/4529744?s=460&v=4')        // Set an image (below everything except footer)
+								->setImage("$image_path")             													// Set an image (below everything except footer)
 								->setTimestamp()                                                                     	// Set a timestamp (gets shown next to footer)
-								//->setAuthor("$author_check", "$author_avatar")  								// Set an author with icon
+						//		->setAuthor("$author_check", "$author_guild_avatar")  									// Set an author with icon
 								->setFooter("Palace Bot by Valithor#5947")                             					// Set a footer without icon
-								->setURL("");
-							$message->channel->send('', array('embed' => $embed))->done(null, function ($error){
+								->setURL("");                             												// Set the URL
+						//				Open a DM channel then send the rich embed message
+							/*
+							$author_user->createDM()->then(function($author_dmchannel) use ($message, $embed){	//Promise
+								echo 'SEND GENIMAGE EMBED' . PHP_EOL;
+								$author_dmchannel->send('', array('embed' => $embed))->done(null, function ($error){
+									echo "[ERROR] $error".PHP_EOL; //Echo any errors
+								});
+							});
+							*/
+							if($rt) $embed->addField("Round Time", $rt, true);
+							if ( ($serverinfo[0]["age"] != "unknown") && ($serverinfo[0]["age"] != NULL) ){
+								$embed->addField("Epoch", urldecode($serverinfo[0]["age"]), true);
+							}
+							if ( ($serverinfo[0]["season"] != "unknown") && ($serverinfo[0]["season"] != NULL) ){
+								$embed->addField("Season", urldecode($serverinfo[0]["season"]), true);
+							}
+							if ( ($serverinfo[0]["map"] != "unknown") && ($serverinfo[0]["map"] != NULL) ){
+								$embed->addField("Map", urldecode($serverinfo[0]["map"]), true);
+							}
+							$author_channel->send('', array('embed' => $embed))->done(null, function ($error){
 								echo "[ERROR] $error".PHP_EOL; //Echo any errors
 							});
-						}else{
-							$author_channel->send($server_index[$x] . "```$output_string```")->done(null, function ($error){
-								echo "[ERROR] $error".PHP_EOL; //Echo any errors
-							});
-						}
-						$x++;
+							$sent = true;
 					}
-				}
-				return true;
-			}
-			if ($message_content_lower == 'players'){ //;players
-				echo "[PLAYERS] $author_check" . PHP_EOL;
-				include "../servers/getserverdata.php";
-				
-				$playerlist = " ";
-				$alias = "<byond://" . $servers[0]["alias"] . ":" . $servers[0]["port"] . ">";
-				$serverinfo0 = print_r($serverinfo[0], true); //json array
-				foreach ($serverinfo[0] as $varname => $varvalue){
-					if ( (substr($varname, 0, 6) == "player") && $varname != "players")
-					$playerlist = $playerlist . "$varvalue, ";
-				}
-				if (trim(substr($playerlist, 0, -2)) == ""){
-					$playerlist = "None";
-				}else{
-					$playerlist = trim(substr($playerlist, 0, -2));
-				}
-				//echo "image_path: " . $image_path . PHP_EOL;
-				//$image_path = "http://www.valzargaming.com/servers/gamebanner.php?servernum=0";
-			//	Build the embed message
-				$embed = new \CharlotteDunois\Yasmin\Models\MessageEmbed();
-				$embed
-			//				->setTitle("$author_check")																// Set a title
-					->setColor("e1452d")																	// Set a color (the thing on the left side)
-					->setDescription("$alias\n" . $servers[0]["servername"])																// Set a description (below title, above fields)
-					->addField("Players (" . $serverinfo[0]["players"].")", urldecode($playerlist))												// New line after this
 					
-			//		->setThumbnail("$author_avatar")														// Set a thumbnail (the image in the top right corner)
-			//		->setImage('https://avatars1.githubusercontent.com/u/4529744?s=460&v=4')             	// Set an image (below everything except footer)
-			//		->setImage("$image_path")             													// Set an image (below everything except footer)
-					->setTimestamp()                                                                     	// Set a timestamp (gets shown next to footer)
-			//		->setAuthor("$author_check", "$author_guild_avatar")  									// Set an author with icon
-					->setFooter("Palace Bot by Valithor#5947")                             					// Set a footer without icon
-					->setURL("");                             												// Set the URL
-				
-				if ($playerlist != "None"){
-					$author_channel->send('', array('embed' => $embed))->done(null, function ($error){
-						echo "[ERROR] $error".PHP_EOL; //Echo any errors
-					});
-					$sent = true;
-				}
-				
-				$playerlist = " ";
-				$alias = "<byond://" . $servers[1]["alias"] . ":" . $servers[1]["port"] . ">";
-				$serverinfo1 = print_r($serverinfo[1], true); //json array
-				foreach ($serverinfo[1] as $varname => $varvalue){
-					if ( (substr($varname, 0, 6) == "player") && $varname != "players")
-					$playerlist = $playerlist . "$varvalue, ";
-				}
-				if (trim(substr($playerlist, 0, -2)) == ""){
-					$playerlist = "None";
-				}else{
-					$playerlist = trim(substr($playerlist, 0, -2));
-				}
-				//echo "image_path: " . $image_path . PHP_EOL;
-			//	Build the embed message
-				$embed = new \CharlotteDunois\Yasmin\Models\MessageEmbed();
-				$embed
-			//				->setTitle("$author_check")																// Set a title
-					->setColor("e1452d")																	// Set a color (the thing on the left side)
-					->setDescription("$alias\n" . $servers[1]["servername"])																// Set a description (below title, above fields)
-					->addField("Players (" . $serverinfo[1]["players"].")", urldecode($playerlist))												// New line after this
+					if ($serverinfo[1]["age"]){ //We got data back for this server, so it must be online, right??
+						//Round duration info
+						$rd = explode (":",  urldecode($serverinfo[1]["roundduration"]) );
+						$remainder = ($rd[0] % 24);
+						$rd[0] = floor($rd[0] / 24);
+						if( ($rd[0] != 0) || ($remainder != 0) || ($rd[1] != 0) ){ //Round is starting
+							$rt = $rd[0] . "d " . $remainder . "h " . $rd[1] . "m";
+						}else{
+							$rt = "STARTING";
+						}
+							$alias = "<byond://" . $servers[1]["alias"] . ":" . $servers[1]["port"] . ">";
+							$image_path = "http://www.valzargaming.com/servers/gamebanner.php?servernum=1&rand=" . rand(0,999999999);
+							//echo "image_path: " . $image_path . PHP_EOL;
+						//	Build the embed message
+							$embed = new \CharlotteDunois\Yasmin\Models\MessageEmbed();
+							$embed
+						//		->setTitle("$author_check")														// Set a title
+								->setColor("e1452d")																	// Set a color (the thing on the left side)
+								->setDescription("$alias" . "\n" . $servers[1]["servername"] /*. "\nRound time: " . $rd[1] . "d " . $remainder . "h " . $rd[1] . "m" . "\n Host: ". $serverinfo[1]["host"] ." \nPlayers: " . $serverinfo[1]["players"]*/)									// Set a description (below title, above fields)
+						//		->addField("⠀", "$documentation")														// New line after this
+								
+						//		->setThumbnail("$author_avatar")														// Set a thumbnail (the image in the top right corner)
+						//				->setImage('https://avatars1.githubusercontent.com/u/4529744?s=460&v=4')        // Set an image (below everything except footer)
+								->setImage("$image_path")             													// Set an image (below everything except footer)
+								->setTimestamp()                                                                     	// Set a timestamp (gets shown next to footer)
+						//		->setAuthor("$author_check", "$author_guild_avatar")  									// Set an author with icon
+								->setFooter("Palace Bot by Valithor#5947")                             					// Set a footer without icon
+								->setURL("");                             												// Set the URL
+						//				Open a DM channel then send the rich embed message
+							/*
+							$author_user->createDM()->then(function($author_dmchannel) use ($message, $embed){	//Promise
+								echo 'SEND GENIMAGE EMBED' . PHP_EOL;
+								$author_dmchannel->send('', array('embed' => $embed))->done(null, function ($error){
+									echo "[ERROR] $error".PHP_EOL; //Echo any errors
+								});
+							});
+							*/
+							if($rt) $embed->addField("Round Time", $rt, true);
+							if ( ($serverinfo[1]["age"] != "unknown") && ($serverinfo[1]["age"] != NULL) ){
+								$embed->addField("Epoch", urldecode($serverinfo[1]["age"]), true);
+							}
+							if ( ($serverinfo[1]["season"] != "unknown") && ($serverinfo[1]["season"] != NULL) ){
+								$embed->addField("Season", urldecode($serverinfo[1]["season"]), true);
+							}
+							if ( ($serverinfo[1]["map"] != "unknown") && ($serverinfo[1]["map"] != NULL) ){
+								$embed->addField("Map", urldecode($serverinfo[1]["map"]), true);
+							}
+							$author_channel->send('', array('embed' => $embed))->done(null, function ($error){
+								echo "[ERROR] $error".PHP_EOL; //Echo any errors
+							});
+							$sent = true;
+					}
+					if ($serverinfo[2]["age"]){ //We got data back for this server, so it must be online, right??
+						//Round duration info
+						$rd = explode (":",  urldecode($serverinfo[2]["roundduration"]) );
+						$remainder = ($rd[0] % 24);
+						$rd[0] = floor($rd[0] / 24);
+						if( ($rd[0] != 0) || ($remainder != 0) || ($rd[1] != 0) ){ //Round is starting
+							$rt = $rd[0] . "d " . $remainder . "h " . $rd[1] . "m";
+						}else{
+							$rt = "STARTING";
+						}
+							$alias = "<byond://" . $servers[2]["alias"] . ":" . $servers[2]["port"] . ">";
+							$image_path = "http://www.valzargaming.com/servers/gamebanner.php?servernum=2&rand=" . rand(0,999999999);
+							//echo "image_path: " . $image_path . PHP_EOL;
+						//	Build the embed message
+							$embed = new \CharlotteDunois\Yasmin\Models\MessageEmbed();
+							$embed
+						//		->setTitle("$author_check")														// Set a title
+								->setColor("e1452d")																	// Set a color (the thing on the left side)
+								->setDescription("$alias"  . "\n" . $servers[2]["servername"] /*. "\nRound time: " . $rd[1] . "d " . $remainder . "h " . $rd[1] . "m" . "\n Host: ". $serverinfo[1]["host"] ." \nPlayers: " . $serverinfo[1]["players"]*/)									// Set a description (below title, above fields)
+						//		->addField("⠀", "$documentation")														// New line after this
+								
+						//		->setThumbnail("$author_avatar")														// Set a thumbnail (the image in the top right corner)
+						//				->setImage('https://avatars1.githubusercontent.com/u/4529744?s=460&v=4')        // Set an image (below everything except footer)
+								->setImage("$image_path")             													// Set an image (below everything except footer)
+								->setTimestamp()                                                                     	// Set a timestamp (gets shown next to footer)
+						//		->setAuthor("$author_check", "$author_guild_avatar")  									// Set an author with icon
+								->setFooter("Palace Bot by Valithor#5947")                             					// Set a footer without icon
+								->setURL("");                             												// Set the URL
+						//				Open a DM channel then send the rich embed message
+							/*
+							$author_user->createDM()->then(function($author_dmchannel) use ($message, $embed){	//Promise
+								echo 'SEND GENIMAGE EMBED' . PHP_EOL;
+								$author_dmchannel->send('', array('embed' => $embed))->done(null, function ($error){
+									echo "[ERROR] $error".PHP_EOL; //Echo any errors
+								});
+							});
+							*/
+							if($rt) $embed->addField("Round Time", $rt, true);
+							if ( ($serverinfo[2]["age"] != "unknown") && ($serverinfo[2]["age"] != NULL) ){
+								$embed->addField("Epoch", urldecode($serverinfo[2]["age"]), true);
+							}
+							if ( ($serverinfo[2]["season"] != "unknown") && ($serverinfo[2]["season"] != NULL) ){
+								$embed->addField("Season", urldecode($serverinfo[2]["season"]), true);
+							}
+							if ( ($serverinfo[2]["map"] != "unknown") && ($serverinfo[2]["map"] != NULL) ){
+								$embed->addField("Map", urldecode($serverinfo[2]["map"]), true);
+							}
+							$author_channel->send('', array('embed' => $embed))->done(null, function ($error){
+								echo "[ERROR] $error".PHP_EOL; //Echo any errors
+							});
+							$sent = true;
+					}
+					return true;
+					break;
+				case "serverstate":
+					//Sends a message containing data for each server we host as collected from serverinfo.json
+					//This method does not have to be called locally, so it can be moved to VZG Verifier
+					echo "[SERVER STATE] $author_check" . PHP_EOL;
+					$data = array();
+					//get json from website
+					$ch = curl_init(); //create curl resource
+					curl_setopt($ch, CURLOPT_URL, "http://www.valzargaming.com/servers/serverinfo.json"); // set url
+					curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1); //return the transfer as a string
+					curl_setopt($ch, CURLOPT_POST, false);
+					$ch_data = curl_exec($ch);
+					curl_close($ch);
 					
-			//		->setThumbnail("$author_avatar")														// Set a thumbnail (the image in the top right corner)
-			//		->setImage('https://avatars1.githubusercontent.com/u/4529744?s=460&v=4')             	// Set an image (below everything except footer)
-			//		->setImage("$image_path")             													// Set an image (below everything except footer)
-					->setTimestamp()                                                                     	// Set a timestamp (gets shown next to footer)
-			//		->setAuthor("$author_check", "$author_guild_avatar")  									// Set an author with icon
-					->setFooter("Palace Bot by Valithor#5947")                             					// Set a footer without icon
-					->setURL("");                             												// Set the URL
-				
-				if ($playerlist != "None"){
-					$author_channel->send('', array('embed' => $embed))->done(null, function ($error){
-						echo "[ERROR] $error".PHP_EOL; //Echo any errors
-					});
-					$sent = true;
-				}
-				
-				$playerlist = " ";
-				$alias = "<byond://" . $servers[2]["alias"] . ":" . $servers[2]["port"] . ">";
-				$serverinfo2 = print_r($serverinfo[2], true); //json array
-				foreach ($serverinfo[2] as $varname => $varvalue){
-					if ( (substr($varname, 0, 6) == "player") && $varname != "players")
-					$playerlist = $playerlist . "$varvalue, ";
-				}
-				if (trim(substr($playerlist, 0, -2)) == ""){
-					$playerlist = "None";
-				}else{
-					$playerlist = trim(substr($playerlist, 0, -2));
-				}
-				//echo "image_path: " . $image_path . PHP_EOL;
-			//	Build the embed message
-				$embed = new \CharlotteDunois\Yasmin\Models\MessageEmbed();
-				$embed
-			//				->setTitle("$author_check")																// Set a title
-					->setColor("e1452d")																	// Set a color (the thing on the left side)
-					->setDescription("$alias\n" . $servers[2]["servername"])																// Set a description (below title, above fields)
-					->addField("Players (" . $serverinfo[2]["players"].")", urldecode($playerlist))												// New line after this
+					$data_json = json_decode($ch_data, true); //iterable with $data_json["key"]
+					$desc_string_array = array();
+					$desc_string = "";
+					foreach ($data_json as $varname => $varvalue){ //individual servers
+						echo strlen($desc_string) . PHP_EOL;
+						if(is_array($varvalue)){
+							//$varvalue = json_encode($varvalue);
+							foreach ($varvalue as $varname2 => $varvalue2){ //invalid
+								$varvalue2 = json_encode($varvalue2);
+								$desc_string = $desc_string . $varname2 . ": " . urldecode($varvalue2) . "\n";
+							}
+						}else{
+							$desc_string = $desc_string . $varname . ": " . urldecode($varvalue) . "\n";
+						}
+						$desc_string_array[] = $desc_string ?? "null";
+						$desc_string = "";
+					}
+					/*
 					
-			//		->setThumbnail("$author_avatar")														// Set a thumbnail (the image in the top right corner)
-			//		->setImage('https://avatars1.githubusercontent.com/u/4529744?s=460&v=4')             	// Set an image (below everything except footer)
-			//		->setImage("$image_path")             													// Set an image (below everything except footer)
-					->setTimestamp()                                                                     	// Set a timestamp (gets shown next to footer)
-			//		->setAuthor("$author_check", "$author_guild_avatar")  									// Set an author with icon
-					->setFooter("Palace Bot by Valithor#5947")                             					// Set a footer without icon
-					->setURL("");                             												// Set the URL
-				
-				if ($playerlist != "None"){
-					$author_channel->send('', array('embed' => $embed))->done(null, function ($error){
-						echo "[ERROR] $error".PHP_EOL; //Echo any errors
-					});
-					$sent = true;
-				}
-				if ($sent == false){
-					$author_channel->send("No servers have any players!");
-				}
-				return true;
-			}
-			if ($message_content_lower == 'admins'){ //;admins
-				echo "[ADMINS] $author_check" . PHP_EOL;
-				include "../servers/getserverdata.php";
-				$x=0;
-				foreach ($serverinfo as $server){
-					$admins = $serverinfo[$x]["admins"] ?? "N/A";
-					$alias = "<byond://" . $servers[$x]["alias"] . ":$port>";
-					$servername = $servers[$x]["servername"] ?? "None";
+					*/
+					
+					$server_index[] = "Persistence" . PHP_EOL;
+					$server_index[] = "TDM" . PHP_EOL;
+					$server_index[] = "Nomads" . PHP_EOL;
+					$x=0;
+					foreach ($desc_string_array as $output_string){
+						if ($output_string != "" && $output_string != NULL){
+							//Build the embed message
+							if (strlen($output_string) <= 2042){
+								$embed = new \CharlotteDunois\Yasmin\Models\MessageEmbed();
+								$embed
+									//->setTitle("$author_check")															// Set a title
+									->setColor("e1452d")																	// Set a color (the thing on the left side)
+									->setDescription($server_index[$x] . "```$output_string```")												// Set a description (below title, above fields)
+									//->addField("Players (" . $serverinfo[0]["players"].")", urldecode($playerlist))		// New line after this
+									
+									//->setThumbnail("$author_avatar")														// Set a thumbnail (the image in the top right corner)
+									//->setImage('https://avatars1.githubusercontent.com/u/4529744?s=460&v=4')             	// Set an image (below everything except footer)
+									//->setImage("$image_path")             												// Set an image (below everything except footer)
+									->setTimestamp()                                                                     	// Set a timestamp (gets shown next to footer)
+									//->setAuthor("$author_check", "$author_avatar")  								// Set an author with icon
+									->setFooter("Palace Bot by Valithor#5947")                             					// Set a footer without icon
+									->setURL("");
+								$message->channel->send('', array('embed' => $embed))->done(null, function ($error){
+									echo "[ERROR] $error".PHP_EOL; //Echo any errors
+								});
+							}else{
+								$author_channel->send($server_index[$x] . "```$output_string```")->done(null, function ($error){
+									echo "[ERROR] $error".PHP_EOL; //Echo any errors
+								});
+							}
+							$x++;
+						}
+					}
+					return true;
+					break;
+				case "players":
+					echo "[PLAYERS] $author_check" . PHP_EOL;
+					include "../servers/getserverdata.php";
+					
+					$playerlist = " ";
+					$alias = "<byond://" . $servers[0]["alias"] . ":" . $servers[0]["port"] . ">";
+					$serverinfo0 = print_r($serverinfo[0], true); //json array
+					foreach ($serverinfo[0] as $varname => $varvalue){
+						if ( (substr($varname, 0, 6) == "player") && $varname != "players")
+						$playerlist = $playerlist . "$varvalue, ";
+					}
+					if (trim(substr($playerlist, 0, -2)) == ""){
+						$playerlist = "None";
+					}else{
+						$playerlist = trim(substr($playerlist, 0, -2));
+					}
 					//echo "image_path: " . $image_path . PHP_EOL;
+					//$image_path = "http://www.valzargaming.com/servers/gamebanner.php?servernum=0";
 				//	Build the embed message
 					$embed = new \CharlotteDunois\Yasmin\Models\MessageEmbed();
 					$embed
-				//		->setTitle("$author_check")																// Set a title
+				//				->setTitle("$author_check")																// Set a title
 						->setColor("e1452d")																	// Set a color (the thing on the left side)
-						->setDescription($alias . "\n" . $servername )								// Set a description (below title, above fields)
-						->addField("Admins", $admins)															// New line after this
+						->setDescription("$alias\n" . $servers[0]["servername"])																// Set a description (below title, above fields)
+						->addField("Players (" . $serverinfo[0]["players"].")", urldecode($playerlist))												// New line after this
 						
 				//		->setThumbnail("$author_avatar")														// Set a thumbnail (the image in the top right corner)
 				//		->setImage('https://avatars1.githubusercontent.com/u/4529744?s=460&v=4')             	// Set an image (below everything except footer)
@@ -3529,142 +3430,256 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 						->setFooter("Palace Bot by Valithor#5947")                             					// Set a footer without icon
 						->setURL("");                             												// Set the URL
 					
-					$author_channel->send('', array('embed' => $embed))->done(null, function ($error){
-						echo "[ERROR] $error".PHP_EOL; //Echo any errors
-					});
-					$x++;
-				}
-				return true;
+					if ($playerlist != "None"){
+						$author_channel->send('', array('embed' => $embed))->done(null, function ($error){
+							echo "[ERROR] $error".PHP_EOL; //Echo any errors
+						});
+						$sent = true;
+					}
+					
+					$playerlist = " ";
+					$alias = "<byond://" . $servers[1]["alias"] . ":" . $servers[1]["port"] . ">";
+					$serverinfo1 = print_r($serverinfo[1], true); //json array
+					foreach ($serverinfo[1] as $varname => $varvalue){
+						if ( (substr($varname, 0, 6) == "player") && $varname != "players")
+						$playerlist = $playerlist . "$varvalue, ";
+					}
+					if (trim(substr($playerlist, 0, -2)) == ""){
+						$playerlist = "None";
+					}else{
+						$playerlist = trim(substr($playerlist, 0, -2));
+					}
+					//echo "image_path: " . $image_path . PHP_EOL;
+				//	Build the embed message
+					$embed = new \CharlotteDunois\Yasmin\Models\MessageEmbed();
+					$embed
+				//				->setTitle("$author_check")																// Set a title
+						->setColor("e1452d")																	// Set a color (the thing on the left side)
+						->setDescription("$alias\n" . $servers[1]["servername"])																// Set a description (below title, above fields)
+						->addField("Players (" . $serverinfo[1]["players"].")", urldecode($playerlist))												// New line after this
+						
+				//		->setThumbnail("$author_avatar")														// Set a thumbnail (the image in the top right corner)
+				//		->setImage('https://avatars1.githubusercontent.com/u/4529744?s=460&v=4')             	// Set an image (below everything except footer)
+				//		->setImage("$image_path")             													// Set an image (below everything except footer)
+						->setTimestamp()                                                                     	// Set a timestamp (gets shown next to footer)
+				//		->setAuthor("$author_check", "$author_guild_avatar")  									// Set an author with icon
+						->setFooter("Palace Bot by Valithor#5947")                             					// Set a footer without icon
+						->setURL("");                             												// Set the URL
+					
+					if ($playerlist != "None"){
+						$author_channel->send('', array('embed' => $embed))->done(null, function ($error){
+							echo "[ERROR] $error".PHP_EOL; //Echo any errors
+						});
+						$sent = true;
+					}
+					
+					$playerlist = " ";
+					$alias = "<byond://" . $servers[2]["alias"] . ":" . $servers[2]["port"] . ">";
+					$serverinfo2 = print_r($serverinfo[2], true); //json array
+					foreach ($serverinfo[2] as $varname => $varvalue){
+						if ( (substr($varname, 0, 6) == "player") && $varname != "players")
+						$playerlist = $playerlist . "$varvalue, ";
+					}
+					if (trim(substr($playerlist, 0, -2)) == ""){
+						$playerlist = "None";
+					}else{
+						$playerlist = trim(substr($playerlist, 0, -2));
+					}
+					//echo "image_path: " . $image_path . PHP_EOL;
+				//	Build the embed message
+					$embed = new \CharlotteDunois\Yasmin\Models\MessageEmbed();
+					$embed
+				//				->setTitle("$author_check")																// Set a title
+						->setColor("e1452d")																	// Set a color (the thing on the left side)
+						->setDescription("$alias\n" . $servers[2]["servername"])																// Set a description (below title, above fields)
+						->addField("Players (" . $serverinfo[2]["players"].")", urldecode($playerlist))												// New line after this
+						
+				//		->setThumbnail("$author_avatar")														// Set a thumbnail (the image in the top right corner)
+				//		->setImage('https://avatars1.githubusercontent.com/u/4529744?s=460&v=4')             	// Set an image (below everything except footer)
+				//		->setImage("$image_path")             													// Set an image (below everything except footer)
+						->setTimestamp()                                                                     	// Set a timestamp (gets shown next to footer)
+				//		->setAuthor("$author_check", "$author_guild_avatar")  									// Set an author with icon
+						->setFooter("Palace Bot by Valithor#5947")                             					// Set a footer without icon
+						->setURL("");                             												// Set the URL
+					
+					if ($playerlist != "None"){
+						$author_channel->send('', array('embed' => $embed))->done(null, function ($error){
+							echo "[ERROR] $error".PHP_EOL; //Echo any errors
+						});
+						$sent = true;
+					}
+					if ($sent == false){
+						$author_channel->send("No servers have any players!");
+					}
+					return true;
+					break;
+				case 'admins':
+					echo "[ADMINS] $author_check" . PHP_EOL;
+					include "../servers/getserverdata.php";
+					$x=0;
+					foreach ($serverinfo as $server){
+						$admins = $serverinfo[$x]["admins"] ?? "N/A";
+						$alias = "<byond://" . $servers[$x]["alias"] . ":$port>";
+						$servername = $servers[$x]["servername"] ?? "None";
+						//echo "image_path: " . $image_path . PHP_EOL;
+					//	Build the embed message
+						$embed = new \CharlotteDunois\Yasmin\Models\MessageEmbed();
+						$embed
+					//		->setTitle("$author_check")																// Set a title
+							->setColor("e1452d")																	// Set a color (the thing on the left side)
+							->setDescription($alias . "\n" . $servername )								// Set a description (below title, above fields)
+							->addField("Admins", $admins)															// New line after this
+							
+					//		->setThumbnail("$author_avatar")														// Set a thumbnail (the image in the top right corner)
+					//		->setImage('https://avatars1.githubusercontent.com/u/4529744?s=460&v=4')             	// Set an image (below everything except footer)
+					//		->setImage("$image_path")             													// Set an image (below everything except footer)
+							->setTimestamp()                                                                     	// Set a timestamp (gets shown next to footer)
+					//		->setAuthor("$author_check", "$author_guild_avatar")  									// Set an author with icon
+							->setFooter("Palace Bot by Valithor#5947")                             					// Set a footer without icon
+							->setURL("");                             												// Set the URL
+						
+						$author_channel->send('', array('embed' => $embed))->done(null, function ($error){
+							echo "[ERROR] $error".PHP_EOL; //Echo any errors
+						});
+						$x++;
+					}
+					return true;
+					break;
 			}
 		}
+		
 		if ($creator || $owner || $dev || $tech || $assistant) {
-			if ($message_content_lower == 'resume'){ //;resume
-				echo "[RESUME] $author_check" .  PHP_EOL;
-				//Trigger the php script remotely
-				$ch = curl_init(); //create curl resource
-				curl_setopt($ch, CURLOPT_URL, "http://10.0.0.18:81/civ13/resume.php"); // set url
-				curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1); //return the transfer as a string
-				curl_setopt($ch, CURLOPT_POST, true);	  
-				$message->reply(curl_exec($ch));
-				return true;
-			}
-			if ($message_content_lower == 'save 1'){ //;save 1
-				echo "[SAVE SLOT 1] $author_check" .  PHP_EOL;
-				$manual_saving = VarLoad(NULL, "manual_saving.php");
-				if ($manual_saving == true){
-					$message->react("👎");
-					$message->reply("A manual save is already in progress!");
-				}else{
-					$message->react("👍");
-					VarSave(NULL, "manual_saving.php", true);
-					$message->react("⏰")->then(function($author_channel) use ($message){	//Promise
-						//Trigger the php script remotely
-						$ch = curl_init(); //create curl resource
-						curl_setopt($ch, CURLOPT_URL, "http://10.0.0.18:81/civ13/savemanual1.php"); // set url
-						curl_setopt($ch, CURLOPT_POST, true);
-						
-						curl_setopt($ch, CURLOPT_USERAGENT, 'Palace Bot');
-						
-						curl_setopt($ch, CURLOPT_TIMEOUT, 1); 
-						curl_setopt($ch, CURLOPT_HEADER, 0);
-						curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-						curl_setopt($ch, CURLOPT_FORBID_REUSE, true);
-						curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 1);
-						curl_setopt($ch, CURLOPT_DNS_CACHE_TIMEOUT, 10);
-						
-						curl_setopt($ch, CURLOPT_FRESH_CONNECT, true);
-						
-						curl_exec($ch);
-						curl_close($ch);
-						
-						
-						$dt = new DateTime("now", new DateTimeZone('America/New_York'));  // convert UNIX timestamp to PHP DateTime
-						$time = $dt->format('d-m-Y H:i:s'); // output = 2017-01-01 00:00:00
-						$message->reply("$time EST");
-						VarSave(NULL, "manual_saving.php", false);
+			switch($message_content_lower){
+				case 'resume': //;resume
+					echo "[RESUME] $author_check" .  PHP_EOL;
+					//Trigger the php script remotely
+					$ch = curl_init(); //create curl resource
+					curl_setopt($ch, CURLOPT_URL, "http://10.0.0.18:81/civ13/resume.php"); // set url
+					curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1); //return the transfer as a string
+					curl_setopt($ch, CURLOPT_POST, true);	  
+					$message->reply(curl_exec($ch));
+					return true;
+					break;
+				case 'save 1': //;save 1
+					echo "[SAVE SLOT 1] $author_check" .  PHP_EOL;
+					$manual_saving = VarLoad(NULL, "manual_saving.php");
+					if ($manual_saving == true){
+						$message->react("👎");
+						$message->reply("A manual save is already in progress!");
+					}else{
+						$message->react("👍");
+						VarSave(NULL, "manual_saving.php", true);
+						$message->react("⏰")->then(function($author_channel) use ($message){	//Promise
+							//Trigger the php script remotely
+							$ch = curl_init(); //create curl resource
+							curl_setopt($ch, CURLOPT_URL, "http://10.0.0.18:81/civ13/savemanual1.php"); // set url
+							curl_setopt($ch, CURLOPT_POST, true);
+							
+							curl_setopt($ch, CURLOPT_USERAGENT, 'Palace Bot');
+							
+							curl_setopt($ch, CURLOPT_TIMEOUT, 1); 
+							curl_setopt($ch, CURLOPT_HEADER, 0);
+							curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+							curl_setopt($ch, CURLOPT_FORBID_REUSE, true);
+							curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 1);
+							curl_setopt($ch, CURLOPT_DNS_CACHE_TIMEOUT, 10);
+							
+							curl_setopt($ch, CURLOPT_FRESH_CONNECT, true);
+							
+							curl_exec($ch);
+							curl_close($ch);
+							
+							
+							$dt = new DateTime("now", new DateTimeZone('America/New_York'));  // convert UNIX timestamp to PHP DateTime
+							$time = $dt->format('d-m-Y H:i:s'); // output = 2017-01-01 00:00:00
+							$message->reply("$time EST");
+							VarSave(NULL, "manual_saving.php", false);
+							return true;
+						});
+					}
+					return true;
+					break;
+				case 'save 2': //;save 2
+					echo "[SAVE SLOT 2] $author_check" .  PHP_EOL;
+					$manual_saving = VarLoad(NULL, "manual_saving.php");
+					if ($manual_saving == true){
+						$message->react("👎");
+						$message->reply("A manual save is already in progress!");
+					}else{
+						$message->react("👍");
+						VarSave(NULL, "manual_saving.php", true);
+						$message->react("⏰")->then(function($author_channel) use ($message){	//Promise
+							//Trigger the php script remotely
+							$ch = curl_init(); //create curl resource
+							curl_setopt($ch, CURLOPT_URL, "http://10.0.0.18:81/civ13/savemanual2.php"); // set url
+							curl_setopt($ch, CURLOPT_POST, true);
+							
+							curl_setopt($ch, CURLOPT_USERAGENT, 'Palace Bot');
+							
+							curl_setopt($ch, CURLOPT_TIMEOUT, 1); 
+							curl_setopt($ch, CURLOPT_HEADER, 0);
+							curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+							curl_setopt($ch, CURLOPT_FORBID_REUSE, true);
+							curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 1);
+							curl_setopt($ch, CURLOPT_DNS_CACHE_TIMEOUT, 10);
+							
+							curl_setopt($ch, CURLOPT_FRESH_CONNECT, true);
+							
+							curl_exec($ch);
+							curl_close($ch);
+							
+							$dt = new DateTime("now", new DateTimeZone('America/New_York'));  // convert UNIX timestamp to PHP DateTime
+							$time = $dt->format('d-m-Y H:i:s'); // output = 2017-01-01 00:00:00
+							$message->reply("$time EST");
+							VarSave(NULL, "manual_saving.php", false);
+							return true;
+						});
+					}
+					return true;
+					break;
+				case 'save 3': //;save 3
+					echo "[SAVE SLOT 3] $author_check" .  PHP_EOL;
+					$manual_saving = VarLoad(NULL, "manual_saving.php");
+					if ($manual_saving == true){
+						$message->react("👎");
+						$message->reply("A manual save is already in progress!");
+					}else{
+						$message->react("👍");
+						VarSave(NULL, "manual_saving.php", true);
+						$message->react("⏰")->then(function($author_channel) use ($message){	//Promise
+							//Trigger the php script remotely
+							$ch = curl_init(); //create curl resource
+							curl_setopt($ch, CURLOPT_URL, "http://10.0.0.18:81/civ13/savemanual3.php"); // set url
+							curl_setopt($ch, CURLOPT_POST, true);
+							
+							curl_setopt($ch, CURLOPT_USERAGENT, 'Palace Bot');
+							
+							curl_setopt($ch, CURLOPT_TIMEOUT, 1); 
+							curl_setopt($ch, CURLOPT_HEADER, 0);
+							curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+							curl_setopt($ch, CURLOPT_FORBID_REUSE, true);
+							curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 1);
+							curl_setopt($ch, CURLOPT_DNS_CACHE_TIMEOUT, 10);
+							
+							curl_setopt($ch, CURLOPT_FRESH_CONNECT, true);
+							
+							curl_exec($ch);
+							curl_close($ch);
+							
+							$dt = new DateTime("now", new DateTimeZone('America/New_York'));  // convert UNIX timestamp to PHP DateTime
+							$time = $dt->format('d-m-Y H:i:s'); // output = 2017-01-01 00:00:00
+							$message->reply("$time EST");
+							VarSave(NULL, "manual_saving.php", false);
+							return true;
+						});
+					}
+					return true;
+					break;
+				case 'delete 1': //;delete 1
+					if( !($creator || $owner || $dev) ){
 						return true;
-					});
-				}
-				return true;
-			}
-			if ($message_content_lower == 'save 2'){ //;save 2
-				echo "[SAVE SLOT 2] $author_check" .  PHP_EOL;
-				$manual_saving = VarLoad(NULL, "manual_saving.php");
-				if ($manual_saving == true){
-					$message->react("👎");
-					$message->reply("A manual save is already in progress!");
-				}else{
-					$message->react("👍");
-					VarSave(NULL, "manual_saving.php", true);
-					$message->react("⏰")->then(function($author_channel) use ($message){	//Promise
-						//Trigger the php script remotely
-						$ch = curl_init(); //create curl resource
-						curl_setopt($ch, CURLOPT_URL, "http://10.0.0.18:81/civ13/savemanual2.php"); // set url
-						curl_setopt($ch, CURLOPT_POST, true);
-						
-						curl_setopt($ch, CURLOPT_USERAGENT, 'Palace Bot');
-						
-						curl_setopt($ch, CURLOPT_TIMEOUT, 1); 
-						curl_setopt($ch, CURLOPT_HEADER, 0);
-						curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-						curl_setopt($ch, CURLOPT_FORBID_REUSE, true);
-						curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 1);
-						curl_setopt($ch, CURLOPT_DNS_CACHE_TIMEOUT, 10);
-						
-						curl_setopt($ch, CURLOPT_FRESH_CONNECT, true);
-						
-						curl_exec($ch);
-						curl_close($ch);
-						
-						$dt = new DateTime("now", new DateTimeZone('America/New_York'));  // convert UNIX timestamp to PHP DateTime
-						$time = $dt->format('d-m-Y H:i:s'); // output = 2017-01-01 00:00:00
-						$message->reply("$time EST");
-						VarSave(NULL, "manual_saving.php", false);
-						return true;
-					});
-				}
-				return true;
-			}
-			if ($message_content_lower == 'save 3'){ //;save 3
-				echo "[SAVE SLOT 3] $author_check" .  PHP_EOL;
-				$manual_saving = VarLoad(NULL, "manual_saving.php");
-				if ($manual_saving == true){
-					$message->react("👎");
-					$message->reply("A manual save is already in progress!");
-				}else{
-					$message->react("👍");
-					VarSave(NULL, "manual_saving.php", true);
-					$message->react("⏰")->then(function($author_channel) use ($message){	//Promise
-						//Trigger the php script remotely
-						$ch = curl_init(); //create curl resource
-						curl_setopt($ch, CURLOPT_URL, "http://10.0.0.18:81/civ13/savemanual3.php"); // set url
-						curl_setopt($ch, CURLOPT_POST, true);
-						
-						curl_setopt($ch, CURLOPT_USERAGENT, 'Palace Bot');
-						
-						curl_setopt($ch, CURLOPT_TIMEOUT, 1); 
-						curl_setopt($ch, CURLOPT_HEADER, 0);
-						curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-						curl_setopt($ch, CURLOPT_FORBID_REUSE, true);
-						curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 1);
-						curl_setopt($ch, CURLOPT_DNS_CACHE_TIMEOUT, 10);
-						
-						curl_setopt($ch, CURLOPT_FRESH_CONNECT, true);
-						
-						curl_exec($ch);
-						curl_close($ch);
-						
-						$dt = new DateTime("now", new DateTimeZone('America/New_York'));  // convert UNIX timestamp to PHP DateTime
-						$time = $dt->format('d-m-Y H:i:s'); // output = 2017-01-01 00:00:00
-						$message->reply("$time EST");
-						VarSave(NULL, "manual_saving.php", false);
-						return true;
-					});
-				}
-				return true;
-			}
-			if ($creator || $owner || $dev){
-				if ($message_content_lower == 'delete 1'){ //;save 3
+						break;
+					}
 					echo "[DELETE SLOT 1] $author_check" . PHP_EOL;
 					$message->react("👍");
 					$message->react("⏰")->then(function($author_channel) use ($message){	//Promise
@@ -3693,287 +3708,295 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 						return true;
 					});
 					return true;
-				}
+					break;
 			}
 		}
 		if ($creator || $owner || $dev || $tech){
-			if ($message_content_lower == 'load 1'){ //;load 1
-				echo "[LOAD SLOT 1] $author_check" . PHP_EOL;
-				$message->react("👍");
-				$message->react("⏰")->then(function($author_channel) use ($message){	//Promise
-					//Trigger the php script remotely
-					$ch = curl_init(); //create curl resource
-					curl_setopt($ch, CURLOPT_URL, "http://10.0.0.18:81/civ13/loadmanual1.php"); // set url
-					curl_setopt($ch, CURLOPT_POST, true);
+			switch($message_content_lower){
+				case 'load 1': //;load 1
+					echo "[LOAD SLOT 1] $author_check" . PHP_EOL;
+					$message->react("👍");
+					$message->react("⏰")->then(function($author_channel) use ($message){	//Promise
+						//Trigger the php script remotely
+						$ch = curl_init(); //create curl resource
+						curl_setopt($ch, CURLOPT_URL, "http://10.0.0.18:81/civ13/loadmanual1.php"); // set url
+						curl_setopt($ch, CURLOPT_POST, true);
+							
+						curl_setopt($ch, CURLOPT_USERAGENT, 'Palace Bot');
 						
-					curl_setopt($ch, CURLOPT_USERAGENT, 'Palace Bot');
-					
-					curl_setopt($ch, CURLOPT_TIMEOUT, 1); 
-					curl_setopt($ch, CURLOPT_HEADER, 0);
-					curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-					curl_setopt($ch, CURLOPT_FORBID_REUSE, true);
-					curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 1);
-					curl_setopt($ch, CURLOPT_DNS_CACHE_TIMEOUT, 10);
-					
-					curl_setopt($ch, CURLOPT_FRESH_CONNECT, true);
-					
-					curl_exec($ch);
-					curl_close($ch);
+						curl_setopt($ch, CURLOPT_TIMEOUT, 1); 
+						curl_setopt($ch, CURLOPT_HEADER, 0);
+						curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+						curl_setopt($ch, CURLOPT_FORBID_REUSE, true);
+						curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 1);
+						curl_setopt($ch, CURLOPT_DNS_CACHE_TIMEOUT, 10);
 						
-					$dt = new DateTime("now", new DateTimeZone('America/New_York'));  // convert UNIX timestamp to PHP DateTime
-					$time = $dt->format('d-m-Y H:i:s'); // output = 2017-01-01 00:00:00
-					$message->reply("$time EST");
+						curl_setopt($ch, CURLOPT_FRESH_CONNECT, true);
+						
+						curl_exec($ch);
+						curl_close($ch);
+							
+						$dt = new DateTime("now", new DateTimeZone('America/New_York'));  // convert UNIX timestamp to PHP DateTime
+						$time = $dt->format('d-m-Y H:i:s'); // output = 2017-01-01 00:00:00
+						$message->reply("$time EST");
+						return true;
+					});
 					return true;
-				});
-				return true;
-			}
-			if ($message_content_lower == 'load 2'){ //;load 2 
-				echo "[LOAD SLOT 2] $author_check" . PHP_EOL;
-				$message->react("👍");
-				$message->react("⏰")->then(function($author_channel) use ($message){	//Promise
-					//Trigger the php script remotely
-					$ch = curl_init(); //create curl resource
-					curl_setopt($ch, CURLOPT_URL, "http://10.0.0.18:81/civ13/loadmanual2.php"); // set url
-					curl_setopt($ch, CURLOPT_POST, true);
+					break;
+				case 'load 2': //;load 2 
+					echo "[LOAD SLOT 2] $author_check" . PHP_EOL;
+					$message->react("👍");
+					$message->react("⏰")->then(function($author_channel) use ($message){	//Promise
+						//Trigger the php script remotely
+						$ch = curl_init(); //create curl resource
+						curl_setopt($ch, CURLOPT_URL, "http://10.0.0.18:81/civ13/loadmanual2.php"); // set url
+						curl_setopt($ch, CURLOPT_POST, true);
+							
+						curl_setopt($ch, CURLOPT_USERAGENT, 'Palace Bot');
 						
-					curl_setopt($ch, CURLOPT_USERAGENT, 'Palace Bot');
-					
-					curl_setopt($ch, CURLOPT_TIMEOUT, 1); 
-					curl_setopt($ch, CURLOPT_HEADER, 0);
-					curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-					curl_setopt($ch, CURLOPT_FORBID_REUSE, true);
-					curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 1);
-					curl_setopt($ch, CURLOPT_DNS_CACHE_TIMEOUT, 10);
-					
-					curl_setopt($ch, CURLOPT_FRESH_CONNECT, true);
-					
-					curl_exec($ch);
-					curl_close($ch);
-					
-					$dt = new DateTime("now", new DateTimeZone('America/New_York'));  // convert UNIX timestamp to PHP DateTime
-					$time = $dt->format('d-m-Y H:i:s'); // output = 2017-01-01 00:00:00
-					$message->reply("$time EST");
+						curl_setopt($ch, CURLOPT_TIMEOUT, 1); 
+						curl_setopt($ch, CURLOPT_HEADER, 0);
+						curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+						curl_setopt($ch, CURLOPT_FORBID_REUSE, true);
+						curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 1);
+						curl_setopt($ch, CURLOPT_DNS_CACHE_TIMEOUT, 10);
+						
+						curl_setopt($ch, CURLOPT_FRESH_CONNECT, true);
+						
+						curl_exec($ch);
+						curl_close($ch);
+						
+						$dt = new DateTime("now", new DateTimeZone('America/New_York'));  // convert UNIX timestamp to PHP DateTime
+						$time = $dt->format('d-m-Y H:i:s'); // output = 2017-01-01 00:00:00
+						$message->reply("$time EST");
+						return true;
+					});
 					return true;
-				});
-				return true;
-			}
-			if ($message_content_lower == 'load 3'){ //;load 3
-				echo "[LOAD SLOT 3] $author_check" . PHP_EOL;
-				$message->react("👍");
-				$message->react("⏰")->then(function($author_channel) use ($message){	//Promise
-					//Trigger the php script remotely
-					$ch = curl_init(); //create curl resource
-					curl_setopt($ch, CURLOPT_URL, "http://10.0.0.18:81/civ13/loadmanual3.php"); // set url
-					curl_setopt($ch, CURLOPT_POST, true);
+					break;
+				case 'load 3': //;load 3
+					echo "[LOAD SLOT 3] $author_check" . PHP_EOL;
+					$message->react("👍");
+					$message->react("⏰")->then(function($author_channel) use ($message){	//Promise
+						//Trigger the php script remotely
+						$ch = curl_init(); //create curl resource
+						curl_setopt($ch, CURLOPT_URL, "http://10.0.0.18:81/civ13/loadmanual3.php"); // set url
+						curl_setopt($ch, CURLOPT_POST, true);
+							
+						curl_setopt($ch, CURLOPT_USERAGENT, 'Palace Bot');
 						
-					curl_setopt($ch, CURLOPT_USERAGENT, 'Palace Bot');
-					
-					curl_setopt($ch, CURLOPT_TIMEOUT, 1); 
-					curl_setopt($ch, CURLOPT_HEADER, 0);
-					curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-					curl_setopt($ch, CURLOPT_FORBID_REUSE, true);
-					curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 1);
-					curl_setopt($ch, CURLOPT_DNS_CACHE_TIMEOUT, 10);
-					
-					curl_setopt($ch, CURLOPT_FRESH_CONNECT, true);
-					
-					curl_exec($ch);
-					curl_close($ch);				
-					
-					$dt = new DateTime("now", new DateTimeZone('America/New_York'));  // convert UNIX timestamp to PHP DateTime
-					$time = $dt->format('d-m-Y H:i:s'); // output = 2017-01-01 00:00:00
-					$message->reply("$time EST");
+						curl_setopt($ch, CURLOPT_TIMEOUT, 1); 
+						curl_setopt($ch, CURLOPT_HEADER, 0);
+						curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+						curl_setopt($ch, CURLOPT_FORBID_REUSE, true);
+						curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 1);
+						curl_setopt($ch, CURLOPT_DNS_CACHE_TIMEOUT, 10);
+						
+						curl_setopt($ch, CURLOPT_FRESH_CONNECT, true);
+						
+						curl_exec($ch);
+						curl_close($ch);				
+						
+						$dt = new DateTime("now", new DateTimeZone('America/New_York'));  // convert UNIX timestamp to PHP DateTime
+						$time = $dt->format('d-m-Y H:i:s'); // output = 2017-01-01 00:00:00
+						$message->reply("$time EST");
+						return true;
+					});
 					return true;
-				});
-				return true;
-			}
-			if ($message_content_lower == 'load1h'){ //;load1h
-				echo "[LOAD 1H] $author_check" . PHP_EOL;
-				$message->react("👍");
-				$message->react("⏰")->then(function($author_channel) use ($message){	//Promise
-					//Trigger the php script remotely
-					$ch = curl_init(); //create curl resource
-					curl_setopt($ch, CURLOPT_URL, "http://10.0.0.18:81/civ13/load1h.php"); // set url
-					curl_setopt($ch, CURLOPT_POST, true);
+					break;
+				case 'load1h': //;load1h
+					echo "[LOAD 1H] $author_check" . PHP_EOL;
+					$message->react("👍");
+					$message->react("⏰")->then(function($author_channel) use ($message){	//Promise
+						//Trigger the php script remotely
+						$ch = curl_init(); //create curl resource
+						curl_setopt($ch, CURLOPT_URL, "http://10.0.0.18:81/civ13/load1h.php"); // set url
+						curl_setopt($ch, CURLOPT_POST, true);
+							
+						curl_setopt($ch, CURLOPT_USERAGENT, 'Palace Bot');
 						
-					curl_setopt($ch, CURLOPT_USERAGENT, 'Palace Bot');
-					
-					curl_setopt($ch, CURLOPT_TIMEOUT, 1); 
-					curl_setopt($ch, CURLOPT_HEADER, 0);
-					curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-					curl_setopt($ch, CURLOPT_FORBID_REUSE, true);
-					curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 1);
-					curl_setopt($ch, CURLOPT_DNS_CACHE_TIMEOUT, 10);
-					
-					curl_setopt($ch, CURLOPT_FRESH_CONNECT, true);
-					
-					curl_exec($ch);
-					curl_close($ch);
-					
-					$dt = new DateTime("now", new DateTimeZone('America/New_York'));  // convert UNIX timestamp to PHP DateTime
-					$time = $dt->format('d-m-Y H:i:s'); // output = 2017-01-01 00:00:00
-					$message->reply("$time EST");
+						curl_setopt($ch, CURLOPT_TIMEOUT, 1); 
+						curl_setopt($ch, CURLOPT_HEADER, 0);
+						curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+						curl_setopt($ch, CURLOPT_FORBID_REUSE, true);
+						curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 1);
+						curl_setopt($ch, CURLOPT_DNS_CACHE_TIMEOUT, 10);
+						
+						curl_setopt($ch, CURLOPT_FRESH_CONNECT, true);
+						
+						curl_exec($ch);
+						curl_close($ch);
+						
+						$dt = new DateTime("now", new DateTimeZone('America/New_York'));  // convert UNIX timestamp to PHP DateTime
+						$time = $dt->format('d-m-Y H:i:s'); // output = 2017-01-01 00:00:00
+						$message->reply("$time EST");
+						return true;
+					});
 					return true;
-				});
-				return true;
-			}
-			if ($message_content_lower == 'load2h'){ //;load2h
-				echo "[LOAD 2H] $author_check" . PHP_EOL;
-				$message->react("👍");
-				$message->react("⏰")->then(function($author_channel) use ($message){	//Promise
-					//Trigger the php script remotely
-					$ch = curl_init(); //create curl resource
-					curl_setopt($ch, CURLOPT_URL, "http://10.0.0.18:81/civ13/load2h.php"); // set url
-					curl_setopt($ch, CURLOPT_POST, true);
+					break;
+				case 'load2h': //;load2h
+					echo "[LOAD 2H] $author_check" . PHP_EOL;
+					$message->react("👍");
+					$message->react("⏰")->then(function($author_channel) use ($message){	//Promise
+						//Trigger the php script remotely
+						$ch = curl_init(); //create curl resource
+						curl_setopt($ch, CURLOPT_URL, "http://10.0.0.18:81/civ13/load2h.php"); // set url
+						curl_setopt($ch, CURLOPT_POST, true);
+							
+						curl_setopt($ch, CURLOPT_USERAGENT, 'Palace Bot');
 						
-					curl_setopt($ch, CURLOPT_USERAGENT, 'Palace Bot');
-					
-					curl_setopt($ch, CURLOPT_TIMEOUT, 1); 
-					curl_setopt($ch, CURLOPT_HEADER, 0);
-					curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-					curl_setopt($ch, CURLOPT_FORBID_REUSE, true);
-					curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 1);
-					curl_setopt($ch, CURLOPT_DNS_CACHE_TIMEOUT, 10);
-					
-					curl_setopt($ch, CURLOPT_FRESH_CONNECT, true);
-					
-					curl_exec($ch);
-					curl_close($ch);
-					
-					$dt = new DateTime("now", new DateTimeZone('America/New_York'));  // convert UNIX timestamp to PHP DateTime
-					$time = $dt->format('d-m-Y H:i:s'); // output = 2017-01-01 00:00:00
-					$message->reply("$time EST");
+						curl_setopt($ch, CURLOPT_TIMEOUT, 1); 
+						curl_setopt($ch, CURLOPT_HEADER, 0);
+						curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+						curl_setopt($ch, CURLOPT_FORBID_REUSE, true);
+						curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 1);
+						curl_setopt($ch, CURLOPT_DNS_CACHE_TIMEOUT, 10);
+						
+						curl_setopt($ch, CURLOPT_FRESH_CONNECT, true);
+						
+						curl_exec($ch);
+						curl_close($ch);
+						
+						$dt = new DateTime("now", new DateTimeZone('America/New_York'));  // convert UNIX timestamp to PHP DateTime
+						$time = $dt->format('d-m-Y H:i:s'); // output = 2017-01-01 00:00:00
+						$message->reply("$time EST");
+						return true;
+					});
 					return true;
-				});
-				return true;
-			}
-			if ( ($message_content_lower == 'host persistence') || ($message_content_lower == 'host pers') ){
-				echo "[HOST PERSISTENCE] $author_check" . PHP_EOL;
-				$message->react("⏰")->then(function($author_channel) use ($message){	//Promise
-					//Trigger the php script remotely
-					$ch = curl_init(); //create curl resource
-					curl_setopt($ch, CURLOPT_URL, "http://10.0.0.18:81/civ13/host.php"); // set url
-					curl_setopt($ch, CURLOPT_POST, true);
+					break;
+				case 'host persistence':
+				case 'host pers':
+					echo "[HOST PERSISTENCE] $author_check" . PHP_EOL;
+					$message->react("⏰")->then(function($author_channel) use ($message){	//Promise
+						//Trigger the php script remotely
+						$ch = curl_init(); //create curl resource
+						curl_setopt($ch, CURLOPT_URL, "http://10.0.0.18:81/civ13/host.php"); // set url
+						curl_setopt($ch, CURLOPT_POST, true);
+							
+						curl_setopt($ch, CURLOPT_USERAGENT, 'Palace Bot');
 						
-					curl_setopt($ch, CURLOPT_USERAGENT, 'Palace Bot');
-					
-					curl_setopt($ch, CURLOPT_TIMEOUT, 1); 
-					curl_setopt($ch, CURLOPT_HEADER, 0);
-					curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-					curl_setopt($ch, CURLOPT_FORBID_REUSE, true);
-					curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 1);
-					curl_setopt($ch, CURLOPT_DNS_CACHE_TIMEOUT, 10);
-					
-					curl_setopt($ch, CURLOPT_FRESH_CONNECT, true);
-					
-					curl_exec($ch);
-					curl_close($ch);
-					
+						curl_setopt($ch, CURLOPT_TIMEOUT, 1); 
+						curl_setopt($ch, CURLOPT_HEADER, 0);
+						curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+						curl_setopt($ch, CURLOPT_FORBID_REUSE, true);
+						curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 1);
+						curl_setopt($ch, CURLOPT_DNS_CACHE_TIMEOUT, 10);
+						
+						curl_setopt($ch, CURLOPT_FRESH_CONNECT, true);
+						
+						curl_exec($ch);
+						curl_close($ch);
+						
+						/*
+						$dt = new DateTime("now", new DateTimeZone('America/New_York'));  // convert UNIX timestamp to PHP DateTime
+						$time = $dt->format('d-m-Y H:i:s'); // output = 2017-01-01 00:00:00
+						$message->reply("$time EST");
+						*/
+						$message->react("👍");
+						return true;
+					});
+					return true;
+					break;
+				case 'kill persistence':
+				case 'kill pers':
+					echo "[HOST PERSISTENCE] $author_check" . PHP_EOL;
+					$message->react("⏰")->then(function($author_channel) use ($message){	//Promise
+						//Trigger the php script remotely
+						$ch = curl_init(); //create curl resource
+						curl_setopt($ch, CURLOPT_URL, "http://10.0.0.18:81/civ13/kill.php"); // set url
+						curl_setopt($ch, CURLOPT_POST, true);
+							
+						curl_setopt($ch, CURLOPT_USERAGENT, 'Palace Bot');
+						
+						curl_setopt($ch, CURLOPT_TIMEOUT, 1); 
+						curl_setopt($ch, CURLOPT_HEADER, 0);
+						curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+						curl_setopt($ch, CURLOPT_FORBID_REUSE, true);
+						curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 1);
+						curl_setopt($ch, CURLOPT_DNS_CACHE_TIMEOUT, 10);
+						
+						curl_setopt($ch, CURLOPT_FRESH_CONNECT, true);
+						
+						curl_exec($ch);
+						curl_close($ch);
+						/*
+						$dt = new DateTime("now", new DateTimeZone('America/New_York'));  // convert UNIX timestamp to PHP DateTime
+						$time = $dt->format('d-m-Y H:i:s'); // output = 2017-01-01 00:00:00
+						$message->reply("$time EST");
+						*/
+						$message->react("👍");
+						return true;
+					});
+					return true;
+					break;
+				case 'update persistence':
+				case 'update pers':
+					echo "[HOST PERSISTENCE] $author_check" . PHP_EOL;
 					/*
-					$dt = new DateTime("now", new DateTimeZone('America/New_York'));  // convert UNIX timestamp to PHP DateTime
-					$time = $dt->format('d-m-Y H:i:s'); // output = 2017-01-01 00:00:00
-					$message->reply("$time EST");
-					*/
-					$message->react("👍");
-					return true;
-				});
-				return true;
-			}
-			if ( ($message_content_lower == 'kill persistence') || ($message_content_lower == 'kill pers') ){
-				echo "[HOST PERSISTENCE] $author_check" . PHP_EOL;
-				$message->react("⏰")->then(function($author_channel) use ($message){	//Promise
-					//Trigger the php script remotely
-					$ch = curl_init(); //create curl resource
-					curl_setopt($ch, CURLOPT_URL, "http://10.0.0.18:81/civ13/kill.php"); // set url
-					curl_setopt($ch, CURLOPT_POST, true);
+					$message->react("⏰")->then(function($author_channel) use ($message){	//Promise
+						//Trigger the php script remotely
+						$ch = curl_init(); //create curl resource
+						curl_setopt($ch, CURLOPT_URL, "http://10.0.0.18:81/civ13/update.php"); // set url
+						curl_setopt($ch, CURLOPT_POST, true);
+							
+						curl_setopt($ch, CURLOPT_USERAGENT, 'Palace Bot');
 						
-					curl_setopt($ch, CURLOPT_USERAGENT, 'Palace Bot');
-					
-					curl_setopt($ch, CURLOPT_TIMEOUT, 1); 
-					curl_setopt($ch, CURLOPT_HEADER, 0);
-					curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-					curl_setopt($ch, CURLOPT_FORBID_REUSE, true);
-					curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 1);
-					curl_setopt($ch, CURLOPT_DNS_CACHE_TIMEOUT, 10);
-					
-					curl_setopt($ch, CURLOPT_FRESH_CONNECT, true);
-					
-					curl_exec($ch);
-					curl_close($ch);
-					/*
-					$dt = new DateTime("now", new DateTimeZone('America/New_York'));  // convert UNIX timestamp to PHP DateTime
-					$time = $dt->format('d-m-Y H:i:s'); // output = 2017-01-01 00:00:00
-					$message->reply("$time EST");
-					*/
-					$message->react("👍");
-					return true;
-				});
-				return true;
-			}
-			if ( ($message_content_lower == 'update persistence') || ($message_content_lower == 'update pers') ){
-				echo "[HOST PERSISTENCE] $author_check" . PHP_EOL;
-				/*
-				$message->react("⏰")->then(function($author_channel) use ($message){	//Promise
-					//Trigger the php script remotely
-					$ch = curl_init(); //create curl resource
-					curl_setopt($ch, CURLOPT_URL, "http://10.0.0.18:81/civ13/update.php"); // set url
-					curl_setopt($ch, CURLOPT_POST, true);
+						curl_setopt($ch, CURLOPT_TIMEOUT, 1); 
+						curl_setopt($ch, CURLOPT_HEADER, 0);
+						curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+						curl_setopt($ch, CURLOPT_FORBID_REUSE, true);
+						curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 1);
+						curl_setopt($ch, CURLOPT_DNS_CACHE_TIMEOUT, 10);
 						
-					curl_setopt($ch, CURLOPT_USERAGENT, 'Palace Bot');
-					
-					curl_setopt($ch, CURLOPT_TIMEOUT, 1); 
-					curl_setopt($ch, CURLOPT_HEADER, 0);
-					curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-					curl_setopt($ch, CURLOPT_FORBID_REUSE, true);
-					curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 1);
-					curl_setopt($ch, CURLOPT_DNS_CACHE_TIMEOUT, 10);
-					
-					curl_setopt($ch, CURLOPT_FRESH_CONNECT, true);
-					
-					curl_exec($ch);
-					curl_close($ch);
-					
-					$dt = new DateTime("now", new DateTimeZone('America/New_York'));  // convert UNIX timestamp to PHP DateTime
-					$time = $dt->format('d-m-Y H:i:s'); // output = 2017-01-01 00:00:00
-					$message->reply("$time EST");
-					
-					$message->react("👍");
+						curl_setopt($ch, CURLOPT_FRESH_CONNECT, true);
+						
+						curl_exec($ch);
+						curl_close($ch);
+						
+						$dt = new DateTime("now", new DateTimeZone('America/New_York'));  // convert UNIX timestamp to PHP DateTime
+						$time = $dt->format('d-m-Y H:i:s'); // output = 2017-01-01 00:00:00
+						$message->reply("$time EST");
+						
+						$message->react("👍");
+						return true;
+					});
+					*/
+					if($react) $message->react("👎");
 					return true;
-				});
-				*/
-				if($react) $message->react("👎");
-				return true;
+					break;
 			}
-			
 		}
 		if ($creator || $owner || $dev){
-			if ($message_content_lower == '?status'){ //;?status
-				include "../servers/getserverdata.php";
-				$debug = var_export($serverinfo, true);
-				if ($debug) $author_channel->send(urldecode($debug));
-				else $author_channel->send("No debug info found!");
-				return true;
-			}
-			if ($message_content_lower == 'pause'){ //;pause
-				//Trigger the php script remotely
-				$ch = curl_init(); //create curl resource
-				curl_setopt($ch, CURLOPT_URL, "http://10.0.0.18:81/civ13/pause.php"); // set url
-				curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1); //return the transfer as a string
-				curl_setopt($ch, CURLOPT_POST, true);
-				$message->reply(curl_exec($ch));
-				return true;
-			}
-			if ($message_content_lower == 'loadnew'){ //;loadnew
-				//Trigger the php script remotely
-				$ch = curl_init(); //create curl resource
-				curl_setopt($ch, CURLOPT_URL, "http://10.0.0.18:81/civ13/loadnew.php"); // set url
-				curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1); //return the transfer as a string
-				curl_setopt($ch, CURLOPT_POST, true);
-				$message->reply(curl_exec($ch));
-				return true;
-			}
-			if ($creator || $dev)
-				if ($message_content_lower == 'VM_restart'){ //;VM_restart
+			switch($message_content_lower){
+				case '?status': //;?status
+					include "../servers/getserverdata.php";
+					$debug = var_export($serverinfo, true);
+					if ($debug) $author_channel->send(urldecode($debug));
+					else $author_channel->send("No debug info found!");
+					return true;
+					break;
+				case 'pause': //;pause
+					//Trigger the php script remotely
+					$ch = curl_init(); //create curl resource
+					curl_setopt($ch, CURLOPT_URL, "http://10.0.0.18:81/civ13/pause.php"); // set url
+					curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1); //return the transfer as a string
+					curl_setopt($ch, CURLOPT_POST, true);
+					$message->reply(curl_exec($ch));
+					return true;
+					break;
+				case 'loadnew': //;loadnew
+					//Trigger the php script remotely
+					$ch = curl_init(); //create curl resource
+					curl_setopt($ch, CURLOPT_URL, "http://10.0.0.18:81/civ13/loadnew.php"); // set url
+					curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1); //return the transfer as a string
+					curl_setopt($ch, CURLOPT_POST, true);
+					$message->reply(curl_exec($ch));
+					return true;
+					break;
+				case 'VM_restart': //;VM_restart
+					if ( !($creator || $dev) ){
+						return true;
+						break;
+					}
 					//Trigger the php script remotely
 					$ch = curl_init(); //create curl resource
 					curl_setopt($ch, CURLOPT_URL, "http://10.0.0.18:81/civ13/VM_restart.php"); // set url
@@ -3981,8 +4004,8 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 					curl_setopt($ch, CURLOPT_POST, true);
 					$message->reply(curl_exec($ch));
 					return true;
-				}
-		}
+					break;
+			}		}
 	}
 	/*
 	if ($author_id == "352898973578690561"){ //magmacreeper
