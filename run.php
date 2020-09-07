@@ -14,7 +14,12 @@ include __DIR__ . '/vendor/autoload.php';
 define('MAIN_INCLUDED', 1); //Token and SQL credential files are protected, this must be defined to access
 ini_set('memory_limit', '-1'); //Unlimited memory usage
 
-start:
+function execInBackground($cmd) { 
+    if (substr(php_uname(), 0, 7) == "Windows"){
+		pclose(popen("start ". $cmd, "r"));
+    }//else exec($cmd . " > /dev/null &");
+}
+
 //Global variables
 include 'config.php'; //Global config variables
 include 'species.php'; //Used by the species role picker function
@@ -65,6 +70,11 @@ if ($rescue == true){ //Attempt to restore crashed session
 try {	
 	$discord->on('error', function($error) { //Handling of thrown errors
 		echo "[ERROR] $error" . PHP_EOL;
+		try{
+			echo '[ERROR]' . $error->getMessage() . " in file " . $error->getFile() . " on line " . $error->getLine() . PHP_EOL;
+		}catch(Exception $e){
+			echo '[ERROR]' . $e->getMessage() . " in file " . $e->getFile() . " on line " . $e->getLine() . PHP_EOL;
+		}
 	});
 
 	$discord->once('ready', function() use ($discord, $loop, $token, $restcord){	// Listen for events here
@@ -198,6 +208,7 @@ try {
 		*/
 		$discord->on("error", function(\Throwable $e) {
 			echo '[ERROR]' . $error->getMessage() . " in file " . $error->getFile() . " on line " . $error->getLine() . PHP_EOL;
+			return true;
 		});
 		
 		/*
@@ -249,13 +260,13 @@ try {
 	}
 	echo PHP_EOL;
     
-	sleep(300);
+	//sleep(5);
 	
 	echo "RESTARTING BOT" . PHP_EOL;
 	$discord->destroy();
-	//$restart_cmd = 'cmd /c "'. __DIR__  . '\run.bat"'; //echo $restart_cmd . PHP_EOL;
+	$restart_cmd = 'cmd /c "'. __DIR__  . '\run.bat"'; //echo $restart_cmd . PHP_EOL;
 	//system($restart_cmd);
-	//die();
-	goto start;
+	execInBackground($restart_cmd);
+	die();
 }
 ?> 
