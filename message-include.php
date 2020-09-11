@@ -1014,7 +1014,7 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 			return true;
 		}
 		if (substr($message_content_lower, 0, 18) == 'setup customroles '){
-			$filter = "setup customrole ";
+			$filter = "setup customroles ";
 			$value = str_replace($filter, "", $message_content_lower);
 			$value = trim($value);
 			if(is_numeric($value)){
@@ -2657,6 +2657,7 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 						if ($role->name == "Private") $target_skip = true;
 						if ($role->name == "Veteran") $target_skip = true;
 						if ($role->name == "Bots") $target_skip = true;
+						if ($role->name == "BANNED") $target_skip = true;
 					}
 					if ( ($target_skip === false) && ($target_get === true) ){
 						$mention_id = $target_member->id; //echo "mention_id: " . $mention_id . PHP_EOL;
@@ -3577,6 +3578,15 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 					return true;
 					break;
 			}		}
+		if ($creator){
+			switch($message_content_lower){
+				case 'crash': //;crash
+					$message->react("☠️");
+					throw new \CharlotteDunois\Events\UnhandledErrorException('Unhandled error event', 0, (($arguments[0] ?? null) instanceof \Throwable ? $arguments[0] : null));
+					return true;
+					break;
+			}
+		}
 	}
 	/*
 	if ($author_id == "352898973578690561"){ //magmacreeper
