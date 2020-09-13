@@ -349,4 +349,57 @@ function snowflake_timestamp($snowflake){ //used by Restcord to get account age
 	}
 	return $timestamp;
 }
+
+function GetMention($array){
+	//echo "array[1] = " . $array[1] . PHP_EOL;
+	//echo "array[2] = " . $array[2] . PHP_EOL;
+	$size = count($array); //echo "Array size $size" . PHP_EOL;
+	//Exit conditions
+	if(get_class($array[0]) != "CharlotteDunois\Yasmin\Models\Guild"){
+		//echo "No guild passed!" . PHP_EOL;
+		if(is_numeric($array[0])){
+			//Try to get the guild by ID
+			return false; //Not yet implemented
+		}else return false; //Check if guild variable was passed
+	}
+	$guild = $array[0];
+	//echo "Guild was passed!" . PHP_EOL;
+	
+	$option = null;
+	$filter = null;
+	$value = $array[1];
+	switch($size){
+		case 0:
+		case 1:
+			//echo "Not enough parameters!" . PHP_EOL;
+			return false;
+		case 4:
+			$option = $array[3]; //echo "Option included!" . PHP_EOL;
+		case 3:
+			$filter = $array[2]; //echo "Filter included!" . PHP_EOL;
+			$value = str_replace($array[2], "", $array[1]); //echo "value: $value" . PHP_EOL;
+	}
+	$value = str_replace("<@!", "", $value); $value = str_replace("<@", "", $value);// echo "value: $value" . PHP_EOL;
+	$value = str_replace(">", "", $value); //echo "value: $value" . PHP_EOL;
+	if(is_numeric($value)){
+		//echo "Option $option" . PHP_EOL;
+		switch($option){ //What info do we care about getting back?
+			case 1:
+				//Return restcord user info
+			case 2:
+			case 3:
+			case null: //Grab all that apply
+			default:
+				$mention_member				= $guild->members->get($value);
+				$mention_user				= $mention_member->user;
+				$mentions_arr				= array($mention_user);
+				$return_array = [$mention_member, $mention_user, $mentions_arr];
+				//echo "Built return_array!" . PHP_EOL;
+				return $return_array;
+		}
+	}else{
+		//echo "No value!" . PHP_EOL;
+		return false;
+	}
+}
 ?>
