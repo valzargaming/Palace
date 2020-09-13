@@ -4604,20 +4604,14 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 	if ($creator || $owner || $dev || $admin){
 		if (substr($message_content_lower, 0, 4) == 'ban '){ //;ban
 			echo "[BAN]" . PHP_EOL;
-		//			Get an array of people mentioned
-			$mentions_arr 												= $message->mentions->users; 									//echo "mentions_arr: " . PHP_EOL; var_dump ($mentions_arr); //Shows the collection object
-			if (!strpos($message_content_lower, "<")){ //String doesn't contain a mention
-				$filter = "ban ";
-				$value = str_replace($filter, "", $message_content_lower);
-				$value = str_replace("<@!", "", $value); $value = str_replace("<@", "", $value);
-				$value = str_replace(">", "", $value);//echo "value: " . $value . PHP_EOL;
-				if(is_numeric($value)){
-					$mention_member				= $author_guild->members->get($value);
-					$mention_user				= $mention_member->user;
-					$mentions_arr				= array($mention_user);
-				}else return $message->reply("Invalid input! Please enter a valid ID or @mention the user");
-				if ($mention_member == NULL) return $message->reply("Invalid input! Please enter an ID or @mention the user");
-			}
+			//Get an array of people mentioned
+			$mentions_arr 	= $message->mentions->users; 									//echo "mentions_arr: " . PHP_EOL; var_dump ($mentions_arr); //Shows the collection object
+			$GetMentionResult = GetMention([$author_guild, $message_content_lower, "ban "]);
+			if (!(is_array($GetMentionResult))) return $message->reply("Invalid input! Please enter a valid ID or @mention the user");
+			if ($GetMentionResult[1] == NULL) return $message->reply("User not found in the guild!");
+			$mention_user = GetMentionResult[0];
+			$mention_member = GetMentionResult[1];
+			$mentions_arr = $mentions_arr ?? GetMentionResult[2];
 			foreach ( $mentions_arr as $mention_param ){
 				$mention_param_encode 									= json_encode($mention_param); 									//echo "mention_param_encode: " . $mention_param_encode . PHP_EOL;
 				$mention_json 											= json_decode($mention_param_encode, true); 				//echo "mention_json: " . PHP_EOL; var_dump($mention_json);
