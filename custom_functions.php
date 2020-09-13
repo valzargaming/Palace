@@ -373,6 +373,12 @@ function GetMention($array){
 		case 1:
 			//echo "Not enough parameters!" . PHP_EOL;
 			return false;
+		case 5:
+			//Check if an instance of restcord
+			if(get_class($array[4]) == "RestCord\DiscordClient"){
+				//echo "Restcord included!" . PHP_EOL;
+				$restcord = &$array[4];
+			} else echo "Parameter isn't a valid instance of Restcord!" . PHP_EOL;
 		case 4:
 			$option = $array[3]; //echo "Option included!" . PHP_EOL;
 		case 3:
@@ -384,8 +390,21 @@ function GetMention($array){
 	if(is_numeric($value)){
 		//echo "Option $option" . PHP_EOL;
 		switch($option){ //What info do we care about getting back?
-			case 1:
-				//Return restcord user info
+			case 1: //Get user info from restcord
+				//Check if restcord was passed
+				if ($restcord){
+					try{
+						$restcord_user = $restcord->user->getUser(['user.id' => intval($value)]);
+					}catch (Throwable $e){
+						echo "[RESTCORD] Unable to locate user for ID $value" . PHP_EOL;
+						$restcord_user = false;
+					}
+				}
+				$mention_member				= $guild->members->get($value);
+				$mention_user				= $mention_member->user;
+				$mentions_arr				= array($mention_user);
+				$return_array = [$mention_member, $mention_user, $mentions_arr];
+				$return_array['restcord'] = $restcord_user;
 			case 2:
 			case 3:
 			case null: //Grab all that apply
@@ -394,6 +413,7 @@ function GetMention($array){
 				$mention_user				= $mention_member->user;
 				$mentions_arr				= array($mention_user);
 				$return_array = [$mention_member, $mention_user, $mentions_arr];
+				$return_array['restcord'] = false;
 				//echo "Built return_array!" . PHP_EOL;
 				return $return_array;
 		}
