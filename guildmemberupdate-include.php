@@ -26,7 +26,7 @@ $member_guild		= $member_new->guild;
 $new_user			= $member_new->user;
 $old_user			= $member_old->user;
 
-$user_folder		= "users/$member_id";
+$user_folder		= "\\users\\$member_id";
 CheckDir($user_folder);
 
 $guild_folder = "\\guilds\\$author_guild_id";
@@ -101,10 +101,14 @@ if ($old_tag != $new_tag){
 	
 	//Place user info in target's folder
 	$array = VarLoad($user_folder, "tags.php");
-	if (!in_array($old_tag, $array))
-		$array[] = $old_tag; 
-	if (!in_array($new_tag, $array)) $array[] = $new_tag;
-	VarSave($user_folder, "tags.php", $array);
+	if (!(is_array($array))) $array = array();
+	if ($old_tag != $new_tag){
+		if (!(in_array($old_tag, $array)))
+			$array[] = $old_tag; 
+		if (!(in_array($new_tag, $array)))
+			$array[] = $new_tag;
+		VarSave($user_folder, "tags.php", $array);
+	}
 }
 
 if ($old_avatar != $new_avatar){
@@ -114,9 +118,11 @@ if ($old_avatar != $new_avatar){
 	
 	//Place user info in target's folder
 	$array = VarLoad($user_folder, "avatars.php");
-	if (!in_array($old_avatar, $array))
+	if (!(is_array($array))) $array = array();
+	if (!(in_array($old_avatar, $array)))
 		$array[] = $old_avatar; 
-	if (!in_array($new_avatar, $array)) $array[] = $new_avatar;
+	if (!(in_array($new_avatar, $array)))
+		$array[] = $new_avatar;
 	VarSave($user_folder, "avatars.php", $array);
 }
 
@@ -128,12 +134,14 @@ if ($old_displayName != $new_displayName){
 	
 	//Place user info in target's folder
 	$array = VarLoad($user_folder, "nicknames.php");
-	if ($old_displayName && $array)
-	if (!in_array($old_displayName, $array))
-		$array[] = $old_displayName; 
-	if ($new_displayName && $array)
-	if (!in_array($new_displayName, $array))
-		$array[] = $new_displayName;
+	if (!(is_array($array))) $array = array();
+	if ($old_displayName != $new_displayName){
+		if (!(in_array($old_displayName, $array)))
+			$array[] = $old_displayName; 
+		if ($new_displayName && $array)
+		if (!(in_array($new_displayName, $array)))
+			$array[] = $new_displayName;
+	}
 	VarSave($user_folder, "nicknames.php", $array);
 }
 
