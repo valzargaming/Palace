@@ -4117,27 +4117,34 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 					$mention_createdAge = $mention_createdDateTime->diff($now)->days . " days";
 					
 					//Load history
-					$mention_folder = "users/$mention_id";
+					$mention_folder = "\\users\\$mention_id";
 					CheckDir($mention_folder);
-					$mention_nicknames_array = array_reverse(VarLoad($mention_folder, "nicknames.php"));
-					$x=0;
-					if ($mention_nicknames_array)
-					foreach ($mention_nicknames_array as $nickname){
-						if ($x<5)
-							$mention_nicknames = $mention_nicknames . $nickname . "\n";
-						$x++;
+					$mention_nicknames_array = VarLoad($mention_folder, "nicknames.php");
+					$mention_nicknames = "";
+					if(is_array($mention_nicknames_array)){
+						$mention_nicknames_array = array_reverse($mention_nicknames_array);
+						$x=0;
+						foreach ($mention_nicknames_array as $nickname){
+							if ($x<5)
+								$mention_nicknames = $mention_nicknames . $nickname . "\n";
+							$x++;
+						}
 					}
-					if ($mention_nicknames == NULL) $mention_nicknames = "No nicknames tracked";
+					if ($mention_nicknames == "") $mention_nicknames = "No nicknames tracked";
+					echo "mention_nicknames: " . $mention_nicknames . PHP_EOL;
 					
-					$mention_tags_array = array_reverse(VarLoad($mention_folder, "tags.php"));
-					$x=0;
-					if ($mention_tags_array)
-					foreach ($mention_tags_array as $tag){
-						if ($x<5)
-							$mention_tags = $mention_tags . $tag . "\n";
-						$x++;
+					$mention_tags_array = VarLoad($mention_folder, "tags.php");
+					$mention_tags = "";
+					if (is_array($mention_tags_array)){
+						$mention_tags_array = array_reverse($mention_tags_array);
+						$x=0;
+						foreach ($mention_tags_array as $tag){
+							if ($x<5)
+								$mention_tags = $mention_tags . $tag . "\n";
+							$x++;
+						}
 					}
-					if ($mention_tags == NULL) $mention_tags = "No tags tracked";
+					if ($mention_tags == "") $mention_tags = "No tags tracked";
 					 
 					$embed = new \CharlotteDunois\Yasmin\Models\MessageEmbed();
 					$embed
@@ -4201,27 +4208,33 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 						->setURL("");                             												// Set the URL
 					
 					//Load history
-					$mention_folder = "users/$value";
+					$mention_folder = "\\users\\$value";
 					CheckDir($mention_folder);
-					$mention_nicknames_array = array_reverse(VarLoad($mention_folder, "nicknames.php"));
-					$x=0;
-					if ($mention_nicknames_array)
-					foreach ($mention_nicknames_array as $nickname){
-						if ($x<5)
-							$mention_nicknames = $mention_nicknames . $nickname . "\n";
-						$x++;
-					}
-					if ($mention_nicknames == NULL) $mention_nicknames = "No nicknames tracked";
+					$mention_nicknames_array = VarLoad($mention_folder, "nicknames.php");
 					
-					$mention_tags_array = array_reverse(VarLoad($mention_folder, "tags.php"));
-					$x=0;
-					if ($mention_tags_array)
-					foreach ($mention_tags_array as $tag){
-						if ($x<5)
-							$mention_tags = $mention_tags . $tag . "\n";
-						$x++;
+					if(is_array($mention_nicknames_array)){
+						$mention_nicknames_array = array_reverse($mention_nicknames_array);
+						$x=0;
+						foreach ($mention_nicknames_array as $nickname){
+							if ($x<5)
+								$mention_nicknames = $mention_nicknames . $nickname . "\n";
+							$x++;
+						}
 					}
-					if ($mention_tags == NULL) $mention_tags = "No tags tracked";
+					if ($mention_nicknames == "") $mention_nicknames = "No nicknames tracked";
+					
+					$mention_tags = "";
+					$mention_tags_array = VarLoad($mention_folder, "tags.php");
+					$x=0;
+					if (is_array($mention_tags_array)){
+						$mention_tags_array = array_reverse($mention_tags_array);
+						foreach ($mention_tags_array as $tag){
+							if ($x<5)
+								$mention_tags = $mention_tags . $tag . "\n";
+							$x++;
+						}
+					}
+					if ($mention_tags == "") $mention_tags = "No tags tracked";
 					
 					$embed->addField("Tag history (last 5)", "`$mention_tags`");
 					$embed->addField("Nickname history (last 5)", "`$mention_nicknames`");
