@@ -66,7 +66,8 @@ if ($rescue == true){ //Attempt to restore crashed session
 	VarSave("_globals", "rescue.php", false);
 	echo "[RESCUE DONE]" . PHP_EOL;
 }
-
+$dt = new DateTime("now"); // convert UNIX timestamp to PHP DateTime
+echo "[LOGIN] " . $dt->format('d-m-Y H:i:s') . PHP_EOL; // output = 2017-01-01 00:00:00
 try {	
 	$discord->on('error', function($error) { //Handling of thrown errors
 		echo "[ERROR] $error" . PHP_EOL;
@@ -78,7 +79,6 @@ try {
 	});
 
 	$discord->once('ready', function() use ($discord, $loop, $token, $restcord){	// Listen for events here
-		echo "[SETUP]" . PHP_EOL;
 		//$line_count = COUNT(FILE(basename($_SERVER['PHP_SELF']))); //No longer relevant due to includes
 		$version = "RC V1.4.1";
 		
@@ -103,10 +103,8 @@ try {
 		$GLOBALS['id'] = $discord->user->id;
 		$tag = $discord->user->tag;
 		echo "[READY] Logged in as $tag (" . $GLOBALS['id'] . ") created on " . $discord->user->createdAt->format('d.m.Y H:i:s') . PHP_EOL;
-		$timestampSetup = time();
-		echo "[timestampSetup]: ";
-		$dt = new DateTime("now"); // convert UNIX timestamp to PHP DateTime
-		echo $dt->format('d-m-Y H:i:s') . PHP_EOL; // output = 2017-01-01 00:00:00
+		$dt = new DateTime("now");  // convert UNIX timestamp to PHP DateTime
+		echo "[READY TIMESTAMP] " . $dt->format('d-m-Y H:i:s') . PHP_EOL; // output = 2017-01-01 00:00:00
 		
 		$discord->on('message', function($message) use ($discord, $loop, $token, $restcord){ //Handling of a message
 			include "message-include.php";
@@ -207,7 +205,7 @@ try {
 		});
 		*/
 		$discord->on("error", function(\Throwable $e) {
-			echo '[ERROR]' . $error->getMessage() . " in file " . $error->getFile() . " on line " . $error->getLine() . PHP_EOL;
+			echo '[ERROR]' . $e->getMessage() . " in file " . $e->getFile() . " on line " . $e->getLine() . PHP_EOL;
 			return true;
 		});
 		
