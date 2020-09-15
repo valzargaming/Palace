@@ -44,7 +44,7 @@ $embed = new \CharlotteDunois\Yasmin\Models\MessageEmbed();
 $embed
 //	->setTitle("Commands")																	// Set a title
 	->setColor("e1452d")																	// Set a color (the thing on the left side)
-	->setDescription("$author_guild_name"))																// Set a description (below title, above fields)
+	->setDescription("$author_guild_name")																// Set a description (below title, above fields)
 	->addField("Banned", "<@$author_id>")																// New line after this
 	
 	->setThumbnail("$author_avatar")														// Set a thumbnail (the image in the top right corner)
