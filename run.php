@@ -16,6 +16,7 @@ ini_set('memory_limit', '-1'); //Unlimited memory usage
 
 function execInBackground($cmd) { 
     if (substr(php_uname(), 0, 7) == "Windows"){
+		//pclose(popen("start /B ". $cmd, "r"));
 		pclose(popen("start ". $cmd, "r"));
     }//else exec($cmd . " > /dev/null &");
 }
@@ -81,7 +82,7 @@ try {
 	$discord->once('ready', function() use ($discord, $loop, $token, $restcord){	// Listen for events here
 		//$line_count = COUNT(FILE(basename($_SERVER['PHP_SELF']))); //No longer relevant due to includes
 		$version = "RC V1.4.1";
-		
+		/*
 		$discord->user->setPresence( //Discord status
 			array(
 				'since' => null, //unix time (in milliseconds) of when the client went idle, or null if the client is not idle
@@ -90,16 +91,17 @@ try {
 				'name' => $version,
 				'type' => 3, //0, 1, 2, 3, 4 | Game/Playing, Streaming, Listening, Watching, Custom Status
 				'url' => null //stream url, is validated when type is 1, only Youtube and Twitch allowed
-				/*
-				Bots are only able to send name, type, and optionally url.
-				As bots cannot send states or emojis, they can't make effective use of custom statuses.
-				The header for a "Custom Status" may show up on their profile, but there is no actual custom status, because those fields are ignored.
-				*/
+				
+				//Bots are only able to send name, type, and optionally url.
+				//As bots cannot send states or emojis, they can't make effective use of custom statuses.
+				//The header for a "Custom Status" may show up on their profile, but there is no actual custom status, because those fields are ignored.
+				
 				),
 				'status' => 'dnd', //online, dnd, idle, invisible, offline
 				'afk' => false
 			)
 		);
+		*/
 		$GLOBALS['id'] = $discord->user->id;
 		$tag = $discord->user->tag;
 		echo "[READY] Logged in as $tag (" . $GLOBALS['id'] . ") created on " . $discord->user->createdAt->format('d.m.Y H:i:s') . PHP_EOL;
@@ -199,21 +201,23 @@ try {
 			echo "[voiceStateUpdate]" . PHP_EOL;
 		});
 		
-		/*
-		$discord->on('error', function ($error){ //Handling of thrown errors
-			echo "[ERROR] $error" . PHP_EOL;
-		});
-		*/
 		$discord->on("error", function(\Throwable $e) {
 			echo '[ERROR]' . $e->getMessage() . " in file " . $e->getFile() . " on line " . $e->getLine() . PHP_EOL;
 			return true;
 		});
 		
-		/*
+		
 		$discord->wsmanager()->on('debug', function ($debug) {
-			echo "[WS DEBUG] $debug" . PHP_EOL;
+			switch ($debug){
+				case "Shard 0 received WS packet with OP code 0":
+				case "Shard 0 handling WS event PRESENCE_UPDATE":
+					break;
+				default:
+					echo "[WS DEBUG] $debug" . PHP_EOL;
+			}
+			
 		});
-		*/
+		
 		
 	}); //end main function ready
 
