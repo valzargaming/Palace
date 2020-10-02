@@ -1124,9 +1124,9 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 			//Strikeout invalid options
 			if ( ($role_muted_id === NULL) || ($role_muted_id == "") || ($role_muted_id == "0") ) $documentation = $documentation . "~~"; //Strikeout invalid options
 			//whois
-			$documentation = $documentation . "`whois @mention` displays known information about a user\n";
+			$documentation = $documentation . "`whois` displays known information about a user\n";
 			//lookup
-			$documentation = $documentation . "`lookup @mention` retrieves a username#discriminator using either a discord id or mention\n";
+			$documentation = $documentation . "`lookup` retrieves a username#discriminator using either a discord id or mention\n";
 			
 		}
 		if($vanity){
@@ -2599,7 +2599,7 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 						}
 					}
 				}
-				$message->react("👍");
+				if($react) $message->react("👍");
 				echo count($GLOBALS["UNREGISTERED"]) . " UNREGISTERED ACCOUNTS" . PHP_EOL;
 				echo "[GET UNREGISTERED DONE]" . PHP_EOL;
 				return true;
@@ -2636,9 +2636,9 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 						}
 					}
 				});
-				$message->react("👍");
+				if($react) $message->react("👍");
 			}else{
-				$message->react("👎");
+				if($react) $message->react("👎");
 			}
 			echo "[CHECK UNREGISTERED DONE]" . PHP_EOL;
 			return true;
@@ -2664,7 +2664,7 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 						$GLOBALS["UNVERIFIED"][] = $mention_id;
 					}
 				}
-				$message->react("👍");
+				if($react) $message->react("👍");
 				echo count($GLOBALS["UNVERIFIED"]) . " UNVERIFIED ACCOUNTS" . PHP_EOL;
 				echo "[GET UNVERIFIED DONE]" . PHP_EOL;
 				return true;
@@ -2684,8 +2684,8 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 						//echo "UNVERIFIED ID: $target_id" . PHP_EOL;
 						if ($target_id){
 							echo "PURGING $target_id" . PHP_EOL;
-							$target_guild = $discord->guilds->resolve($author_guild_id); echo "target_guild: " . get_class($target_guild) . PHP_EOL;
-							$target_member = $target_guild->members->get($target_id); echo "target_member: " . get_class($target_member) . PHP_EOL;
+							$target_guild = $discord->guilds->resolve($author_guild_id); //echo "target_guild: " . get_class($target_guild) . PHP_EOL;
+							$target_member = $target_guild->members->get($target_id); //echo "target_member: " . get_class($target_member) . PHP_EOL;
 							$target_member->kick("unverified purge");
 							$GLOBALS["UNVERIFIED_X"] = $GLOBALS["UNVERIFIED_X"] + 1;
 							return true;
@@ -2699,9 +2699,9 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 						}
 					}
 				});
-				$message->react("👍");
+				if($react) $message->react("👍");
 			}else{
-				$message->react("👎");
+				if($react) $message->react("👎");
 			}
 			echo "[PURGE UNVERIFIED DONE]" . PHP_EOL;
 			return true;
@@ -3136,10 +3136,10 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 					echo "[SAVE SLOT 1] $author_check" .  PHP_EOL;
 					$manual_saving = VarLoad(NULL, "manual_saving.php");
 					if ($manual_saving == true){
-						$message->react("👎");
+						if($react) $message->react("👎");
 						$message->reply("A manual save is already in progress!");
 					}else{
-						$message->react("👍");
+						if($react) $message->react("👍");
 						VarSave(NULL, "manual_saving.php", true);
 						$message->react("⏰")->then(function($author_channel) use ($message){	//Promise
 							//Trigger the php script remotely
@@ -3175,10 +3175,10 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 					echo "[SAVE SLOT 2] $author_check" .  PHP_EOL;
 					$manual_saving = VarLoad(NULL, "manual_saving.php");
 					if ($manual_saving == true){
-						$message->react("👎");
+						if($react) $message->react("👎");
 						$message->reply("A manual save is already in progress!");
 					}else{
-						$message->react("👍");
+						if($react) $message->react("👍");
 						VarSave(NULL, "manual_saving.php", true);
 						$message->react("⏰")->then(function($author_channel) use ($message){	//Promise
 							//Trigger the php script remotely
@@ -3213,10 +3213,10 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 					echo "[SAVE SLOT 3] $author_check" .  PHP_EOL;
 					$manual_saving = VarLoad(NULL, "manual_saving.php");
 					if ($manual_saving == true){
-						$message->react("👎");
+						if($react) $message->react("👎");
 						$message->reply("A manual save is already in progress!");
 					}else{
-						$message->react("👍");
+						if($react) $message->react("👍");
 						VarSave(NULL, "manual_saving.php", true);
 						$message->react("⏰")->then(function($author_channel) use ($message){	//Promise
 							//Trigger the php script remotely
@@ -3253,7 +3253,7 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 						break;
 					}
 					echo "[DELETE SLOT 1] $author_check" . PHP_EOL;
-					$message->react("👍");
+					if($react) $message->react("👍");
 					$message->react("⏰")->then(function($author_channel) use ($message){	//Promise
 						//Trigger the php script remotely
 						$ch = curl_init(); //create curl resource
@@ -3287,7 +3287,7 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 			switch($message_content_lower){
 				case 'load 1': //;load 1
 					echo "[LOAD SLOT 1] $author_check" . PHP_EOL;
-					$message->react("👍");
+					if($react) $message->react("👍");
 					$message->react("⏰")->then(function($author_channel) use ($message){	//Promise
 						//Trigger the php script remotely
 						$ch = curl_init(); //create curl resource
@@ -3317,7 +3317,7 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 					break;
 				case 'load 2': //;load 2 
 					echo "[LOAD SLOT 2] $author_check" . PHP_EOL;
-					$message->react("👍");
+					if($react) $message->react("👍");
 					$message->react("⏰")->then(function($author_channel) use ($message){	//Promise
 						//Trigger the php script remotely
 						$ch = curl_init(); //create curl resource
@@ -3347,7 +3347,7 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 					break;
 				case 'load 3': //;load 3
 					echo "[LOAD SLOT 3] $author_check" . PHP_EOL;
-					$message->react("👍");
+					if($react) $message->react("👍");
 					$message->react("⏰")->then(function($author_channel) use ($message){	//Promise
 						//Trigger the php script remotely
 						$ch = curl_init(); //create curl resource
@@ -3377,7 +3377,7 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 					break;
 				case 'load1h': //;load1h
 					echo "[LOAD 1H] $author_check" . PHP_EOL;
-					$message->react("👍");
+					if($react) $message->react("👍");
 					$message->react("⏰")->then(function($author_channel) use ($message){	//Promise
 						//Trigger the php script remotely
 						$ch = curl_init(); //create curl resource
@@ -3407,7 +3407,7 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 					break;
 				case 'load2h': //;load2h
 					echo "[LOAD 2H] $author_check" . PHP_EOL;
-					$message->react("👍");
+					if($react) $message->react("👍");
 					$message->react("⏰")->then(function($author_channel) use ($message){	//Promise
 						//Trigger the php script remotely
 						$ch = curl_init(); //create curl resource
@@ -3463,7 +3463,7 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 						$time = $dt->format('d-m-Y H:i:s'); // output = 2017-01-01 00:00:00
 						$message->reply("$time EST");
 						*/
-						$message->react("👍");
+						if($react) $message->react("👍");
 						return true;
 					});
 					return true;
@@ -3495,7 +3495,7 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 						$time = $dt->format('d-m-Y H:i:s'); // output = 2017-01-01 00:00:00
 						$message->reply("$time EST");
 						*/
-						$message->react("👍");
+						if($react) $message->react("👍");
 						return true;
 					});
 					return true;
@@ -3528,7 +3528,7 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 						$time = $dt->format('d-m-Y H:i:s'); // output = 2017-01-01 00:00:00
 						$message->reply("$time EST");
 						
-						$message->react("👍");
+						if($react) $message->react("👍");
 						return true;
 					});
 					*/
@@ -3581,7 +3581,7 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 		if ($creator){
 			switch($message_content_lower){
 				case 'crash': //;crash
-					$message->react("☠️");
+					if($react) $message->react("☠️");
 					throw new \CharlotteDunois\Events\UnhandledErrorException('Unhandled error event', 0, (($arguments[0] ?? null) instanceof \Throwable ? $arguments[0] : null));
 					return true;
 					break;
@@ -3627,9 +3627,9 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 					try{
 						$restcord->guild->removeGuildMember(['guild.id' => intval($author_guild_id), 'user.id' => intval($GetMentionResult['restcord_user']->id)]);
 						echo "[RESTCORD KICK DONE]" . PHP_EOL;
-						$message->react("🥾");
+						if($react) $message->react("🥾");
 					}catch (Throwable $e){
-						$message->react("👎");
+						if($react) $message->react("👎");
 						echo "[RESTCORD] Unable to kick user!" . PHP_EOL;
 					}
 				} else return $message->reply("User not found in the guild!");
@@ -4044,15 +4044,13 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 		}
 		if (substr($message_content_lower, 0, 5) == 'poll '){ //;poll
 			echo "[POLL] $author_check" . PHP_EOL;
+			$arr = explode(" ", $message_content);
+			$duration = $arr[1];
 			$filter = "poll ";
 			$poll = str_replace($filter, "", $message_content);
-			$arr = explode(' ',trim($poll));
-			$duration = $arr[0];
 			$poll = str_replace($duration, "", $poll);
-			echo $poll . PHP_EOL;
-			echo $duration . PHP_EOL;
 			if( ($poll != "" && $poll != NULL) && is_numeric($duration) ){
-				$author_channel->send("**VOTE TIME! ($duration seconds)**\n`$poll`")->then(function($message) use ($discord, $author_channel, $duration){
+				$author_channel->send("**VOTE TIME! ($duration seconds)**\n`".trim($poll)."`")->then(function($message) use ($discord, $author_channel, $duration){
 					$message->react("👍");
 					$message->react("👎");
 					$discord->addTimer($duration, function() use ($message, $author_channel) {
@@ -4094,7 +4092,7 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 			$value = str_replace(">", "", $value);
 			$value = trim($value);
 			if(is_numeric($value)){
-				$mention_member				= $author_guild->members->get($value);
+				$mention_member	= $author_guild->members->get($value);
 				if ($mention_member != NULL){ //$message->reply("Invalid input! Please enter an ID or @mention the user");
 					$mention_user				= $mention_member->user;
 					
@@ -4103,9 +4101,9 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 					$mention_nickname			= $mention_member->displayName;
 					$mention_avatar 			= $mention_user->getAvatarURL();
 					
-					$mention_joined				= $mention_member->joinedAt;
+					$mention_joined				= $mention_member->joinedAt; 
 					$mention_joinedTimestamp	= $mention_member->joinedTimestamp;
-					$mention_joinedDate			= date("D M j H:i:s Y", $mention_joinedTimestamp);
+					$mention_joinedDate			= date("D M j H:i:s Y", $mention_joinedTimestamp); //echo "Joined Server: " . $mention_joinedDate . PHP_EOL;
 					$mention_joinedDateTime		= new DateTime('@' . $mention_joinedTimestamp);
 					
 					$mention_created			= $mention_user->createdAt;
@@ -4131,7 +4129,7 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 						}
 					}
 					if ($mention_nicknames == "") $mention_nicknames = "No nicknames tracked";
-					echo "mention_nicknames: " . $mention_nicknames . PHP_EOL;
+					//echo "mention_nicknames: " . $mention_nicknames . PHP_EOL;
 					
 					$mention_tags_array = VarLoad($mention_folder, "tags.php");
 					$mention_tags = "";
@@ -4504,7 +4502,7 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 	//		Get an array of people mentioned
 			$mentions_arr 												= $message->mentions->users; 									//echo "mentions_arr: " . PHP_EOL; var_dump ($mentions_arr); //Shows the collection object
 			if ($modlog_channel)	$mention_warn_name_mention_default		= "<@$author_id>";
-			$mention_warn_queue_default									= $mention_warn_name_mention_default."warned the following users:" . PHP_EOL;
+			$mention_warn_queue_default									= $mention_warn_name_mention_default." warned the following users:" . PHP_EOL;
 			$mention_warn_queue_full 									= "";
 			
 			foreach ( $mentions_arr as $mention_param ){																				//echo "mention_param: " . PHP_EOL; var_dump ($mention_param);
@@ -4519,7 +4517,7 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 	//			Build the string to log
 				$filter = "warn <@!$mention_id>";
 				$warndate = date("m/d/Y");
-				$mention_warn_queue 									= "**$mention_check warned $author_check on $warndate for reason: **" . str_replace($filter, "", $message_content);
+				$mention_warn_queue 									= "**$mention_check was warned by $author_check on $warndate for reason: **" . str_replace($filter, "", $message_content);
 				
 	//			Place warn info in target's folder
 				$infractions = VarLoad($guild_folder."/".$mention_id, "infractions.php");
@@ -4530,7 +4528,7 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 	//		Send a message
 			if ($mention_warn_queue != ""){
 				if ($watch_channel)$watch_channel->send($mention_warn_queue_default . $mention_warn_queue_full . PHP_EOL);
-				else $message->reply($mention_warn_queue_default . $mention_warn_queue_full . PHP_EOL);
+				else $message->channel->send($mention_warn_queue_default . $mention_warn_queue_full . PHP_EOL);
 	//			React to the original message
 	//			if($react) $message->react("👀");
 				if($react) $message->react("👁");		
@@ -4635,9 +4633,9 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 					echo "[RESTCORD BAN]" . PHP_EOL;
 					try{
 						$restcord->guild->createGuildBan(['guild.id' => intval($author_guild_id), 'user.id' => intval($GetMentionResult['restcord_user']->id), 'delete-message-days?' => intval(0), 'reason?' => strval('null')]); //This seems to be failing no matter what
-						$message->react("🔨");
+						if($react) $message->react("🔨");
 					}catch (Throwable $e){
-						$message->react("👎");
+						if($react) $message->react("👎");
 						echo "[RESTCORD] Unable to ban user!" . PHP_EOL;
 					}
 				} else return $message->reply("User not found in the guild!");
