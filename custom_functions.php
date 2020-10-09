@@ -369,10 +369,6 @@ function GetMention($array){
 	$filter = null;
 	$value = $array[1];
 	switch($size){
-		case 0:
-		case 1:
-			//echo "Not enough parameters!" . PHP_EOL;
-			return false;
 		case 5:
 			//Check if an instance of restcord
 			if(get_class($array[4]) == "RestCord\DiscordClient"){
@@ -384,6 +380,13 @@ function GetMention($array){
 		case 3:
 			$filter = $array[2]; //echo "Filter included!" . PHP_EOL;
 			$value = str_replace($array[2], "", $array[1]); //echo "value: $value" . PHP_EOL;
+		case 2:
+			break;
+		case 0:
+		case 1:
+		default:
+			//echo "Unexpected amount of parameters!" . PHP_EOL;
+			return false;
 	}
 	$value = str_replace("<@!", "", $value); $value = str_replace("<@", "", $value);// echo "value: $value" . PHP_EOL;
 	$value = str_replace(">", "", $value); //echo "value: $value" . PHP_EOL;
@@ -395,16 +398,20 @@ function GetMention($array){
 				if ($restcord){
 					try{
 						$restcord_user = $restcord->user->getUser(['user.id' => intval($value)]);
+						$restcord_user_found = true;
 					}catch (Throwable $e){
 						echo "[RESTCORD] Unable to locate user for ID $value" . PHP_EOL;
 						$restcord_user = false;
+						$restcord_user_found = false;
 					}
 				}
 				$mention_member				= $guild->members->get($value);
 				$mention_user				= $mention_member->user;
 				$mentions_arr				= array($mention_user);
 				$return_array = [$mention_member, $mention_user, $mentions_arr];
-				$return_array['restcord'] = $restcord_user;
+				$return_array['restcord_user'] = $restcord_user ?? false;
+				$return_array['restcord_user_found'] = $restcord_user_found ?? false;
+				return $return_array;
 			case 2:
 			case 3:
 			case null: //Grab all that apply
@@ -413,7 +420,8 @@ function GetMention($array){
 				$mention_user				= $mention_member->user;
 				$mentions_arr				= array($mention_user);
 				$return_array = [$mention_member, $mention_user, $mentions_arr];
-				$return_array['restcord'] = false;
+				$return_array['restcord_user'] = false;
+				$return_array['restcord_user_found'] = false;
 				//echo "Built return_array!" . PHP_EOL;
 				return $return_array;
 		}
@@ -421,5 +429,49 @@ function GetMention($array){
 		//echo "No value!" . PHP_EOL;
 		return false;
 	}
+}
+
+
+function appendImages($array){ //Requires the Imagick PHP extension
+	if(!(is_array($array))){
+		return false;
+	}
+	if (empty($array)){
+		return false;
+	}
+	
+	/* Create new imagick object */
+	$img = new Imagick();
+	foreach ($array as $url) {
+		/* retrieve image content */
+		$webimage = file_get_contents($url);
+		$img->readImageBlob($webimage);
+	}
+	/* Append the images into one */
+	$img->resetIterator();
+	$combined = $img->appendImages(true);
+	/* Output the image */
+	$combined->setImageFormat("png");
+	
+	/* Define pathing */
+	$cache_folder = "C:/WinNMP/WWW/vzg.project/cache/";
+	$img_rand = rand(0, 99999999999) . "cachedimage.png"; //Some big number to make the URLs unique because Discord caches image links
+	$path =  $cache_folder . $img_rand;
+	
+	/* Delete old images before creating the new one */
+	$files = glob($cache_folder . "*"); //Get all file names
+	foreach($files as $file){
+	  if(is_file($file))
+		unlink($file); //Delete file
+	}
+	clearstatcache();
+		
+	/* Save the file */
+	$combined->writeImage($path);
+	//imagepng($combined, $path); //Only works for resources, but imagick is an object
+	
+	/* Return the URL where the image can be accessed by Discord */
+	$webpath = "http://www.valzargaming.com/cache/" . $img_rand;
+	return $webpath;
 }
 ?>
