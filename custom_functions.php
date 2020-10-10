@@ -359,8 +359,12 @@ function GetMention($array){
 		//echo "No guild passed!" . PHP_EOL;
 		if(is_numeric($array[0])){
 			//Try to get the guild by ID
+			echo "Guild not found when searching by by ID!" . PHP_EOL;
 			return false; //Not yet implemented
-		}else return false; //Check if guild variable was passed
+		}else{
+			echo "No guild variable passed!" . PHP_EOL;
+			return false; //Check if guild variable was passed
+		}
 	}
 	$guild = $array[0];
 	//echo "Guild was passed!" . PHP_EOL;
@@ -374,65 +378,84 @@ function GetMention($array){
 			if(get_class($array[4]) == "RestCord\DiscordClient"){
 				//echo "Restcord included!" . PHP_EOL;
 				$restcord = &$array[4];
-			} else echo "Parameter isn't a valid instance of Restcord!" . PHP_EOL;
+			}else echo "Parameter isn't a valid instance of Restcord!" . PHP_EOL;
 		case 4:
-			$option = $array[3]; //echo "Option included!" . PHP_EOL;
+			if(is_numeric($array[3])){
+				$option = $array[3]; //echo "Option included!" . PHP_EOL;
+			}
 		case 3:
-			$filter = $array[2]; //echo "Filter included!" . PHP_EOL;
-			$value = str_replace($array[2], "", $array[1]); //echo "value: $value" . PHP_EOL;
+			$filter = $array[2];
+			if($filter){
+				//echo "Filter included!" . PHP_EOL;
+				$value = str_replace($filter, "", $array[1]); //echo "value: $value" . PHP_EOL;
+			}
 		case 2:
 			break;
 		case 0:
 		case 1:
 		default:
-			//echo "Unexpected amount of parameters!" . PHP_EOL;
+			echo "Unexpected amount of parameters!" . PHP_EOL;
 			return false;
 	}
-	$value = str_replace("<@!", "", $value); $value = str_replace("<@", "", $value);// echo "value: $value" . PHP_EOL;
-	$value = str_replace(">", "", $value); //echo "value: $value" . PHP_EOL;
-	if(is_numeric($value)){
+	
+	//Explode the string into an array
+	$linesplit = explode(" ", $value);
+	//Check each part of the string for a mention
+	$id_array = array();
+	foreach($linesplit as $line){
+		$line = str_replace("<@!", "", $line); $line = str_replace("<@", "", $line); // echo "line: $line" . PHP_EOL;
+		$line = str_replace(">", "", $line); //echo "line: $line" . PHP_EOL;
+		if(is_numeric($line)) //Add each ID to an array
+			if (!(in_array($line, $id_array))) //Don't add duplicates
+				$id_array[] = $line;
+	}
+	
+	if (empty($id_array)){
+		echo "ID array empty!" . PHP_EOL;
+		return false;
+	}
+	
+	$return_array = array();
+	foreach($id_array as $id){
 		//echo "Option $option" . PHP_EOL;
 		switch($option){ //What info do we care about getting back?
 			case 1: //Get user info from restcord
-				//Check if restcord was passed
 				if ($restcord){
 					try{
-						$restcord_user = $restcord->user->getUser(['user.id' => intval($value)]);
+						$restcord_user = $restcord->user->getUser(['user.id' => intval($id)]);
 						$restcord_user_found = true;
 					}catch (Throwable $e){
-						echo "[RESTCORD] Unable to locate user for ID $value" . PHP_EOL;
+						echo "[RESTCORD] Unable to locate user for ID $id" . PHP_EOL;
 						$restcord_user = false;
 						$restcord_user_found = false;
 					}
 				}
-				$mention_member				= $guild->members->get($value);
-				$mention_user				= $mention_member->user;
-				$mentions_arr				= array($mention_user);
-				$return_array = [$mention_member, $mention_user, $mentions_arr];
-				$return_array['restcord_user'] = $restcord_user ?? false;
-				$return_array['restcord_user_found'] = $restcord_user_found ?? false;
-				return $return_array;
+				$mention_member	= $guild->members->get($id);
+				$mention_user = $mention_member->user;
+				$return_array[$id]['mention_member'] = $mention_member;
+				$return_array[$id]['mention_user'] = $mention_user;
+				$return_array[$id]['restcord_user'] = $restcord_user ?? false;
+				$return_array[$id]['restcord_user_found'] = $restcord_user_found ?? false;
+				break;
 			case 2:
 			case 3:
 			case null: //Grab all that apply
 			default:
-				$mention_member				= $guild->members->get($value);
-				$mention_user				= $mention_member->user;
-				$mentions_arr				= array($mention_user);
-				$return_array = [$mention_member, $mention_user, $mentions_arr];
-				$return_array['restcord_user'] = false;
-				$return_array['restcord_user_found'] = false;
+				$mention_member	= $guild->members->get($id);
+				$mention_user = $mention_member->user;
+				$return_array[$id]['mention_member'] = $mention_member;
+				$return_array[$id]['mention_user'] = $mention_user;
+				$return_array[$id]['restcord_user'] = false;
+				$return_array[$id]['restcord_user_found'] = false;
 				//echo "Built return_array!" . PHP_EOL;
-				return $return_array;
+				break;
 		}
-	}else{
-		//echo "No value!" . PHP_EOL;
-		return false;
 	}
+	return $return_array;
 }
 
 
-function appendImages($array){ //Requires the Imagick PHP extension
+function appendImages($array){
 	if(!(is_array($array))){
 		return false;
 	}
