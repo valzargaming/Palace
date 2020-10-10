@@ -399,12 +399,13 @@ function GetMention($array){
 	}
 	
 	//Explode the string into an array
+	
+	$value = str_replace("<@!", "", $value); $value = str_replace("<@", "", $value); // echo "line: $line" . PHP_EOL;
+	$value = str_replace(">", "", $value); //echo "line: $line" . PHP_EOL;
 	$linesplit = explode(" ", $value);
 	//Check each part of the string for a mention
 	$id_array = array();
 	foreach($linesplit as $line){
-		$line = str_replace("<@!", "", $line); $line = str_replace("<@", "", $line); // echo "line: $line" . PHP_EOL;
-		$line = str_replace(">", "", $line); //echo "line: $line" . PHP_EOL;
 		if(is_numeric($line)) //Add each ID to an array
 			if (!(in_array($line, $id_array))) //Don't add duplicates
 				$id_array[] = $line;
@@ -416,7 +417,9 @@ function GetMention($array){
 	}
 	
 	$return_array = array();
+	$clean_string = $value;
 	foreach($id_array as $id){
+		$clean_string = str_replace($id, "", $clean_string);
 		//echo "Option $option" . PHP_EOL;
 		switch($option){ //What info do we care about getting back?
 			case 1: //Get user info from restcord
@@ -451,6 +454,7 @@ function GetMention($array){
 				break;
 		}
 	}
+	$return_array['string']['string'] = trim($clean_string) ?? false;
 	return $return_array;
 }
 
