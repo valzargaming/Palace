@@ -2414,29 +2414,23 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 		}
 		if ( substr($message_content_lower, 0, 7) == 'mention'){
 			//Get an array of people mentioned
-			$GetMentionResult = GetMention([&$author_guild, $message_content_lower, null, 1, &$restcord]);
+			$GetMentionResult = GetMention([&$author_guild, substr($message_content_lower, 8, strlen($message_content_lower)), null, 1, &$restcord]);
 			if ($GetMentionResult === false ) return $message->reply("Invalid input! Please enter a valid ID or @mention the user");
 			
 			$output_string = "Mentions IDs: ";
 			$keys = array_keys($GetMentionResult);
 			for($i = 0; $i < count($GetMentionResult); $i++) {
-				$output_string = $output_string . " " . $keys[$i];
-				foreach($GetMentionResult[$keys[$i]] as $key => $value) {
-					//
+				if (is_numeric($keys[$i])){
+					$output_string = $output_string . " " . $keys[$i];
+				}else{
+					foreach($GetMentionResult[$keys[$i]] as $key => $value) {
+						$clean_string = $value;
+					}
 				}
 			}
+			$output_string = $output_string  . PHP_EOL . "Clean string: " . $clean_string;
 			$author_channel->send($output_string);
 			
-			/*
-			if ($GetMentionResult[1] == NULL){
-				echo "GetMentionResult['restcord_user']: "; //echo PHP_EOL; print_r($GetMentionResult['restcord_user']); echo PHP_EOL;
-				if ($GetMentionResult['restcord_user_found'] === true){
-					echo "[RESTCORD DEBUG]" . PHP_EOL;
-					if($react) $message->react("🔨");
-				} else return $message->reply("User not found in the guild!");
-				return $message->reply("User not found in the guild!");
-			}
-			*/
 		}
 		if ($message_content_lower == 'genimage'){
 			include "imagecreate_include.php"; //Generates $img_output_path
@@ -4660,10 +4654,24 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 			echo "[BAN]" . PHP_EOL;
 			//Get an array of people mentioned
 			$mentions_arr 	= $message->mentions->users; //echo "mentions_arr: " . PHP_EOL; var_dump ($mentions_arr); //Shows the collection object
-			$GetMentionResult = GetMention([&$author_guild, $message_content_lower, "ban ", 1, &$restcord]);
-			if (!(is_array($GetMentionResult))) return $message->reply("Invalid input! Please enter a valid ID or @mention the user");
+			
+			$GetMentionResult = GetMention([&$author_guild,  substr($message_content_lower, 4, strlen($message_content_lower)), null, 1, &$restcord]);
+			if ($GetMentionResult === false ) return $message->reply("Invalid input! Please enter a valid ID or @mention the user");
+			$mention_id_array = array();
+			$reason_text = null;
+			$keys = array_keys($GetMentionResult);
+			for($i = 0; $i < count($GetMentionResult); $i++) {
+				if (is_numeric($keys[$i])){
+					$mention_id_array[] = $keys[$i];
+				}else{
+					foreach($GetMentionResult[$keys[$i]] as $key => $value) {
+						$reason_text = $value ?? "None";
+					}
+				}
+			}
+			
+			/*
 			if ($GetMentionResult[1] == NULL){
-				echo "GetMentionResult['restcord_user']: "; //echo PHP_EOL; print_r($GetMentionResult['restcord_user']); echo PHP_EOL;
 				if ($GetMentionResult['restcord_user_found'] === true){
 					echo "[RESTCORD BAN]" . PHP_EOL;
 					try{
@@ -4676,6 +4684,7 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 				} else return $message->reply("User not found in the guild!");
 				return $message->reply("User not found in the guild!");
 			}
+			*/
 			$mention_user = GetMentionResult[0];
 			$mention_member = GetMentionResult[1];
 			$mentions_arr = $mentions_arr ?? GetMentionResult[2];
@@ -4722,9 +4731,9 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 						//Build the string to log
 						$filter = "ban <@!$mention_id>";
 						$warndate = date("m/d/Y");
-						$reason = "**🥾Banned:** <@$mention_id>
+						$reason = "**User:** <@$mention_id>
 						**🗓️Date:** $warndate
-						**📝Reason:** " . str_replace($filter, "", $message_content);
+						**📝Reason:** $reason_text";
 						//Ban the user and clear 1 days worth of messages
 						$target_guildmember->ban("1", $reason)->done(null, function ($error){
 							echo "[ERROR] $error".PHP_EOL; //Echo any errors
