@@ -2412,6 +2412,32 @@ if(substr($message_content_lower, 0, 1) == $command_symbol){
 			file_put_contents('debug.txt', $debug_output);
 			ob_end_flush();
 		}
+		if ( substr($message_content_lower, 0, 7) == 'mention'){
+			//Get an array of people mentioned
+			$GetMentionResult = GetMention([&$author_guild, $message_content_lower, null, 1, &$restcord]);
+			if ($GetMentionResult === false ) return $message->reply("Invalid input! Please enter a valid ID or @mention the user");
+			
+			$output_string = "Mentions IDs: ";
+			$keys = array_keys($GetMentionResult);
+			for($i = 0; $i < count($GetMentionResult); $i++) {
+				$output_string = $output_string . " " . $keys[$i];
+				foreach($GetMentionResult[$keys[$i]] as $key => $value) {
+					//
+				}
+			}
+			$author_channel->send($output_string);
+			
+			/*
+			if ($GetMentionResult[1] == NULL){
+				echo "GetMentionResult['restcord_user']: "; //echo PHP_EOL; print_r($GetMentionResult['restcord_user']); echo PHP_EOL;
+				if ($GetMentionResult['restcord_user_found'] === true){
+					echo "[RESTCORD DEBUG]" . PHP_EOL;
+					if($react) $message->react("🔨");
+				} else return $message->reply("User not found in the guild!");
+				return $message->reply("User not found in the guild!");
+			}
+			*/
+		}
 		if ($message_content_lower == 'genimage'){
 			include "imagecreate_include.php"; //Generates $img_output_path
 			$image_path = "http://www.valzargaming.com/discord%20-%20palace/" . $img_output_path;
